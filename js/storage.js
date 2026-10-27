@@ -1,13 +1,13 @@
 /**
- * OBOS-ligaen Lagring & Synkronisering
+ * OBOS-ligaen Lagring & Synkronisering (v2)
  * Håndterer localStorage, JSON eksport/import og Google Sheets integrasjon
  */
 
 const STORAGE_KEYS = {
-  TIPS: 'ranheim_obos_tips_v1',
-  FASIT: 'ranheim_obos_fasit_v1',
-  AUTH: 'ranheim_obos_auth_token_v1',
-  ACTIVE_SYSTEM: 'ranheim_obos_scoring_system_v1'
+  TIPS: 'ranheim_obos_tips_v2',
+  FASIT: 'ranheim_obos_fasit_v2',
+  AUTH: 'ranheim_obos_auth_token_v2',
+  ACTIVE_SYSTEM: 'ranheim_obos_scoring_system_v2'
 };
 
 const StorageManager = {
@@ -69,9 +69,7 @@ const StorageManager = {
       }
     }
 
-    // Hvis ikke funnet eller ny
     if (!savedTip) {
-      // Sjekk om samme navn finnes fra før for å tilby overskriving
       const existingByNameIndex = tips.findIndex(t => t.author.toLowerCase() === cleanAuthor.toLowerCase());
       if (existingByNameIndex !== -1) {
         tips[existingByNameIndex] = {
@@ -94,7 +92,6 @@ const StorageManager = {
 
     localStorage.setItem(STORAGE_KEYS.TIPS, JSON.stringify(tips));
 
-    // Prøv sky-synk i bakgrunnen hvis konfigurert
     this.pushTipToCloud(savedTip).catch(err => {
       console.warn('Sky-synk feilet (bruker lokal lagring):', err);
     });
@@ -153,7 +150,6 @@ const StorageManager = {
     }
     localStorage.setItem(STORAGE_KEYS.FASIT, JSON.stringify(fasitTable));
 
-    // Sky-synk av fasit
     this.pushFasitToCloud(fasitTable).catch(err => {
       console.warn('Sky-synk av fasit feilet:', err);
     });
@@ -196,7 +192,7 @@ const StorageManager = {
    */
   exportToJson() {
     const backupData = {
-      version: '1.0',
+      version: '2.0',
       exportedAt: new Date().toISOString(),
       community: (window.CONFIG && window.CONFIG.COMMUNITY_NAME) || 'Ranheim Kraft',
       fasit: this.getFasit(),
@@ -207,7 +203,7 @@ const StorageManager = {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `ranheim-tabelltips-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `tabelltips-backup-${new Date().toISOString().slice(0, 10)}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -300,7 +296,6 @@ const StorageManager = {
   }
 };
 
-// Initialiser ved lasting
 StorageManager.init();
 
 if (typeof module !== 'undefined' && module.exports) {

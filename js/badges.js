@@ -1,73 +1,58 @@
 /**
- * OBOS-ligaen Morsomme Merkelapper (Badges)
- * Beregner automatiske hedersbetegnelser og roast-merker på deltakerne
+ * OBOS-ligaen Utmerkelser (Badges)
+ * Analyserer deltakernes tips og tildeler sportsutmerkelser
  */
 
 const BADGE_DEFINITIONS = {
-  SYNSK: {
-    id: 'synsk',
-    label: '🔮 Synsk',
-    description: 'Flest eksakte innertiere (🎯) i gjengen!',
-    colorClass: 'bg-purple-900/60 text-purple-300 border-purple-500/50'
+  FULLTREFFER: {
+    id: 'fulltreffer',
+    label: '🎯 Flest Fulltreffere',
+    description: 'Flest eksakte plasseringer i gruppen',
+    colorClass: 'bg-emerald-950/70 text-emerald-300 border-emerald-500/60'
   },
   PATRIOT: {
     id: 'patriot',
-    label: '💙 Ekte Ranheim-patriot',
-    description: 'Har tippet Ranheim TF høyest på tabellen!',
-    colorClass: 'bg-blue-900/60 text-blue-200 border-blue-400/50'
+    label: '💙 Ranheim-tro',
+    description: 'Har tippet Ranheim TF høyest på tabellen',
+    colorClass: 'bg-sky-950/70 text-sky-200 border-sky-400/60'
   },
-  SKIVEBOM: {
-    id: 'skivebom',
-    label: '💀 Største skivebom',
-    description: 'Har gjengens mest katastrofale enkelt-bom på ett lag!',
-    colorClass: 'bg-rose-950/70 text-rose-300 border-rose-500/50'
+  RISIKO: {
+    id: 'risiko',
+    label: '⚡ Høyeste Risiko',
+    description: 'Har det største enkeltavviket på ett lag',
+    colorClass: 'bg-amber-950/70 text-amber-300 border-amber-500/60'
   },
-  STABIL: {
-    id: 'stabil',
-    label: '⚖️ Mr. Stabilitet',
-    description: 'Gjengens minste totalavvik fra virkeligheten!',
-    colorClass: 'bg-emerald-950/60 text-emerald-300 border-emerald-500/50'
-  },
-  OPTIMIST: {
-    id: 'optimist',
-    label: '🚀 Vill Optimist',
-    description: 'Har tippet et bunnlag helt opp i toppen!',
-    colorClass: 'bg-amber-950/60 text-amber-300 border-amber-500/50'
+  PRESIS: {
+    id: 'presis',
+    label: '⚖️ Mest Presis',
+    description: 'Lavest totalt avvik fra gjeldende fasit',
+    colorClass: 'bg-indigo-950/70 text-indigo-300 border-indigo-500/60'
   }
 };
 
 /**
- * Analyser hele deltakerlisten og tildel badges
- * @param {Array<Object>} evaluatedList - Liste over evaluerte deltakere
- * @param {Array<string>} fasitTable - Nåværende fasittabell
+ * Analyser deltakerlisten og tildel utmerkelser
  */
 function assignBadges(evaluatedList, fasitTable) {
   if (!evaluatedList || evaluatedList.length === 0) return evaluatedList;
 
-  // 1. Finn maks innertiere (må ha minst 1 for å bli synsk)
   const maxExact = Math.max(...evaluatedList.map(p => p.exactHits || 0));
-  
-  // 2. Finn høyeste plassering tippet for Ranheim (1 er høyest)
   const bestRanheimPos = Math.min(...evaluatedList.map(p => p.ranheimPredictedPos || 16));
-
-  // 3. Finn største enkelt-avvik i gjengen
   const worstSingleDiff = Math.max(...evaluatedList.map(p => p.maxSingleDiff || 0));
-
-  // 4. Finn minste totalavvik (mest stabil)
   const minTotalDiff = Math.min(...evaluatedList.map(p => p.totalDiff));
 
   return evaluatedList.map(participant => {
     const badges = [];
 
-    // 🔮 Synsk: Hvis deltakeren har flest innertiere (og minst 1)
+    // Fulltreffere
     if (maxExact > 0 && participant.exactHits === maxExact) {
       badges.push({
-        ...BADGE_DEFINITIONS.SYNSK,
+        ...BADGE_DEFINITIONS.FULLTREFFER,
         detail: `${participant.exactHits} treff`
       });
     }
 
-    // 💙 Ekte Ranheim-patriot: Tippet Ranheim høyest (og innen topp 3)
+    // Ranheim-tro
     if (participant.ranheimPredictedPos === bestRanheimPos && bestRanheimPos <= 4) {
       badges.push({
         ...BADGE_DEFINITIONS.PATRIOT,
@@ -75,19 +60,19 @@ function assignBadges(evaluatedList, fasitTable) {
       });
     }
 
-    // 💀 Største skivebom: Har det største enkelt-avviket (minst 5 plasser bom)
+    // Høy risiko
     if (worstSingleDiff >= 5 && participant.maxSingleDiff === worstSingleDiff) {
       badges.push({
-        ...BADGE_DEFINITIONS.SKIVEBOM,
-        detail: `${participant.maxSingleDiff} plasser feil!`
+        ...BADGE_DEFINITIONS.RISIKO,
+        detail: `${participant.maxSingleDiff} pl. avvik`
       });
     }
 
-    // ⚖️ Mr. Stabilitet: Lavest totalavvik
+    // Mest presis
     if (participant.totalDiff === minTotalDiff && evaluatedList.length > 2) {
       badges.push({
-        ...BADGE_DEFINITIONS.STABIL,
-        detail: `Kun ${participant.totalDiff} pl. avvik`
+        ...BADGE_DEFINITIONS.PRESIS,
+        detail: `${participant.totalDiff} pl. totalt`
       });
     }
 

@@ -10,9 +10,9 @@
   let currentPredictionTable = [];
   let currentEditingTipId = null;
   let activeSystem = 'innertier';
-  let activeRoundIndex = 0; // Standard 0 = før seriestart
+  let activeRoundIndex = 0;
   let isSeasonLocked = false;
-  let mockLockState = null; // null = bruk config/dato, true = tvunget låst, false = tvunget åpen
+  let mockLockState = null;
   let countdownTimerInterval = null;
   let sortablePrediction = null;
   let sortableFasit = null;
@@ -85,7 +85,7 @@
     syncNowBtn: document.getElementById('syncNowBtn'),
     cloudStatusText: document.getElementById('cloudStatusText'),
 
-    // Modal 1: Tippe-røntgen
+    // Modal 1: Detaljert Tipsanalyse
     xrayModal: document.getElementById('xrayModal'),
     xrayAuthorName: document.getElementById('xrayAuthorName'),
     xraySummarySubtitle: document.getElementById('xraySummarySubtitle'),
@@ -112,7 +112,6 @@
   function checkAccess() {
     const configCode = (window.CONFIG && window.CONFIG.ACCESS_CODE) || 'ranheim1901';
 
-    // Sjekk URL-parameter (?kode=... eller ?pin=...)
     const urlParams = new URLSearchParams(window.location.search);
     const codeInUrl = urlParams.get('kode') || urlParams.get('code') || urlParams.get('pin');
 
@@ -173,7 +172,6 @@
      ========================================================================== */
 
   function updateLockdownState() {
-    // Sjekk om mockup-overstyring er aktiv
     const configOverride = window.CONFIG && window.CONFIG.LOCKDOWN_OVERRIDE;
     let override = mockLockState;
     if (override === null && configOverride && configOverride !== 'auto') {
@@ -191,7 +189,6 @@
       isSeasonLocked = (diff <= 0);
     }
 
-    // Oppdater UI
     if (isSeasonLocked) {
       dom.deadlineStatusPill.className =
         'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 bg-rose-950 text-rose-300 border border-rose-700/60';
@@ -224,7 +221,6 @@
       }
     }
 
-    // Oppdater nedtellingsur
     if (diff > 0 && !isSeasonLocked) {
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -249,13 +245,12 @@
     countdownTimerInterval = setInterval(updateLockdownState, 1000);
   }
 
-  // Mockup hurtigbryter for å teste åpen/låst
   dom.toggleMockLockBtn.addEventListener('click', () => {
     mockLockState = !isSeasonLocked;
     updateLockdownState();
     alert(isSeasonLocked 
-      ? '🔒 Mockup-test: Simulerer at LIGAEN ER I GANG (Tipping er sperret og skrivebeskyttet).' 
-      : '🟢 Mockup-test: Simulerer FØR SERIESTART (Tipping er åpen for redigering).'
+      ? '🔒 Test-modus: Simulerer at LIGAEN ER I GANG (Tipping er sperret).' 
+      : '🟢 Test-modus: Simulerer FØR SERIESTART (Tipping er åpen for innsending).'
     );
   });
 
@@ -284,9 +279,9 @@
   function updateCloudStatusUI() {
     const url = window.CONFIG && window.CONFIG.GOOGLE_SCRIPT_URL;
     if (url && url.startsWith('https://')) {
-      dom.cloudStatusText.innerHTML = `🟢 Google Sheets sky-synk er aktiv! Felles sanntidstabell er tilkoblet.`;
+      dom.cloudStatusText.innerHTML = `🟢 Google Sheets sky-synk er aktiv! Felles tabell er tilkoblet.`;
     } else {
-      dom.cloudStatusText.innerHTML = `Lokal lagring (localStorage). For felles sky-synking på ranheimkraft.no, legg inn Apps Script URL i <code class="text-cyan-300">js/config.js</code>.`;
+      dom.cloudStatusText.innerHTML = `Lokal lagring (localStorage). For felles regneark, legg inn Apps Script URL i <code class="text-cyan-300">js/config.js</code>.`;
     }
   }
 
@@ -381,8 +376,8 @@
             ${position}
           </div>
 
-          <!-- Klubb fargebånd -->
-          <div class="w-1.5 h-7 rounded-full flex-shrink-0" style="background-color: ${team.primaryColor}; box-shadow: 0 0 8px ${team.primaryColor}80;"></div>
+          <!-- Offisiell klubblogo -->
+          <img src="${team.logoUrl}" alt="${team.name}" class="w-7 h-7 object-contain flex-shrink-0 drop-shadow" onerror="this.style.display='none'">
 
           <!-- Navn & detaljer -->
           <div class="min-w-0 flex-1">
@@ -450,7 +445,6 @@
     });
   }
 
-  // Velg eksisterende tips for visning / redigering
   dom.existingTipSelect.addEventListener('change', (e) => {
     const tipId = e.target.value;
     if (!tipId) {
@@ -470,10 +464,9 @@
     }
   });
 
-  // Lagre tabelltips
   dom.saveTipBtn.addEventListener('click', () => {
     if (isSeasonLocked) {
-      alert('🔒 Tipping er stengt for sesongen! Ligaen er i gang.');
+      alert('Tipping er stengt for sesongen. Ligaen er i gang!');
       return;
     }
 
@@ -493,7 +486,7 @@
         window.confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
       }
 
-      alert(`🎉 Tabelltips for "${author}" ble lagret! Du kan nå sjekke stillingen på Resultattavlen.`);
+      alert(`Tabelltips for "${author}" ble lagret! Sjekk stillingen på Resultattavlen.`);
       switchTab('leaderboard');
     } catch (err) {
       alert('Feil ved lagring: ' + err.message);
@@ -536,7 +529,7 @@
     if (tips.length === 0) {
       dom.podiumContainer.innerHTML = `
         <div class="text-center py-8 text-slate-500 font-bold">
-          Ingen tabelltips lagret ennå. Vær den første til å legge inn et tips i fane 1!
+          Ingen tabelltips lagret ennå.
         </div>
       `;
       dom.leaderboardTableBody.innerHTML = `
@@ -607,7 +600,7 @@
               <div class="text-4xl mb-1 crown-anim">👑</div>
               <div class="text-sm sm:text-base font-black text-amber-200 truncate">${p1.author}</div>
               <div class="text-xl sm:text-2xl font-black text-amber-400 mt-1">${p1.score} <span class="text-xs font-normal text-amber-200/80">${meta.unit}</span></div>
-              <div class="text-xs text-amber-300 font-bold mt-0.5">🎯 ${p1.exactHits} innertiere</div>
+              <div class="text-xs text-amber-300 font-bold mt-0.5">🎯 ${p1.exactHits} treff</div>
               <div class="mt-2 h-5 flex justify-center">${getBadgePill(p1)}</div>
             </div>
             <div class="w-full h-26 sm:h-32 podium-pedestal-1 rounded-t-2xl flex items-center justify-center font-black text-2xl text-amber-400">
@@ -691,7 +684,7 @@
         </td>
         <td class="py-3 px-4 text-right">
           <button class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 rounded-xl text-xs font-black border border-slate-700">
-            🔍 Røntgen
+            Analyse
           </button>
         </td>
       `;
@@ -740,13 +733,8 @@
     const tips = StorageManager.getTips();
     const currentFasit = getActiveStandings();
 
-    // 1. Folkets Tabell (Konsensus)
     renderConsensusTable(tips, currentFasit);
-
-    // 2. Head-to-Head (H2H) duellvelgere
     setupH2HSelectors(tips, currentFasit);
-
-    // 3. Ranheim TF Tro & Patriotisme
     renderRanheimBeliefReport(tips);
   }
 
@@ -756,7 +744,7 @@
     dom.consensusListContainer.innerHTML = '';
 
     if (consensus.length === 0) {
-      dom.consensusListContainer.innerHTML = `<div class="text-slate-500 py-4 text-center">Ingen tips registrert ennå.</div>`;
+      dom.consensusListContainer.innerHTML = `<div class="text-slate-500 py-4 text-center">Ingen tips registrert.</div>`;
       return;
     }
 
@@ -768,11 +756,11 @@
       let diffBadge = '';
 
       if (diff > 0.5) {
-        diffBadge = `<span class="text-[10px] font-black text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-700/50">▲ Overpresterer (+${Math.round(diff)})</span>`;
+        diffBadge = `<span class="text-[10px] font-black text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-700/50">▲ +${Math.round(diff)} pl</span>`;
       } else if (diff < -0.5) {
-        diffBadge = `<span class="text-[10px] font-black text-rose-400 bg-rose-950/60 px-2 py-0.5 rounded border border-rose-700/50">▼ Skuffer (${Math.round(diff)})</span>`;
+        diffBadge = `<span class="text-[10px] font-black text-rose-400 bg-rose-950/60 px-2 py-0.5 rounded border border-rose-700/50">▼ ${Math.round(diff)} pl</span>`;
       } else {
-        diffBadge = `<span class="text-[10px] font-bold text-slate-400 bg-slate-900 px-2 py-0.5 rounded">Som forventet</span>`;
+        diffBadge = `<span class="text-[10px] font-bold text-slate-400 bg-slate-900 px-2 py-0.5 rounded">0</span>`;
       }
 
       const row = document.createElement('div');
@@ -783,7 +771,7 @@
       row.innerHTML = `
         <div class="flex items-center gap-2.5 min-w-0">
           <span class="w-5 text-center font-black text-xs text-slate-400">${item.consensusRank}</span>
-          <div class="w-1.5 h-5 rounded-full" style="background-color: ${team.primaryColor};"></div>
+          <img src="${team.logoUrl}" alt="${team.name}" class="w-5 h-5 object-contain flex-shrink-0" onerror="this.style.display='none'">
           <span class="font-extrabold truncate ${team.isRanheim ? 'text-cyan-300' : 'text-white'}">
             ${team.name}
           </span>
@@ -805,7 +793,7 @@
   function setupH2HSelectors(tips, fasit) {
     if (!window.StatsEngine || tips.length < 2) {
       dom.h2hComparisonContainer.innerHTML = `
-        <div class="text-slate-500 py-4 text-center text-xs">Må ha minst 2 deltakere for å kjøre H2H-duell.</div>
+        <div class="text-slate-500 py-4 text-center text-xs">Må ha minst 2 deltakere for å kjøre innbyrdes duell.</div>
       `;
       return;
     }
@@ -845,18 +833,18 @@
       if (!h2h) return;
 
       dom.h2hComparisonContainer.innerHTML = `
-        <div class="cyber-panel rounded-2xl p-4 border border-rose-500/30 space-y-4">
+        <div class="cyber-panel rounded-2xl p-4 border border-cyan-500/30 space-y-4">
           <div class="flex items-center justify-between text-center">
             
             <div class="flex-1">
               <div class="text-xs sm:text-sm font-black text-white truncate">${h2h.userA.author}</div>
               <div class="text-xl sm:text-2xl font-black text-cyan-300 mt-1">${h2h.userA.score}p</div>
               <div class="text-[11px] text-slate-400">🎯 ${h2h.userA.exactHits} treff</div>
-              <div class="text-[10px] text-slate-500 mt-0.5">Ranheim på ${h2h.userA.ranheimPos}.</div>
+              <div class="text-[10px] text-slate-500 mt-0.5">Ranheim på ${h2h.userA.ranheimPos}. plass</div>
             </div>
 
             <div class="px-3 flex flex-col items-center">
-              <span class="text-xs font-black px-2 py-0.5 rounded-full bg-rose-950 text-rose-300 border border-rose-700/60">VS</span>
+              <span class="text-xs font-black px-2.5 py-0.5 rounded-full bg-slate-800 text-cyan-300 border border-cyan-700/60">VS</span>
               <span class="text-[10px] text-slate-500 mt-1 font-bold">${h2h.identicalPositions}/16 like</span>
             </div>
 
@@ -864,7 +852,7 @@
               <div class="text-xs sm:text-sm font-black text-white truncate">${h2h.userB.author}</div>
               <div class="text-xl sm:text-2xl font-black text-indigo-300 mt-1">${h2h.userB.score}p</div>
               <div class="text-[11px] text-slate-400">🎯 ${h2h.userB.exactHits} treff</div>
-              <div class="text-[10px] text-slate-500 mt-0.5">Ranheim på ${h2h.userB.ranheimPos}.</div>
+              <div class="text-[10px] text-slate-500 mt-0.5">Ranheim på ${h2h.userB.ranheimPos}. plass</div>
             </div>
 
           </div>
@@ -892,27 +880,27 @@
 
     dom.ranheimBeliefContainer.innerHTML = `
       <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-white/5 text-center">
-        <div class="text-[10px] font-black uppercase text-cyan-400 tracking-wider">Mest Patriotisk 💙</div>
+        <div class="text-[10px] font-black uppercase text-cyan-400 tracking-wider">Høyest Tippet 💙</div>
         <div class="text-sm font-black text-white mt-1">${report.highest.author}</div>
-        <div class="text-xs text-cyan-300 font-bold mt-0.5">Tippet Ranheim på ${report.highest.predictedPos}. plass!</div>
+        <div class="text-xs text-cyan-300 font-bold mt-0.5">${report.highest.predictedPos}. plass</div>
       </div>
 
       <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-white/5 text-center">
-        <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Gjennomsnittlig Tro</div>
+        <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Gjennomsnittlig Plassering</div>
         <div class="text-xl font-black text-white mt-1">${report.avgPos}. plass</div>
-        <div class="text-xs text-slate-400 mt-0.5">Kollektiv tro i gjengen</div>
+        <div class="text-xs text-slate-400 mt-0.5">Gruppens konsensus</div>
       </div>
 
       <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-white/5 text-center">
-        <div class="text-[10px] font-black uppercase text-rose-400 tracking-wider">Største Skeptiker 💀</div>
+        <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Lavest Tippet</div>
         <div class="text-sm font-black text-white mt-1">${report.lowest.author}</div>
-        <div class="text-xs text-rose-300 font-bold mt-0.5">Tippet Ranheim på ${report.lowest.predictedPos}. plass</div>
+        <div class="text-xs text-slate-400 font-bold mt-0.5">${report.lowest.predictedPos}. plass</div>
       </div>
     `;
   }
 
   /* ==========================================================================
-     8. TIPPE-RØNTGEN MODAL
+     8. DETALJERT TIPSANALYSE (TIDLIGERE RØNTGEN)
      ========================================================================== */
 
   window.openXrayModal = function (participantId) {
@@ -929,7 +917,7 @@
     const withMyBadges = rankedWithBadges.find(p => p.id === participantId) || {};
 
     dom.xrayAuthorName.textContent = participant.author;
-    dom.xraySummarySubtitle.textContent = `Score: ${evaluation.score}p | Totalt avvik: ${evaluation.totalDiff} plasser | Innertiere: ${evaluation.exactHits}`;
+    dom.xraySummarySubtitle.textContent = `Score: ${evaluation.score}p | Totalt avvik: ${evaluation.totalDiff} plasser | Fulltreffere: ${evaluation.exactHits}`;
 
     // Badges
     dom.xrayBadgesBar.innerHTML = '';
@@ -941,10 +929,10 @@
         dom.xrayBadgesBar.appendChild(badgeEl);
       });
     } else {
-      dom.xrayBadgesBar.innerHTML = `<span class="text-xs text-slate-500 font-bold">Ingen spesielle utmerkelser ennå.</span>`;
+      dom.xrayBadgesBar.innerHTML = `<span class="text-xs text-slate-500 font-bold">Ingen utmerkelser registrert.</span>`;
     }
 
-    // Røntgen rader
+    // Rader side om side
     dom.xrayRowsContainer.innerHTML = '';
     evaluation.teamBreakdowns.forEach((item) => {
       const team = getTeamById(item.teamId);
@@ -956,7 +944,7 @@
 
       if (diff === 0) {
         diffBadgeClass = 'bg-emerald-950 text-emerald-300 border-emerald-500 font-black';
-        diffText = '🎯 EKSAKT!';
+        diffText = '🎯 EKSAKT';
       } else if (diff <= 2) {
         diffBadgeClass = 'bg-amber-950 text-amber-300 border-amber-500 font-bold';
         diffText = `±${diff} pl`;
@@ -975,7 +963,7 @@
           ${item.predictedPos}
         </div>
         <div class="col-span-5 flex items-center gap-2 min-w-0 pr-1">
-          <div class="w-1.5 h-4 rounded-full" style="background-color: ${team.primaryColor};"></div>
+          <img src="${team.logoUrl}" alt="${team.name}" class="w-5 h-5 object-contain flex-shrink-0" onerror="this.style.display='none'">
           <span class="font-bold truncate ${item.isRanheim ? 'text-cyan-300' : 'text-white'}">
             ${team.name}
           </span>
@@ -1028,7 +1016,7 @@
           <div class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs ${zone.colorClass} border">
             ${position}
           </div>
-          <div class="w-1.5 h-5 rounded-full" style="background-color: ${team.primaryColor};"></div>
+          <img src="${team.logoUrl}" alt="${team.name}" class="w-5 h-5 object-contain flex-shrink-0" onerror="this.style.display='none'">
           <span class="text-sm font-bold text-white">${team.name}</span>
           ${team.isRanheim ? '<span class="text-xs">💙</span>' : ''}
         </div>
@@ -1080,7 +1068,7 @@
 
     try {
       StorageManager.saveFasit(newFasit);
-      alert('✅ Fasit-tabellen er oppdatert! Alle poengsummer er regnet ut på nytt.');
+      alert('Fasittabellen er oppdatert! Alle poengsummer er regnet ut på nytt.');
       renderLeaderboard();
       renderStatsDashboard();
     } catch (e) {
@@ -1093,7 +1081,7 @@
     renderFasitList();
     renderLeaderboard();
     renderStatsDashboard();
-    alert('Fasit tilbakestilt til standard OBOS 2026-tabell.');
+    alert('Fasit tilbakestilt til gjeldende OBOS-tabell.');
   });
 
   dom.presetRanheimChampBtn.addEventListener('click', () => {
@@ -1102,7 +1090,7 @@
     renderFasitList();
     renderLeaderboard();
     renderStatsDashboard();
-    alert('💙 Herlig! Fasit er nå satt med Ranheim TF på 1. plass!');
+    alert('Fasit er satt med Ranheim TF på 1. plass.');
   });
 
   dom.exportJsonBtn.addEventListener('click', () => StorageManager.exportToJson());
@@ -1115,7 +1103,7 @@
     reader.onload = (event) => {
       try {
         StorageManager.importFromJson(event.target.result);
-        alert('✅ Data ble importert!');
+        alert('Data ble importert!');
         window.location.reload();
       } catch (err) {
         alert('Kunne ikke importere fil: ' + err.message);
@@ -1126,13 +1114,13 @@
 
   dom.resetDemoBtn.addEventListener('click', () => {
     const adminPin = (window.CONFIG && window.CONFIG.ADMIN_PIN) || '1901';
-    const pin = prompt('Skriv inn Admin-PIN for å tilbakestille alle tips til demodata:');
+    const pin = prompt('Skriv inn Admin-PIN for å tilbakestille alle tips til testdata:');
     if (pin !== adminPin) {
       alert('Feil Admin-PIN!');
       return;
     }
     StorageManager.resetToDemo();
-    alert('Nullstilt til demo-tips.');
+    alert('Nullstilt til testdata.');
     window.location.reload();
   });
 
@@ -1146,12 +1134,12 @@
     if (window.lucide) window.lucide.createIcons();
 
     if (success) {
-      alert('✅ Synkronisering fullført! Hentet siste tips fra Google Sheets.');
+      alert('Synkronisering fullført! Hentet siste data.');
       renderLeaderboard();
       renderStatsDashboard();
       updateExistingTipsDropdown();
     } else {
-      alert('Kunne ikke hente data fra Google Sheets. Sjekk at GOOGLE_SCRIPT_URL er lagt inn i js/config.js.');
+      alert('Kunne ikke hente data fra Google Sheets. Sjekk GOOGLE_SCRIPT_URL i js/config.js.');
     }
   });
 
@@ -1162,7 +1150,7 @@
   dom.openShareModalBtn.addEventListener('click', () => {
     const author = dom.authorNameInput.value.trim() || 'Mitt Tabelltips';
     dom.shareCardAuthor.textContent = author;
-    dom.shareCardDate.textContent = 'Sesongstart 2026';
+    dom.shareCardDate.textContent = 'Sesongtips';
 
     dom.shareCardTable.innerHTML = '';
     currentPredictionTable.forEach((teamId, index) => {
@@ -1179,7 +1167,7 @@
       row.innerHTML = `
         <div class="flex items-center gap-2">
           <span class="w-4 text-center font-black text-[10px] ${zone.colorClass.split(' ')[2]}">${pos}</span>
-          <div class="w-1.5 h-3.5 rounded-full" style="background-color: ${team.primaryColor};"></div>
+          <img src="${team.logoUrl}" alt="${team.name}" class="w-4 h-4 object-contain flex-shrink-0" onerror="this.style.display='none'">
           <span class="font-extrabold text-[11px] ${team.isRanheim ? 'text-cyan-300' : 'text-white'}">
             ${team.name}
           </span>
@@ -1212,7 +1200,7 @@
       .then((canvas) => {
         const link = document.createElement('a');
         const author = dom.authorNameInput.value.trim() || 'tips';
-        link.download = `ranheim-tabelltips-${author.toLowerCase().replace(/\s+/g, '-')}.png`;
+        link.download = `tabelltips-${author.toLowerCase().replace(/\s+/g, '-')}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
       });
@@ -1230,7 +1218,7 @@
           if (navigator.clipboard && window.ClipboardItem) {
             navigator.clipboard
               .write([new ClipboardItem({ 'image/png': blob })])
-              .then(() => alert('📋 Bildet ble kopiert til utklippstavlen! Lim det rett inn i chatten (Ctrl+V).'))
+              .then(() => alert('Bildet ble kopiert til utklippstavlen! Lim det rett inn i chatten (Ctrl+V).'))
               .catch(() => alert('Kunne ikke kopiere automatisk. Bruk "Last ned PNG" i stedet.'));
           } else {
             alert('Nettleseren støtter ikke direkte bildekopiering. Bruk "Last ned PNG".');
