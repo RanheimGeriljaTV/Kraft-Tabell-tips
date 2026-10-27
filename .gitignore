@@ -1,0 +1,15 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Backup and export files
+*.backup.json
+*.private.json
+
+# Local overrides
+config.local.js
+
+# Node/IDE
+.vscode/
+.idea/

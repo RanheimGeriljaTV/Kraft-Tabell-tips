@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="no" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>OBOS-ligaen Tabell-tipper | Ranheim Kraft</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            ranheim: {
+              DEFAULT: '#003366',
+              light: '#0284c7',
+              dark: '#001a33',
+              glow: '#38bdf8'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- SortableJS for smooth drag & drop -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <!-- html2canvas for snapshot generation -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-sky-500 selection:text-white">
+
+  <!-- ==================== LÅSESKJERM (ADGANGSKONTROLL) ==================== -->
+  <div id="lockScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950 p-4">
+    <div class="max-w-md w-full glass-panel rounded-2xl p-8 border border-sky-500/30 shadow-2xl text-center space-y-6">
+      <div class="w-16 h-16 bg-gradient-to-tr from-sky-600 to-blue-900 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-sky-500/20">
+        <i data-lucide="lock" class="w-8 h-8 text-sky-200"></i>
+      </div>
+
+      <div class="space-y-2">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-950 text-sky-400 border border-sky-800">
+          <span class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
+          Ranheim Kraft Internt
+        </span>
+        <h1 class="text-2xl font-extrabold text-white tracking-tight">OBOS Tabell-tipper</h1>
+        <p class="text-sm text-slate-400">Dette er en intern tippeliga for venner og kollegaer. Skriv inn adgangskoden for å åpne appen.</p>
+      </div>
+
+      <form id="lockForm" class="space-y-4">
+        <div>
+          <label for="accessCodeInput" class="sr-only">Adgangskode</label>
+          <input 
+            type="password" 
+            id="accessCodeInput" 
+            placeholder="Skriv inn adgangskode..." 
+            class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-center text-lg tracking-widest text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
+            autofocus
+            required
+          >
+        </div>
+
+        <button 
+          type="submit" 
+          class="w-full py-3.5 px-6 bg-gradient-to-r from-sky-600 to-blue-700 hover:from-sky-500 hover:to-blue-600 text-white font-bold rounded-xl shadow-lg shadow-sky-900/40 transition-all transform active:scale-95 flex items-center justify-center gap-2"
+        >
+          <span>Lås opp tippeligaen</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </form>
+
+      <div id="lockError" class="hidden text-rose-400 text-sm font-medium bg-rose-950/40 border border-rose-800/60 rounded-lg p-2.5">
+        Feil adgangskode. Prøv igjen eller sjekk lenken i gruppechatten!
+      </div>
+
+      <div class="text-xs text-slate-500 pt-2 border-t border-slate-800/80">
+        💡 Tips: Når du har låst opp én gang, huskes du automatisk på denne enheten!
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== HOVEDAPPLIKASJON ==================== -->
+  <div id="mainApp" class="hidden min-h-screen flex flex-col">
+    
+    <!-- TOPPBAR / HEADER -->
+    <header class="glass-panel sticky top-0 z-30 border-b border-slate-800 bg-slate-950/90 backdrop-blur-md">
+      <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+        
+        <!-- Logo & Tittel -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#003366] to-sky-500 flex items-center justify-center shadow-md shadow-sky-900/50 text-white font-black text-lg">
+            💙
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-1.5">
+                OBOS Tabell-tipper
+              </h1>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800/60">
+                Ranheim Kraft
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 hidden sm:block">Vennegjeng & Kollegatabell 2025/2026</p>
+          </div>
+        </div>
+
+        <!-- Hurtighandlinger -->
+        <div class="flex items-center gap-2">
+          <button id="lockAppBtn" title="Lås app" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- FANER (TABS) -->
+      <nav class="max-w-5xl mx-auto px-4 flex border-t border-slate-800/60">
+        <button id="tabBtnPredict" class="tab-button active flex-1 py-3 px-3 text-sm font-bold flex items-center justify-center gap-2 border-b-2 border-sky-500 text-sky-400 transition-all">
+          <i data-lucide="list-ordered" class="w-4 h-4"></i>
+          <span>1. Mitt Tabelltips</span>
+        </button>
+
+        <button id="tabBtnLeaderboard" class="tab-button flex-1 py-3 px-3 text-sm font-bold flex items-center justify-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all">
+          <i data-lucide="trophy" class="w-4 h-4"></i>
+          <span>2. Resultattavle & Podium</span>
+        </button>
+
+        <button id="tabBtnSettings" class="tab-button flex-1 py-3 px-3 text-sm font-bold flex items-center justify-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all">
+          <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+          <span>3. Fasit & Synk</span>
+        </button>
+      </nav>
+    </header>
+
+    <!-- HOVEDINNHOLD -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+      <!-- ==================== FANE 1: MITT TABELLTIPS ==================== -->
+      <section id="tabContentPredict" class="space-y-6">
+        
+        <!-- Tips-innsending & Forfatter-kort -->
+        <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 class="text-lg font-extrabold text-white flex items-center gap-2">
+                <span>📝 Dra og slipp lagene på din drømmetabell</span>
+              </h2>
+              <p class="text-xs sm:text-sm text-slate-400">
+                Hold og dra lagene opp og ned. Ranheim har ekstra hedersplass. Skriv navnet ditt og trykk lagre!
+              </p>
+            </div>
+
+            <!-- Eksisterende tips-velger (for redigering) -->
+            <div class="flex items-center gap-2">
+              <label for="existingTipSelect" class="sr-only">Rediger eksisterende tips</label>
+              <select id="existingTipSelect" class="bg-slate-900 border border-slate-700 text-xs rounded-xl px-3 py-2 text-slate-300 focus:outline-none focus:ring-1 focus:ring-sky-500">
+                <option value="">➕ Opprett nytt tips</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Skjema-kontroller -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2 border-t border-slate-800/80">
+            <div class="relative flex-1">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <i data-lucide="user" class="w-4 h-4"></i>
+              </div>
+              <input 
+                type="text" 
+                id="authorNameInput" 
+                placeholder="Ditt navn / kallenavn (f.eks. Trønder-Bård)..." 
+                class="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-semibold text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+                maxlength="30"
+              >
+            </div>
+
+            <button 
+              id="saveTipBtn" 
+              class="py-2.5 px-6 bg-gradient-to-r from-sky-600 to-blue-700 hover:from-sky-500 hover:to-blue-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-sky-900/40 flex items-center justify-center gap-2 transition-all active:scale-95 whitespace-nowrap"
+            >
+              <i data-lucide="save" class="w-4 h-4"></i>
+              <span>Lagre tabelltips</span>
+            </button>
+
+            <button 
+              id="openShareModalBtn" 
+              class="py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-800/60 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 whitespace-nowrap"
+            >
+              <i data-lucide="camera" class="w-4 h-4"></i>
+              <span>Lag delbart bilde</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Sone-forklaring (Legend) -->
+        <div class="flex flex-wrap items-center gap-2 sm:gap-4 text-xs font-semibold px-2">
+          <span class="text-slate-500 uppercase tracking-wider text-[11px]">Soner:</span>
+          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-950/40 border border-emerald-600/40 text-emerald-300">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>1–2: Direkte opprykk</span>
+          </div>
+          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-950/40 border border-blue-600/40 text-blue-300">
+            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+            <span>3–6: Opprykkskvalik</span>
+          </div>
+          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-950/40 border border-amber-600/40 text-amber-300">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span>14: Nedrykkskvalik</span>
+          </div>
+          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-rose-950/40 border border-rose-600/40 text-rose-300">
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+            <span>15–16: Direkte nedrykk</span>
+          </div>
+        </div>
+
+        <!-- DRAG-AND-DROP TABELLISTE -->
+        <div id="predictionList" class="space-y-2 select-none">
+          <!-- Dynamisk genereres av app.js -->
+        </div>
+
+      </section>
+
+      <!-- ==================== FANE 2: RESULTATTAVLE & PODIUM ==================== -->
+      <section id="tabContentLeaderboard" class="hidden space-y-6">
+        
+        <!-- Poengsystem-velger -->
+        <div class="glass-card rounded-2xl p-4 border border-slate-800 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+              <i data-lucide="calculator" class="w-4 h-4 text-sky-400"></i>
+              <span>Velg Poengsystem (Bytt live!)</span>
+            </div>
+            <div id="activeSystemDescription" class="text-xs text-sky-300 italic">
+              <!-- Dynamisk beskrivelse -->
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <button data-system="klassisk" class="system-btn p-2.5 rounded-xl border border-slate-700 bg-slate-900 text-xs font-bold text-slate-300 hover:border-sky-500 hover:text-white transition-all text-center">
+              <div>⛳ Klassisk Avvik</div>
+              <div class="text-[10px] text-slate-400 font-normal">Lavest vinner</div>
+            </button>
+
+            <button data-system="innertier" class="system-btn p-2.5 rounded-xl border border-sky-500 bg-sky-950/60 text-xs font-bold text-sky-300 transition-all text-center">
+              <div>🎯 Poeng + Innertier</div>
+              <div class="text-[10px] text-sky-400 font-normal">Høyest vinner (+5p treff)</div>
+            </button>
+
+            <button data-system="sone" class="system-btn p-2.5 rounded-xl border border-slate-700 bg-slate-900 text-xs font-bold text-slate-300 hover:border-sky-500 hover:text-white transition-all text-center">
+              <div>🔥 Sone-jegeren</div>
+              <div class="text-[10px] text-slate-400 font-normal">Opprykk/nedrykk bonus</div>
+            </button>
+
+            <button data-system="ranheim_joker" class="system-btn p-2.5 rounded-xl border border-slate-700 bg-slate-900 text-xs font-bold text-slate-300 hover:border-sky-500 hover:text-white transition-all text-center">
+              <div>💙 Ranheim-Jokeren</div>
+              <div class="text-[10px] text-slate-400 font-normal">2x poeng på Ranheim!</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3D VISUELT PODIUM (TOPP 3) -->
+        <div id="podiumContainer" class="pt-4 pb-2">
+          <!-- Renderes av app.js: 2. plass (venstre), 1. plass (midten, høyest), 3. plass (høyre) -->
+        </div>
+
+        <!-- DELTAKER-TABELL -->
+        <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+            <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+              <i data-lucide="users" class="w-4 h-4 text-sky-400"></i>
+              <span>Sammenlagt Stilling (<span id="participantCount">0</span> deltakere)</span>
+            </h3>
+            <span class="text-xs text-slate-500">Klikk en rad for Tippe-røntgen 🔍</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="bg-slate-900/60 border-b border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  <th class="py-3 px-4 w-12 text-center">Plass</th>
+                  <th class="py-3 px-4">Deltaker</th>
+                  <th class="py-3 px-3 text-center">Score</th>
+                  <th class="py-3 px-3 text-center">🎯 Treff</th>
+                  <th class="py-3 px-3 text-center">Avvik</th>
+                  <th class="py-3 px-4 hidden md:table-cell">Utmerkelser</th>
+                  <th class="py-3 px-4 text-right">Røntgen</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboardTableBody" class="divide-y divide-slate-800/60 font-medium">
+                <!-- Dynamisk fylles av app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ==================== FANE 3: FASIT & SYNK ==================== -->
+      <section id="tabContentSettings" class="hidden space-y-6">
+        
+        <!-- Fasit-editor -->
+        <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 class="text-lg font-extrabold text-white flex items-center gap-2">
+                <span>⚙️ Oppdater Fasit-tabell (Den ekte OBOS-tabellen)</span>
+              </h2>
+              <p class="text-xs sm:text-sm text-slate-400">
+                Dra lagene i rekkefølgen den offisielle OBOS-tabellen har akkurat nå. Alle poeng og badges oppdateres i sanntid!
+              </p>
+            </div>
+
+            <button 
+              id="saveFasitBtn" 
+              class="py-2 px-5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-950 flex items-center gap-2 self-start sm:self-auto transition-all active:scale-95"
+            >
+              <i data-lucide="check-circle" class="w-4 h-4"></i>
+              <span>Lagre ny fasit</span>
+            </button>
+          </div>
+
+          <!-- Hurtig-scenarier -->
+          <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800">
+            <span class="text-xs font-semibold text-slate-500">Hurtigvalg fasit:</span>
+            <button id="presetStandardBtn" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg border border-slate-700">
+              OBOS 2025 Startfasit
+            </button>
+            <button id="presetRanheimChampBtn" class="px-3 py-1 bg-sky-950 hover:bg-sky-900 text-sky-300 text-xs font-semibold rounded-lg border border-sky-800">
+              💙 Drømmen: Ranheim på 1. plass!
+            </button>
+          </div>
+
+          <!-- Dra-og-slipp Fasit-liste -->
+          <div id="fasitList" class="space-y-1.5 select-none pt-2">
+            <!-- Dynamisk fylles av app.js -->
+          </div>
+        </div>
+
+        <!-- Sky-synkronisering & Backup -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          <!-- JSON Sikkerhetskopi -->
+          <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-3">
+            <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+              <i data-lucide="database" class="w-4 h-4 text-sky-400"></i>
+              <span>Backup & Datahåndtering</span>
+            </h3>
+            <p class="text-xs text-slate-400">
+              Last ned alle tips som en JSON-fil for sikkerhetskopi, eller del backup-filen med andre.
+            </p>
+
+            <div class="flex flex-wrap gap-2 pt-2">
+              <button id="exportJsonBtn" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-1.5">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                <span>Last ned JSON</span>
+              </button>
+
+              <label class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-1.5 cursor-pointer">
+                <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                <span>Gjenopprett fra JSON</span>
+                <input type="file" id="importJsonInput" accept=".json" class="hidden">
+              </label>
+
+              <button id="resetDemoBtn" class="px-3 py-2 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 text-xs font-semibold rounded-xl border border-rose-800/60 flex items-center gap-1.5 ml-auto">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                <span>Nullstill demodata</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Google Sheets Sky-kobling -->
+          <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-3">
+            <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+              <i data-lucide="cloud" class="w-4 h-4 text-emerald-400"></i>
+              <span>Google Sheets Sky-synk</span>
+            </h3>
+            <p class="text-xs text-slate-400" id="cloudStatusText">
+              Konfigurert i <code class="text-sky-300">js/config.js</code>. Gjør at venner kan sende inn tips fra sine egne mobiler til felles regneark.
+            </p>
+
+            <div class="pt-2 flex items-center gap-2">
+              <button id="syncNowBtn" class="px-4 py-2 bg-emerald-950/50 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-700/60 text-xs font-bold rounded-xl flex items-center gap-1.5">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                <span>Synkroniser med Google Sheets</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500 glass-panel">
+      <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div class="flex items-center gap-1.5 font-medium">
+          <span>💙 OBOS Tabell-tipper for</span>
+          <strong class="text-slate-300">ranheimkraft.no</strong>
+        </div>
+        <div class="text-[11px] text-slate-600">
+          Klient-side app • Null passordstress • Drag-and-Drop
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ==================== MODAL 1: TIPPE-RØNTGEN ==================== -->
+  <div id="xrayModal" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="max-w-2xl w-full glass-panel border border-slate-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+      
+      <!-- Modal Header -->
+      <div class="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-purple-900/50 border border-purple-500/40 flex items-center justify-center text-xl">
+            🔍
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
+              <span id="xrayAuthorName">Kompis</span>
+              <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-700">Tippe-røntgen</span>
+            </h3>
+            <p id="xraySummarySubtitle" class="text-xs text-slate-400">Tips vs. Gjeldende fasit</p>
+          </div>
+        </div>
+
+        <button id="closeXrayBtn" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Badges & Total Stats bar -->
+      <div id="xrayBadgesBar" class="px-5 py-3 bg-slate-900/30 border-b border-slate-800 flex flex-wrap items-center gap-2">
+        <!-- Dynamiske badges for deltakeren -->
+      </div>
+
+      <!-- Røntgen-tabell Scrollable -->
+      <div class="overflow-y-auto p-4 sm:p-5 space-y-2 flex-1">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 grid grid-cols-12 px-3 pb-1">
+          <div class="col-span-1 text-center">Pl.</div>
+          <div class="col-span-5">Tippet Lag</div>
+          <div class="col-span-3 text-center">Ekte Plass</div>
+          <div class="col-span-3 text-right">Avvik</div>
+        </div>
+        <div id="xrayRowsContainer" class="space-y-1.5">
+          <!-- Dynamisk generert -->
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-slate-800 bg-slate-900/50 flex justify-end">
+        <button id="closeXrayBottomBtn" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl">
+          Lukk
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 2: DELBART BILDE ==================== -->
+  <div id="shareModal" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="max-w-md w-full glass-panel border border-slate-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+      
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i data-lucide="camera" class="w-4 h-4 text-sky-400"></i>
+          <span>Delbart Tabellkort (for chat)</span>
+        </h3>
+        <button id="closeShareBtn" class="p-1.5 text-slate-400 hover:text-white rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Forhåndsvisningskort som konverteres til bilde -->
+      <div class="p-4 overflow-y-auto flex-1 flex justify-center bg-slate-950/60">
+        <div id="shareCardContainer" class="w-full max-w-[360px] rounded-2xl p-4 border border-sky-500/40 text-white shadow-2xl space-y-3">
+          
+          <!-- Kort Topp -->
+          <div class="flex items-center justify-between border-b border-sky-500/20 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">💙</span>
+              <div>
+                <div class="text-xs font-black tracking-tight text-white">OBOS TABELLTIPS</div>
+                <div class="text-[9px] text-sky-400 font-bold uppercase">ranheimkraft.no</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div id="shareCardAuthor" class="text-xs font-extrabold text-sky-300">Mitt Kallenavn</div>
+              <div id="shareCardDate" class="text-[9px] text-slate-400">2025/2026</div>
+            </div>
+          </div>
+
+          <!-- Kort Tabell (16 rader kompakt) -->
+          <div id="shareCardTable" class="space-y-1 text-xs">
+            <!-- Dynamisk fylles før eksport -->
+          </div>
+
+          <!-- Kort Bunn -->
+          <div class="text-[9px] text-center text-slate-400 pt-1 border-t border-sky-500/20 flex items-center justify-between">
+            <span>⚽ OBOS-ligaen</span>
+            <span class="text-sky-300 font-semibold">Ranheim Kraft Tippeliga</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Handlingsknapper -->
+      <div class="p-4 border-t border-slate-800 bg-slate-900/50 flex items-center gap-2">
+        <button id="downloadImageBtn" class="flex-1 py-2.5 px-4 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span>Last ned PNG</span>
+        </button>
+        <button id="copyImageBtn" class="flex-1 py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-700/50 font-bold text-xs rounded-xl flex items-center justify-center gap-2">
+          <i data-lucide="copy" class="w-4 h-4"></i>
+          <span>Kopier bilde</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Skripts i riktig rekkefølge -->
+  <script src="js/config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/scoring.js"></script>
+  <script src="js/badges.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // Initier Lucide ikoner
+    lucide.createIcons();
+  </script>
+</body>
+</html>

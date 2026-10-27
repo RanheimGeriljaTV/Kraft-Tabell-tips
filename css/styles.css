@@ -1,0 +1,153 @@
+/* ========================================================
+   OBOS-ligaen Tabell-tipper & Live Resultattavle Stiler
+   Skreddersydd for Ranheim Kraft
+   ======================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --ranheim-blue: #003366;
+  --ranheim-bright: #0284c7;
+  --ranheim-glow: rgba(56, 189, 248, 0.35);
+  --gold-glow: rgba(245, 158, 11, 0.45);
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Glassmorphism og bakgrunner */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Ranheim spesial-glød */
+.ranheim-highlight {
+  background: linear-gradient(135deg, rgba(0, 51, 102, 0.6) 0%, rgba(2, 132, 199, 0.25) 100%) !important;
+  border: 1.5px solid #38bdf8 !important;
+  box-shadow: 0 0 20px var(--ranheim-glow);
+}
+
+/* SortableJS drag-tilstander */
+.sortable-ghost {
+  opacity: 0.35;
+  background: rgba(56, 189, 248, 0.15) !important;
+  border: 2px dashed #38bdf8 !important;
+  transform: scale(0.98);
+}
+
+.sortable-chosen {
+  cursor: grabbing !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  transform: scale(1.02);
+  transition: transform 0.15s ease;
+}
+
+.sortable-drag {
+  opacity: 1 !important;
+  cursor: grabbing !important;
+}
+
+/* Dra-håndtak */
+.drag-handle {
+  cursor: grab;
+  touch-action: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Sonemarkører på radene */
+.zone-tag {
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Posisjonstall */
+.pos-badge {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+/* Podium styling */
+.podium-first {
+  background: linear-gradient(180deg, rgba(234, 179, 8, 0.25) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border-top: 3px solid #facc15;
+  box-shadow: 0 -4px 25px var(--gold-glow);
+}
+
+.podium-second {
+  background: linear-gradient(180deg, rgba(148, 163, 184, 0.2) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border-top: 3px solid #cbd5e1;
+}
+
+.podium-third {
+  background: linear-gradient(180deg, rgba(217, 119, 6, 0.2) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border-top: 3px solid #d97706;
+}
+
+/* Subtile animasjoner */
+@keyframes pulse-gold {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(234, 179, 8, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(234, 179, 8, 0.7);
+  }
+}
+
+.gold-crown-glow {
+  animation: pulse-gold 3s infinite ease-in-out;
+}
+
+/* Eget fargebånd for klubber */
+.club-strip {
+  width: 6px;
+  border-radius: 9999px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Klargjøring for rent html2canvas-bilde */
+#shareCardContainer {
+  background: radial-gradient(circle at top, #002244 0%, #090d16 100%);
+}
