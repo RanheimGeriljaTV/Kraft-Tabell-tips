@@ -1,64 +1,85 @@
 /* ========================================================
-   OBOS-ligaen Tabell-tipper & Live Resultattavle Stiler
-   Skreddersydd for Ranheim Kraft
+   OBOS-ligaen Tabell-tipper & Live Resultattavle
+   Ultra-Trendy Cyber-Sports & Ranheim Kraft Edition
    ======================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
 
 :root {
   --ranheim-blue: #003366;
   --ranheim-bright: #0284c7;
-  --ranheim-glow: rgba(56, 189, 248, 0.35);
-  --gold-glow: rgba(245, 158, 11, 0.45);
+  --ranheim-cyan: #38bdf8;
+  --ranheim-glow: rgba(56, 189, 248, 0.45);
+  --gold-glow: rgba(245, 158, 11, 0.55);
+  --neon-emerald: #10b981;
+  --neon-rose: #f43f5e;
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: #07090e;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(0, 51, 102, 0.35) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(2, 132, 199, 0.25) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(15, 23, 42, 0.8) 0px, transparent 50%);
+  background-attachment: fixed;
+  color: #f1f5f9;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Glassmorphism og bakgrunner */
-.glass-panel {
-  background: rgba(15, 23, 42, 0.85);
+/* Glassmorphism & Frosted Panels */
+.cyber-panel {
+  background: rgba(13, 19, 33, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+}
+
+.cyber-card {
+  background: rgba(22, 30, 49, 0.65);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.glass-card {
-  background: rgba(30, 41, 59, 0.7);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+.cyber-card:hover {
+  border-color: rgba(56, 189, 248, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.5);
 }
 
-/* Ranheim spesial-glød */
-.ranheim-highlight {
-  background: linear-gradient(135deg, rgba(0, 51, 102, 0.6) 0%, rgba(2, 132, 199, 0.25) 100%) !important;
+/* Ranheim TF Spesial Markering */
+.ranheim-card {
+  background: linear-gradient(135deg, rgba(0, 51, 102, 0.75) 0%, rgba(2, 132, 199, 0.35) 100%) !important;
   border: 1.5px solid #38bdf8 !important;
-  box-shadow: 0 0 20px var(--ranheim-glow);
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.3), inset 0 0 15px rgba(56, 189, 248, 0.15);
 }
 
-/* SortableJS drag-tilstander */
+/* Countdown & Ticker styling */
+.digital-clock-digit {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+  font-family: 'Outfit', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Drag and drop effects */
 .sortable-ghost {
-  opacity: 0.35;
-  background: rgba(56, 189, 248, 0.15) !important;
+  opacity: 0.25;
+  background: rgba(56, 189, 248, 0.1) !important;
   border: 2px dashed #38bdf8 !important;
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
 .sortable-chosen {
   cursor: grabbing !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
-  transform: scale(1.02);
-  transition: transform 0.15s ease;
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.8), 0 0 15px rgba(56, 189, 248, 0.5);
+  transform: scale(1.025);
 }
 
-.sortable-drag {
-  opacity: 1 !important;
-  cursor: grabbing !important;
-}
-
-/* Dra-håndtak */
 .drag-handle {
   cursor: grab;
   touch-action: none;
@@ -68,86 +89,99 @@ body {
   cursor: grabbing;
 }
 
-/* Sonemarkører på radene */
-.zone-tag {
-  font-size: 0.65rem;
-  letter-spacing: 0.05em;
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-/* Posisjonstall */
-.pos-badge {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  border-radius: 6px;
-  font-size: 0.85rem;
-}
-
-/* Podium styling */
-.podium-first {
-  background: linear-gradient(180deg, rgba(234, 179, 8, 0.25) 0%, rgba(15, 23, 42, 0.95) 100%);
+/* 3D Visuelt Podium */
+.podium-pedestal-1 {
+  background: linear-gradient(180deg, rgba(234, 179, 8, 0.25) 0%, rgba(13, 19, 33, 0.95) 100%);
   border-top: 3px solid #facc15;
-  box-shadow: 0 -4px 25px var(--gold-glow);
+  box-shadow: 0 -10px 35px var(--gold-glow);
 }
 
-.podium-second {
-  background: linear-gradient(180deg, rgba(148, 163, 184, 0.2) 0%, rgba(15, 23, 42, 0.95) 100%);
+.podium-pedestal-2 {
+  background: linear-gradient(180deg, rgba(148, 163, 184, 0.2) 0%, rgba(13, 19, 33, 0.95) 100%);
   border-top: 3px solid #cbd5e1;
+  box-shadow: 0 -8px 25px rgba(203, 213, 225, 0.25);
 }
 
-.podium-third {
-  background: linear-gradient(180deg, rgba(217, 119, 6, 0.2) 0%, rgba(15, 23, 42, 0.95) 100%);
+.podium-pedestal-3 {
+  background: linear-gradient(180deg, rgba(217, 119, 6, 0.2) 0%, rgba(13, 19, 33, 0.95) 100%);
   border-top: 3px solid #d97706;
+  box-shadow: 0 -8px 25px rgba(217, 119, 6, 0.25);
 }
 
-/* Subtile animasjoner */
-@keyframes pulse-gold {
+@keyframes pulse-crown {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(234, 179, 8, 0.4);
+    transform: scale(1);
+    filter: drop-shadow(0 0 12px rgba(250, 204, 21, 0.7));
   }
   50% {
-    box-shadow: 0 0 25px rgba(234, 179, 8, 0.7);
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 25px rgba(250, 204, 21, 1));
   }
 }
 
-.gold-crown-glow {
-  animation: pulse-gold 3s infinite ease-in-out;
+.crown-anim {
+  animation: pulse-crown 2.5s infinite ease-in-out;
 }
 
-/* Eget fargebånd for klubber */
-.club-strip {
-  width: 6px;
-  border-radius: 9999px;
-  height: 24px;
-  flex-shrink: 0;
+/* Pulsing live badges */
+@keyframes neon-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
-/* Custom scrollbar */
+.live-dot {
+  animation: neon-pulse 1.8s infinite;
+}
+
+/* Locked mode banner / Watermark */
+.locked-watermark {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(244, 63, 94, 0.05),
+    rgba(244, 63, 94, 0.05) 15px,
+    rgba(0, 0, 0, 0) 15px,
+    rgba(0, 0, 0, 0) 30px
+  );
+}
+
+/* Neon buttons */
+.btn-neon {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-neon::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(60deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  transform: rotate(30deg);
+  transition: transform 0.6s ease;
+}
+
+.btn-neon:hover::after {
+  transform: rotate(30deg) translate(50%, 50%);
+}
+
+/* Custom scrollbars */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #07090e;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 4px;
+  background: #1e293b;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
-}
-
-/* Klargjøring for rent html2canvas-bilde */
-#shareCardContainer {
-  background: radial-gradient(circle at top, #002244 0%, #090d16 100%);
+  background: #38bdf8;
 }

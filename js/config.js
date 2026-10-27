@@ -7,21 +7,30 @@ const CONFIG = {
   // Gruppe-adgangskode for vennegjengen (kan også sendes som ?kode=ranheim1901 i URL)
   ACCESS_CODE: 'ranheim1901',
 
-  // Admin-PIN for å redigere Fasit-tabell eller slette/nullstille data
+  // Admin-PIN for fasit-redigering, tømming og mockup-styring
   ADMIN_PIN: '1901',
 
-  // Valgfri Google Apps Script Web App URL for felles sanntids-sky-synkronisering på tvers av enheter.
-  // La stå tom '' for å kun bruke lokal lagring (localStorage) og manuell JSON-backup.
+  // Dato og tid for seriestart når tipping automatisk stenges (ISO format)
+  // For neste sesong: 5. april kl. 15:00
+  SEASON_START_DEADLINE: '2026-04-05T15:00:00',
+
+  // Mockup-overstyring av sperre:
+  // 'auto' = følger reell klokke mot SEASON_START_DEADLINE
+  // 'locked' = simuler at ligaen er i gang (låst)
+  // 'open' = simuler før seriestart (åpen for tipping)
+  LOCKDOWN_OVERRIDE: 'open',
+
+  // Valgfri Google Apps Script Web App URL for felles sanntids-sky-synkronisering
   GOOGLE_SCRIPT_URL: '',
 
-  // Merkevare og tittel
-  APP_TITLE: 'OBOS-ligaen Tabell-tipper',
+  // Merkevare og sesong
+  APP_TITLE: 'OBOS Tabell-tipper',
   APP_SUBTITLE: 'Ranheim Kraft Vennegjeng & Kollegatabell',
+  SEASON_LABEL: 'Sesongen 2026',
   COMMUNITY_NAME: 'Ranheim Kraft',
   RANHEIM_TEAM_ID: 'ranheim'
 };
 
-// Eksporter for bruk i ES-moduler eller global window
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = CONFIG;
 } else if (typeof window !== 'undefined') {

@@ -1,6 +1,6 @@
 /**
- * OBOS-ligaen Data Definisjoner
- * 16 lag, farger, soner og realistiske demo-tips
+ * OBOS-ligaen Data & Sesong-Historikk
+ * 16 lag, farger, soner, mockup-runder og demotips
  */
 
 const TEAMS = [
@@ -10,11 +10,13 @@ const TEAMS = [
     shortName: 'RAN',
     city: 'Trondheim',
     primaryColor: '#003366',
-    secondaryColor: '#3b82f6',
+    secondaryColor: '#38bdf8',
     textColor: '#ffffff',
     arena: 'EXTRA Arena',
+    founded: 1901,
     isRanheim: true,
-    logoText: '💙 RAN'
+    badgeEmoji: '💙',
+    pattern: 'from-[#003366] to-[#0284c7]'
   },
   {
     id: 'lillestrom',
@@ -25,7 +27,9 @@ const TEAMS = [
     secondaryColor: '#171717',
     textColor: '#000000',
     arena: 'Åråsen Stadion',
-    logoText: '💛 LSK'
+    founded: 1917,
+    badgeEmoji: '💛',
+    pattern: 'from-yellow-400 to-amber-600'
   },
   {
     id: 'aalesund',
@@ -36,7 +40,9 @@ const TEAMS = [
     secondaryColor: '#1e3a8a',
     textColor: '#ffffff',
     arena: 'Color Line Stadion',
-    logoText: '🧡 AaFK'
+    founded: 1914,
+    badgeEmoji: '🧡',
+    pattern: 'from-orange-500 to-blue-900'
   },
   {
     id: 'start',
@@ -47,7 +53,9 @@ const TEAMS = [
     secondaryColor: '#171717',
     textColor: '#000000',
     arena: 'Sparebanken Sør Arena',
-    logoText: '🟡 STA'
+    founded: 1905,
+    badgeEmoji: '🟡',
+    pattern: 'from-amber-400 to-yellow-600'
   },
   {
     id: 'kongsvinger',
@@ -58,7 +66,9 @@ const TEAMS = [
     secondaryColor: '#ffffff',
     textColor: '#ffffff',
     arena: 'Gjemselund Stadion',
-    logoText: '🔴 KIL'
+    founded: 1892,
+    badgeEmoji: '🔴',
+    pattern: 'from-red-600 to-rose-800'
   },
   {
     id: 'egersund',
@@ -69,7 +79,9 @@ const TEAMS = [
     secondaryColor: '#000000',
     textColor: '#000000',
     arena: 'B&G Parken',
-    logoText: '💛 EIK'
+    founded: 1919,
+    badgeEmoji: '🐯',
+    pattern: 'from-yellow-400 to-yellow-600'
   },
   {
     id: 'lyn',
@@ -80,7 +92,9 @@ const TEAMS = [
     secondaryColor: '#1d4ed8',
     textColor: '#ffffff',
     arena: 'Bislett Stadion',
-    logoText: '🔴 LYN'
+    founded: 1896,
+    badgeEmoji: '⚡',
+    pattern: 'from-red-600 to-blue-700'
   },
   {
     id: 'sogndal',
@@ -91,7 +105,9 @@ const TEAMS = [
     secondaryColor: '#000000',
     textColor: '#000000',
     arena: 'Fosshaugane Campus',
-    logoText: '⚪ SOG'
+    founded: 1926,
+    badgeEmoji: '⚪',
+    pattern: 'from-slate-100 to-slate-400'
   },
   {
     id: 'odd',
@@ -102,7 +118,9 @@ const TEAMS = [
     secondaryColor: '#0f172a',
     textColor: '#000000',
     arena: 'Skagerak Arena',
-    logoText: '⚪ ODD'
+    founded: 1894,
+    badgeEmoji: '🏹',
+    pattern: 'from-slate-200 to-slate-500'
   },
   {
     id: 'stabaek',
@@ -113,7 +131,9 @@ const TEAMS = [
     secondaryColor: '#0284c7',
     textColor: '#ffffff',
     arena: 'Nadderud Stadion',
-    logoText: '🔵 STB'
+    founded: 1898,
+    badgeEmoji: '🔵',
+    pattern: 'from-blue-600 to-sky-700'
   },
   {
     id: 'hodd',
@@ -124,7 +144,9 @@ const TEAMS = [
     secondaryColor: '#ffffff',
     textColor: '#ffffff',
     arena: 'Høddvoll Stadion',
-    logoText: '🔵 HØD'
+    founded: 1919,
+    badgeEmoji: '🌊',
+    pattern: 'from-blue-500 to-indigo-700'
   },
   {
     id: 'aasane',
@@ -135,7 +157,9 @@ const TEAMS = [
     secondaryColor: '#000000',
     textColor: '#ffffff',
     arena: 'Åsane Arena',
-    logoText: '🟠 ÅSA'
+    founded: 1971,
+    badgeEmoji: '🟠',
+    pattern: 'from-orange-500 to-amber-700'
   },
   {
     id: 'raufoss',
@@ -146,7 +170,9 @@ const TEAMS = [
     secondaryColor: '#000000',
     textColor: '#000000',
     arena: 'NAMMO Stadion',
-    logoText: '🟡 RAU'
+    founded: 1918,
+    badgeEmoji: '🟡',
+    pattern: 'from-yellow-500 to-amber-700'
   },
   {
     id: 'moss',
@@ -157,7 +183,9 @@ const TEAMS = [
     secondaryColor: '#000000',
     textColor: '#000000',
     arena: 'Melløs Stadion',
-    logoText: '🟡 MFK'
+    founded: 1906,
+    badgeEmoji: '🦅',
+    pattern: 'from-amber-400 to-stone-800'
   },
   {
     id: 'mjondalen',
@@ -168,7 +196,9 @@ const TEAMS = [
     secondaryColor: '#ffffff',
     textColor: '#ffffff',
     arena: 'Consto Arena',
-    logoText: '🟤 MIF'
+    founded: 1910,
+    badgeEmoji: '🟤',
+    pattern: 'from-amber-800 to-stone-900'
   },
   {
     id: 'skeid',
@@ -179,11 +209,74 @@ const TEAMS = [
     secondaryColor: '#1e40af',
     textColor: '#ffffff',
     arena: 'Nordre Åsen',
-    logoText: '🔴 SKE'
+    founded: 1915,
+    badgeEmoji: '🔴',
+    pattern: 'from-red-600 to-blue-800'
   }
 ];
 
-// Standard fasit-tabell (reell tabell / startposisjon)
+// OBOS-soner
+const ZONES = {
+  DIRECT_PROMOTION: {
+    id: 'direct_promotion',
+    name: 'Direkte opprykk',
+    badgeText: 'ELITESERIEN',
+    colorClass: 'border-emerald-500/80 bg-emerald-950/40 text-emerald-300 shadow-emerald-950/50',
+    glowClass: 'shadow-[0_0_15px_rgba(16,185,129,0.25)]',
+    dotClass: 'bg-emerald-400',
+    range: [1, 2]
+  },
+  PLAYOFF_PROMOTION: {
+    id: 'playoff_promotion',
+    name: 'Opprykkskvalik',
+    badgeText: 'KVALIK',
+    colorClass: 'border-cyan-500/80 bg-cyan-950/40 text-cyan-300 shadow-cyan-950/50',
+    glowClass: 'shadow-[0_0_15px_rgba(6,182,212,0.25)]',
+    dotClass: 'bg-cyan-400',
+    range: [3, 6]
+  },
+  SAFE: {
+    id: 'safe',
+    name: 'Sikker plass',
+    badgeText: 'MIDTBANE',
+    colorClass: 'border-slate-700/80 bg-slate-900/40 text-slate-400 shadow-none',
+    glowClass: '',
+    dotClass: 'bg-slate-500',
+    range: [7, 13]
+  },
+  PLAYOFF_RELEGATION: {
+    id: 'playoff_relegation',
+    name: 'Nedrykkskvalik',
+    badgeText: 'FAREKVALIK',
+    colorClass: 'border-amber-500/80 bg-amber-950/40 text-amber-300 shadow-amber-950/50',
+    glowClass: 'shadow-[0_0_15px_rgba(245,158,11,0.25)]',
+    dotClass: 'bg-amber-400',
+    range: [14, 14]
+  },
+  DIRECT_RELEGATION: {
+    id: 'direct_relegation',
+    name: 'Direkte nedrykk',
+    badgeText: 'POSTNORD',
+    colorClass: 'border-rose-500/80 bg-rose-950/40 text-rose-300 shadow-rose-950/50',
+    glowClass: 'shadow-[0_0_15px_rgba(244,63,94,0.25)]',
+    dotClass: 'bg-rose-500',
+    range: [15, 16]
+  }
+};
+
+function getZoneForPosition(position) {
+  if (position <= 2) return ZONES.DIRECT_PROMOTION;
+  if (position <= 6) return ZONES.PLAYOFF_PROMOTION;
+  if (position <= 13) return ZONES.SAFE;
+  if (position === 14) return ZONES.PLAYOFF_RELEGATION;
+  return ZONES.DIRECT_RELEGATION;
+}
+
+function getTeamById(teamId) {
+  return TEAMS.find(t => t.id === teamId) || null;
+}
+
+// Standard fasit-tabell (før sesongstart / utgangspunkt)
 const DEFAULT_FASIT = [
   'lillestrom',
   'kongsvinger',
@@ -203,69 +296,124 @@ const DEFAULT_FASIT = [
   'skeid'
 ];
 
-// OBOS-soner
-const ZONES = {
-  DIRECT_PROMOTION: {
-    name: 'Direkte opprykk',
-    badgeText: 'ELITESERIEN',
-    colorClass: 'border-emerald-500 bg-emerald-950/30 text-emerald-300',
-    dotClass: 'bg-emerald-500',
-    range: [1, 2]
+// Mockup Sesong-tidslinje med runder
+const SEASON_ROUNDS = [
+  {
+    id: 'round-0',
+    roundNumber: 0,
+    title: 'Før Seriestart',
+    dateLabel: 'Mars 2026',
+    description: 'Tabelltipsene er levert inn. Ingen kamper er spilt ennå.',
+    standings: [...DEFAULT_FASIT]
   },
-  PLAYOFF_PROMOTION: {
-    name: 'Opprykkskvalik',
-    badgeText: 'KVALIK',
-    colorClass: 'border-blue-500 bg-blue-950/30 text-blue-300',
-    dotClass: 'bg-blue-500',
-    range: [3, 6]
+  {
+    id: 'round-8',
+    roundNumber: 8,
+    title: 'Runde 8 (Vårstart)',
+    dateLabel: 'Mai 2026',
+    description: 'Ranheim har åpnet sterkt på EXTRA Arena! Lillestrøm leder, mens Skeid sliter.',
+    standings: [
+      'lillestrom',
+      'ranheim',     // Ranheim opp på 2. plass!
+      'kongsvinger',
+      'aalesund',
+      'lyn',
+      'start',
+      'egersund',
+      'sogndal',
+      'stabaek',
+      'odd',
+      'hodd',
+      'raufoss',
+      'moss',
+      'aasane',
+      'mjondalen',
+      'skeid'
+    ]
   },
-  SAFE: {
-    name: 'Sikker plass',
-    badgeText: 'MIDTBANE',
-    colorClass: 'border-slate-700 bg-slate-900/30 text-slate-400',
-    dotClass: 'bg-slate-500',
-    range: [7, 13]
+  {
+    id: 'round-16',
+    roundNumber: 16,
+    title: 'Runde 16 (Halvspilt)',
+    dateLabel: 'Juli 2026',
+    description: 'Sommerpause! Knalltøff opprykksstrid. Ranheim henger med i toppen.',
+    standings: [
+      'lillestrom',
+      'kongsvinger',
+      'ranheim',     // Ranheim på 3. (kvalik)
+      'start',
+      'aalesund',
+      'lyn',
+      'egersund',
+      'sogndal',
+      'odd',
+      'stabaek',
+      'hodd',
+      'aasane',
+      'moss',
+      'raufoss',
+      'mjondalen',
+      'skeid'
+    ]
   },
-  PLAYOFF_RELEGATION: {
-    name: 'Nedrykkskvalik',
-    badgeText: 'FARE',
-    colorClass: 'border-amber-500 bg-amber-950/30 text-amber-300',
-    dotClass: 'bg-amber-500',
-    range: [14, 14]
+  {
+    id: 'round-24',
+    roundNumber: 24,
+    title: 'Runde 24 (Høstdrama)',
+    dateLabel: 'September 2026',
+    description: 'Gullfeber og nedrykksnerver! Ranheim knuser rivalene og inntar direkte opprykk.',
+    standings: [
+      'lillestrom',
+      'ranheim',     // Ranheim på 2. plass!
+      'aalesund',
+      'kongsvinger',
+      'start',
+      'egersund',
+      'lyn',
+      'odd',
+      'sogndal',
+      'stabaek',
+      'hodd',
+      'moss',
+      'aasane',
+      'raufoss',
+      'mjondalen',
+      'skeid'
+    ]
   },
-  DIRECT_RELEGATION: {
-    name: 'Direkte nedrykk',
-    badgeText: 'POSTNORD',
-    colorClass: 'border-rose-600 bg-rose-950/30 text-rose-300',
-    dotClass: 'bg-rose-500',
-    range: [15, 16]
+  {
+    id: 'round-30',
+    roundNumber: 30,
+    title: 'Runde 30 (Sluttabell)',
+    dateLabel: 'November 2026',
+    description: 'Sesongen er avgjort! Ranheim rykker opp til Eliteserien!',
+    standings: [
+      'ranheim',     // Ranheim SERIEMESTER!
+      'lillestrom',
+      'kongsvinger',
+      'aalesund',
+      'start',
+      'lyn',
+      'egersund',
+      'sogndal',
+      'odd',
+      'stabaek',
+      'hodd',
+      'aasane',
+      'raufoss',
+      'moss',
+      'mjondalen',
+      'skeid'
+    ]
   }
-};
+];
 
-/**
- * Hent sone basert på plassering (1-16)
- */
-function getZoneForPosition(position) {
-  if (position <= 2) return ZONES.DIRECT_PROMOTION;
-  if (position <= 6) return ZONES.PLAYOFF_PROMOTION;
-  if (position <= 13) return ZONES.SAFE;
-  if (position === 14) return ZONES.PLAYOFF_RELEGATION;
-  return ZONES.DIRECT_RELEGATION;
-}
-
-/**
- * Slå opp lagobjekt etter ID
- */
-function getTeamById(teamId) {
-  return TEAMS.find(t => t.id === teamId) || null;
-}
-
-// 6 Realistiske og morsomme demo-tips for gjengen ved oppstart
+// 6 Varierte demotips fra vennegjengen
 const DEMO_PREDICTIONS = [
   {
     id: 'demo-1',
     author: 'Ola Tipsekonge',
-    timestamp: '2025-03-25T14:30:00.000Z',
+    timestamp: '2026-03-25T14:30:00.000Z',
     table: [
       'lillestrom',
       'kongsvinger',
@@ -288,7 +436,7 @@ const DEMO_PREDICTIONS = [
   {
     id: 'demo-2',
     author: 'Ranheim-Svein 💙',
-    timestamp: '2025-03-25T15:10:00.000Z',
+    timestamp: '2026-03-25T15:10:00.000Z',
     table: [
       'ranheim', // Svein tror Ranheim vinner OBOS!
       'lillestrom',
@@ -311,7 +459,7 @@ const DEMO_PREDICTIONS = [
   {
     id: 'demo-3',
     author: 'Kari Taktikk',
-    timestamp: '2025-03-25T16:05:00.000Z',
+    timestamp: '2026-03-25T16:05:00.000Z',
     table: [
       'lillestrom',
       'aalesund',
@@ -334,7 +482,7 @@ const DEMO_PREDICTIONS = [
   {
     id: 'demo-4',
     author: 'Trønder-Bård',
-    timestamp: '2025-03-25T17:20:00.000Z',
+    timestamp: '2026-03-25T17:20:00.000Z',
     table: [
       'lillestrom',
       'ranheim', // Direkte opprykk for Ranheim!
@@ -356,8 +504,8 @@ const DEMO_PREDICTIONS = [
   },
   {
     id: 'demo-5',
-    author: 'Jonas Joker',
-    timestamp: '2025-03-25T18:45:00.000Z',
+    author: 'Jonas Joker 🃏',
+    timestamp: '2026-03-25T18:45:00.000Z',
     table: [
       'kongsvinger',
       'lillestrom',
@@ -380,7 +528,7 @@ const DEMO_PREDICTIONS = [
   {
     id: 'demo-6',
     author: 'Mister Skivebom 💀',
-    timestamp: '2025-03-25T19:00:00.000Z',
+    timestamp: '2026-03-25T19:00:00.000Z',
     table: [
       'skeid', // Skeid tippet øverst!
       'start',
@@ -409,6 +557,7 @@ if (typeof module !== 'undefined' && module.exports) {
     ZONES,
     getZoneForPosition,
     getTeamById,
+    SEASON_ROUNDS,
     DEMO_PREDICTIONS
   };
 } else if (typeof window !== 'undefined') {
@@ -417,5 +566,6 @@ if (typeof module !== 'undefined' && module.exports) {
   window.ZONES = ZONES;
   window.getZoneForPosition = getZoneForPosition;
   window.getTeamById = getTeamById;
+  window.SEASON_ROUNDS = SEASON_ROUNDS;
   window.DEMO_PREDICTIONS = DEMO_PREDICTIONS;
 }
