@@ -10,7 +10,7 @@
   // Tilstand
   let currentPredictionTable = [];
   let currentEditingTipId = null;
-  let activeSystem = 'innertier';
+  let activeSystem = 'klassisk';
   let sortablePrediction = null;
   let sortableFasit = null;
   let activeParticipantForAnalysis = null;
@@ -283,6 +283,7 @@
     const moved = currentPredictionTable.splice(index, 1)[0];
     currentPredictionTable.splice(targetIndex, 0, moved);
     renderPredictionList();
+    renderPlayoffBracket();
   };
 
   function initSortablePrediction() {
@@ -300,6 +301,7 @@
         const rows = dom.predictionList.querySelectorAll('[data-id]');
         currentPredictionTable = Array.from(rows).map(row => row.dataset.id);
         renderPredictionList();
+        renderPlayoffBracket();
       }
     });
   }
@@ -337,6 +339,7 @@
       dom.saveBtnLabel.textContent = 'Oppdater tips';
       currentPredictionTable = [...tip.table];
       renderPredictionList();
+      renderPlayoffBracket();
     }
   });
 
@@ -350,18 +353,10 @@
 
     try {
       StorageManager.saveTip(author, currentPredictionTable, currentEditingTipId);
-
-      if (window.confetti) {
-        confetti({
-          particleCount: 50,
-          spread: 60,
-          origin: { y: 0.7 }
-        });
-      }
-
       updateExistingTipsDropdown();
       renderLeaderboard();
       renderGamificationHub();
+      renderPlayoffBracket();
       switchTab('leaderboard');
     } catch (err) {
       alert('Feil ved lagring: ' + err.message);
@@ -430,20 +425,24 @@
     const p2 = participants[1];
     const p3 = participants[2];
 
+    const isKlassisk = (activeSystem === 'klassisk');
+
     const renderCard = (p, rankNum, cardClass, badge, titleColor) => {
       if (!p) {
         return `<div class="sports-card p-3 text-center text-xs text-slate-600 flex-1">-</div>`;
       }
 
       const ovr = p.profile ? p.profile.overallRating : 75;
+      const scoreDisplay = isKlassisk ? `${p.score} avvik` : `${p.score}p`;
+      const subDisplay = isKlassisk ? `🎯 ${p.exactHits} fulltreffere` : `🎯 ${p.exactHits} treff`;
 
       return `
         <div onclick="window.openXrayModal('${p.id}')" class="sports-card ${cardClass} p-3 text-center cursor-pointer flex-1 transition-all active:scale-95 space-y-1">
           <div class="text-lg">${badge}</div>
           <div class="text-[9px] font-black uppercase tracking-wider ${titleColor}">#${rankNum}</div>
           <div class="text-xs font-black text-white truncate">${p.author}</div>
-          <div class="text-sm font-black text-white">${p.score}p</div>
-          <div class="text-[10px] text-emerald-400 font-bold">🎯 ${p.exactHits} treff</div>
+          <div class="text-sm font-black text-white">${scoreDisplay}</div>
+          <div class="text-[10px] text-emerald-400 font-bold">${subDisplay}</div>
           <div class="inline-block px-1.5 py-0.5 rounded text-[9px] font-black bg-black/40 text-amber-300 border border-white/10 mt-1">
             ${ovr} OVR
           </div>
@@ -465,12 +464,18 @@
 
   function renderParticipantListCards(participants) {
     dom.leaderboardCardsContainer.innerHTML = '';
+    const isKlassisk = (activeSystem === 'klassisk');
 
     participants.forEach((p) => {
       const prof = p.profile;
       const ovr = prof ? prof.overallRating : 75;
       const level = prof ? prof.level : { title: 'Benkesliter', badge: '🥉' };
       const isHot = prof && prof.isHotStreak;
+
+      const scoreDisplay = isKlassisk ? `${p.score} avvik` : `${p.score}p`;
+      const subDisplay = isKlassisk 
+        ? `🎯 ${p.exactHits} fulltreffere` 
+        : `🎯 ${p.exactHits} · ${p.totalDiff} pl`;
 
       const card = document.createElement('div');
       card.className = 'sports-card p-3 flex items-center justify-between gap-3 cursor-pointer hover:bg-white/[0.03] transition-all active:scale-[0.99]';
@@ -500,8 +505,8 @@
           </div>
 
           <div>
-            <div class="text-sm font-black text-sky-400 leading-none">${p.score}p</div>
-            <div class="text-[10px] text-emerald-400 font-bold mt-1">🎯 ${p.exactHits} · ${p.totalDiff} pl</div>
+            <div class="text-sm font-black text-sky-400 leading-none">${scoreDisplay}</div>
+            <div class="text-[10px] text-emerald-400 font-bold mt-1">${subDisplay}</div>
           </div>
 
           <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500"></i>
@@ -573,14 +578,30 @@
 
   function renderPlayoffBracket() {
     if (!dom.playoffBracketContainer || !window.PlayoffEngine) return;
-    const currentFasit = getActiveStandings();
-    const playoffData = PlayoffEngine.getPlayoffMatches(currentFasit);
+
+    // Playoff-lagene tilpasses direkte etter hvordan brukeren har satt sitt tabelltips!
+    const tableToUse = (currentPredictionTable && currentPredictionTable.length === 16)
+      ? currentPredictionTable
+      : getActiveStandings();
+
+    const playoffData = PlayoffEngine.getPlayoffMatches(tableToUse);
+    if (!playoffData) return;
 
     dom.playoffBracketContainer.innerHTML = '';
 
+    const getTeamDisplay = (teamId) => {
+      if (teamId === 'Eliteserie-lag') {
+        return { name: 'Eliteserie-lag (Nr. 14)', logoUrl: '' };
+      }
+      if (teamId === 'PostNord-lag') {
+        return { name: 'PostNord-lag', logoUrl: '' };
+      }
+      return getTeamById(teamId) || { name: teamId, logoUrl: '' };
+    };
+
     playoffData.eliteseriePlayoff.forEach(m => {
-      const homeTeam = getTeamById(m.homeTeamId) || { name: m.homeTeamId, logoUrl: '' };
-      const awayTeam = getTeamById(m.awayTeamId) || { name: m.awayTeamId, logoUrl: '' };
+      const homeTeam = getTeamDisplay(m.homeTeamId);
+      const awayTeam = getTeamDisplay(m.awayTeamId);
 
       const isHomeWinner = m.winnerId === m.homeTeamId;
       const isAwayWinner = m.winnerId === m.awayTeamId;
@@ -602,7 +623,7 @@
               : 'bg-black/30 border-white/5 text-slate-300'
           }">
             <div class="flex items-center gap-1.5 min-w-0">
-              ${homeTeam.logoUrl ? `<img src="${homeTeam.logoUrl}" class="w-4 h-4 object-contain">` : '⚽'}
+              ${homeTeam.logoUrl ? `<img src="${homeTeam.logoUrl}" class="w-4 h-4 object-contain">` : '<span class="text-xs">⚽</span>'}
               <span class="text-xs truncate font-bold">${homeTeam.name}</span>
             </div>
             ${isHomeWinner ? '<span class="text-[10px]">🏆</span>' : ''}
@@ -615,7 +636,7 @@
               : 'bg-black/30 border-white/5 text-slate-300'
           }">
             <div class="flex items-center gap-1.5 min-w-0">
-              ${awayTeam.logoUrl ? `<img src="${awayTeam.logoUrl}" class="w-4 h-4 object-contain">` : '⚽'}
+              ${awayTeam.logoUrl ? `<img src="${awayTeam.logoUrl}" class="w-4 h-4 object-contain">` : '<span class="text-xs">⚽</span>'}
               <span class="text-xs truncate font-bold">${awayTeam.name}</span>
             </div>
             ${isAwayWinner ? '<span class="text-[10px]">🏆</span>' : ''}
@@ -629,7 +650,7 @@
     // OBOS Kvalik
     if (dom.playoffRelegationContainer) {
       const obosM = playoffData.obosPlayoff;
-      const obosTeam = getTeamById(obosM.homeTeamId) || { name: obosM.homeTeamId, logoUrl: '' };
+      const obosTeam = getTeamDisplay(obosM.homeTeamId);
       const isObosWinner = obosM.winnerId === obosM.homeTeamId;
 
       dom.playoffRelegationContainer.innerHTML = `
@@ -644,18 +665,21 @@
               : 'bg-black/30 border-white/5 text-slate-300'
           }">
             <div class="flex items-center gap-1.5 min-w-0">
-              ${obosTeam.logoUrl ? `<img src="${obosTeam.logoUrl}" class="w-4 h-4 object-contain">` : '⚽'}
+              ${obosTeam.logoUrl ? `<img src="${obosTeam.logoUrl}" class="w-4 h-4 object-contain">` : '<span class="text-xs">⚽</span>'}
               <span class="text-xs truncate font-bold">${obosTeam.name}</span>
             </div>
             ${isObosWinner ? '<span class="text-[10px]">🏆</span>' : ''}
           </div>
 
-          <div onclick="window.pickPlayoffWinner('obos', 'postnord')" class="p-2 rounded-xl border flex items-center justify-between cursor-pointer ${
+          <div onclick="window.pickPlayoffWinner('obos', 'PostNord-lag')" class="p-2 rounded-xl border flex items-center justify-between cursor-pointer ${
             !isObosWinner
               ? 'bg-emerald-950 border-emerald-500 text-emerald-300 font-black'
               : 'bg-black/30 border-white/5 text-slate-300'
           }">
-            <span class="text-xs font-bold">PostNord-lag</span>
+            <div class="flex items-center gap-1.5 min-w-0">
+              <span class="text-xs">⚽</span>
+              <span class="text-xs truncate font-bold">PostNord-lag</span>
+            </div>
             ${!isObosWinner ? '<span class="text-[10px]">🏆</span>' : ''}
           </div>
         </div>
@@ -671,10 +695,7 @@
 
   if (dom.savePlayoffTipsBtn) {
     dom.savePlayoffTipsBtn.addEventListener('click', () => {
-      if (window.confetti) {
-        confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
-      }
-      alert('🎉 Playoff-tips låst! Riktige vinnere gir +15 bonuspoeng og +50 XP per kamp når playoff spilles.');
+      alert('Playoff-tips låst! Riktige vinnere gir +15 bonuspoeng og +50 XP per kamp når playoff spilles.');
     });
   }
 

@@ -22,8 +22,8 @@ const PlayoffEngine = {
     match2WinnerId: null, // Vinner Kamp 2 (4 vs Vinner 1)
     match3WinnerId: null, // Vinner Kamp 3 (3 vs Vinner 2)
     eliteserieQualifiedId: null, // Vinner av Kamp 4 & 5 (spiller i Eliteserien)
-    eliteserieTeam14: 'Sandefjord / Haugesund', // Nr. 14 i Eliteserien
-    postNordWinner: 'PostNord-finalist',
+    eliteserieTeam14: 'Eliteserie-lag', // Nr. 14 i Eliteserien
+    postNordWinner: 'PostNord-lag',
     obosRelegationWinnerId: null // Vinner av OBOS-kvalik
   },
 
@@ -32,18 +32,47 @@ const PlayoffEngine = {
    * @param {Array<string>} standings - 16 lag-IDer i rekkefølge (0 = 1. plass, 2 = 3. plass, osv)
    */
   getPlayoffMatches(standings) {
+    if (!standings || standings.length < 14) return null;
     const team3Id = standings[2]; // Nr. 3
     const team4Id = standings[3]; // Nr. 4
     const team5Id = standings[4]; // Nr. 5
     const team6Id = standings[5]; // Nr. 6
     const team14Id = standings[13]; // Nr. 14 (Nedrykkskvalik)
 
-    // Standard vinnere hvis ikke manuelt valgt
-    const k1Winner = this.state.match1WinnerId || team5Id;
-    const k2Winner = this.state.match2WinnerId || team4Id;
-    const k3Winner = this.state.match3WinnerId || team3Id;
-    const finalPromoted = this.state.eliteserieQualifiedId || k3Winner;
-    const obosSurviver = this.state.obosRelegationWinnerId || team14Id;
+    // Kamp 1: Nr. 5 vs Nr. 6
+    let k1Winner = this.state.match1WinnerId;
+    if (k1Winner !== team5Id && k1Winner !== team6Id) {
+      k1Winner = team5Id;
+      this.state.match1WinnerId = k1Winner;
+    }
+
+    // Kamp 2: Nr. 4 vs Vinner K1
+    let k2Winner = this.state.match2WinnerId;
+    if (k2Winner !== team4Id && k2Winner !== k1Winner) {
+      k2Winner = team4Id;
+      this.state.match2WinnerId = k2Winner;
+    }
+
+    // Kamp 3: Nr. 3 vs Vinner K2
+    let k3Winner = this.state.match3WinnerId;
+    if (k3Winner !== team3Id && k3Winner !== k2Winner) {
+      k3Winner = team3Id;
+      this.state.match3WinnerId = k3Winner;
+    }
+
+    // Finale: Eliteserie-lag vs Vinner K3
+    let finalPromoted = this.state.eliteserieQualifiedId;
+    if (finalPromoted !== this.state.eliteserieTeam14 && finalPromoted !== k3Winner) {
+      finalPromoted = k3Winner;
+      this.state.eliteserieQualifiedId = finalPromoted;
+    }
+
+    // OBOS Kvalik: Nr. 14 i OBOS vs PostNord-lag
+    let obosSurviver = this.state.obosRelegationWinnerId;
+    if (obosSurviver !== team14Id && obosSurviver !== this.state.postNordWinner) {
+      obosSurviver = team14Id;
+      this.state.obosRelegationWinnerId = obosSurviver;
+    }
 
     return {
       eliteseriePlayoff: [

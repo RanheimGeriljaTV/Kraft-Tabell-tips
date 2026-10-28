@@ -175,7 +175,7 @@ const StorageManager = {
   },
 
   getActiveSystem() {
-    return localStorage.getItem(STORAGE_KEYS.ACTIVE_SYSTEM) || 'innertier';
+    return localStorage.getItem(STORAGE_KEYS.ACTIVE_SYSTEM) || 'klassisk';
   },
 
   saveActiveSystem(systemKey) {

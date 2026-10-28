@@ -31,8 +31,6 @@
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
   <!-- html2canvas -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <!-- Canvas Confetti -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
   <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -198,8 +196,8 @@
         
         <!-- POENGSYSTEM-VELGER (KOMPAKTE PILLS) -->
         <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
-          <button data-system="innertier" class="pill-tab active">🎯 Fulltreffer (+5p)</button>
-          <button data-system="klassisk" class="pill-tab">⛳ Klassisk Avvik</button>
+          <button data-system="klassisk" class="pill-tab active">⛳ Klassisk Avvik</button>
+          <button data-system="innertier" class="pill-tab">🎯 Mest Fulltreffere</button>
           <button data-system="sone" class="pill-tab">💎 Sone-bonus</button>
           <button data-system="ranheim_joker" class="pill-tab">💙 Ranheim 2x</button>
         </div>
@@ -251,7 +249,7 @@
           <div class="flex items-center justify-between">
             <div>
               <div class="text-[10px] font-black uppercase text-emerald-400">NFF Kvalifisering 2026</div>
-              <h3 class="text-sm font-black text-white">Tipp Playoff-vinnerne</h3>
+              <h3 class="text-sm font-black text-white">Playoff (Fra ditt tabelltips)</h3>
             </div>
             <button id="savePlayoffTipsBtn" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-md">
               Lås tips (+15p)
