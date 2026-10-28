@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>OBOS Tabell-tipper & Live Resultater 2026 | Ranheim Kraft</title>
+  <title>OBOS Tabell-tipper & Playoff 2026 | Ranheim Kraft</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -51,7 +51,7 @@
           Ranheim Kraft Internt
         </span>
         <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">OBOS Tabell-tipper</h1>
-        <p class="text-xs sm:text-sm text-slate-400">Live 2026-tabell og vennetabell for Ranheim Kraft.</p>
+        <p class="text-xs sm:text-sm text-slate-400">Live 2026-tabell, seriespurt og playoff for Ranheim Kraft.</p>
       </div>
 
       <form id="lockForm" class="space-y-4">
@@ -91,27 +91,18 @@
     <!-- TOPPBAR / HEADER -->
     <header class="cyber-panel sticky top-0 z-30 border-b border-white/5 bg-[#07090e]/85 backdrop-blur-md">
       
-      <!-- Seriestart & Live Status Banner -->
+      <!-- Sesongstatus Banner -->
       <div id="deadlineBanner" class="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border-b border-white/5 px-4 py-2">
         <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
           
-          <!-- Status Indikator -->
           <div class="flex items-center gap-2">
-            <span id="deadlineStatusPill" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 bg-emerald-950 text-emerald-400 border border-emerald-700/60">
-              <span id="deadlineStatusDot" class="w-2 h-2 rounded-full bg-emerald-400 live-dot"></span>
-              <span id="deadlineStatusLabel">Live Sesong 2026</span>
+            <span id="deadlineStatusPill" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 bg-amber-950 text-amber-300 border border-amber-600/60">
+              <span id="deadlineStatusDot" class="w-2 h-2 rounded-full bg-amber-400 live-dot"></span>
+              <span id="deadlineStatusLabel">Foreløpig Stilling</span>
             </span>
-            <span id="deadlineSubtext" class="text-slate-400 text-[11px]">28 av 30 serierunder spilt! Ranheim på 7. plass (38p).</span>
+            <span id="deadlineSubtext" class="text-slate-300 text-[11px]">28 av 30 runder spilt. Ingen vinner er kåret før sesong og playoff er ferdig!</span>
           </div>
 
-          <!-- Digital Nedtelling / Runder igjen -->
-          <div id="countdownClockContainer" class="flex items-center gap-1.5 font-black text-slate-200">
-            <span class="text-[11px] text-slate-400">Gjenstående kamper:</span>
-            <span class="digital-clock-digit px-2 py-0.5 rounded text-amber-400">2</span>
-            <span class="text-[10px] text-slate-400">runder</span>
-          </div>
-
-          <!-- Live API-knapp & Testbryter -->
           <div class="flex items-center gap-2 text-[11px]">
             <button id="quickApiFetchBtn" class="px-2.5 py-1 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 font-bold border border-emerald-600/60 text-[10px] flex items-center gap-1 transition-all" title="Hent fersk live-tabell">
               <i data-lucide="refresh-cw" class="w-3 h-3"></i>
@@ -138,7 +129,7 @@
                 Ranheim Kraft
               </span>
             </div>
-            <p class="text-xs text-slate-400">Live OBOS-ligaen 2026 • 2 runder gjenstår!</p>
+            <p class="text-xs text-slate-400">Live 2026-sesong • 2 serierunder og playoff gjenstår</p>
           </div>
         </div>
 
@@ -158,12 +149,12 @@
 
         <button id="tabBtnLeaderboard" class="tab-button flex-1 py-3 px-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all whitespace-nowrap">
           <i data-lucide="trophy" class="w-4 h-4"></i>
-          <span>2. Resultattavle & Podium</span>
+          <span>2. Foreløpig Resultattavle</span>
         </button>
 
         <button id="tabBtnStats" class="tab-button flex-1 py-3 px-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all whitespace-nowrap">
-          <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
-          <span>3. Siste Kampene & Analyse</span>
+          <i data-lucide="git-merge" class="w-4 h-4 text-amber-400"></i>
+          <span>3. Seriespurt & Playoff</span>
         </button>
 
         <button id="tabBtnSettings" class="tab-button flex-1 py-3 px-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all whitespace-nowrap">
@@ -179,7 +170,6 @@
       <!-- ==================== FANE 1: MITT TABELLTIPS ==================== -->
       <section id="tabContentPredict" class="space-y-6">
         
-        <!-- Sperre-varsel hvis låst -->
         <div id="lockedWarningBanner" class="hidden cyber-card rounded-2xl p-4 border border-rose-500/40 bg-rose-950/30 text-rose-200 flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-rose-900/60 border border-rose-500/50 flex items-center justify-center flex-shrink-0 text-xl">
             🔒
@@ -190,19 +180,17 @@
           </div>
         </div>
 
-        <!-- Innsending & Kontroll-panel -->
         <div class="cyber-card rounded-3xl p-5 sm:p-6 space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                <span>📝 Dra og slipp de 16 OBOS-lagene 2026</span>
+                <span>📝 Dra og slipp de 16 OBOS-lagene</span>
               </h2>
               <p class="text-xs sm:text-sm text-slate-400">
                 Hold og dra lagene til ønsket plassering. Skriv inn navnet ditt og lagre tipset.
               </p>
             </div>
 
-            <!-- Velg tips for visning/redigering -->
             <div class="flex items-center gap-2">
               <label for="existingTipSelect" class="sr-only">Velg tips</label>
               <select id="existingTipSelect" class="bg-slate-900 border border-slate-700/80 text-xs font-semibold rounded-xl px-3 py-2 text-slate-300 focus:outline-none focus:ring-1 focus:ring-sky-500">
@@ -211,7 +199,6 @@
             </div>
           </div>
 
-          <!-- Skjema-handlinger -->
           <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-3 border-t border-white/5">
             <div class="relative flex-1">
               <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -244,7 +231,6 @@
           </div>
         </div>
 
-        <!-- Sone-forklaring -->
         <div class="flex flex-wrap items-center gap-2 sm:gap-4 text-xs font-bold px-2">
           <span class="text-slate-500 uppercase tracking-widest text-[10px]">OBOS-Soner:</span>
           <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-950/40 border border-emerald-500/40 text-emerald-300">
@@ -265,34 +251,38 @@
           </div>
         </div>
 
-        <!-- DRAG-AND-DROP TABELLISTE -->
         <div id="predictionList" class="space-y-2 select-none">
           <!-- Dynamisk fylles av app.js -->
         </div>
 
       </section>
 
-      <!-- ==================== FANE 2: RESULTATTAVLE & PODIUM ==================== -->
+      <!-- ==================== FANE 2: RESULTATTAVLE (FORELØPIG STILLING) ==================== -->
       <section id="tabContentLeaderboard" class="hidden space-y-6">
         
-        <!-- Live status bar & Poengsystem -->
-        <div class="cyber-card rounded-3xl p-4 sm:p-5 space-y-3">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-3">
-            <div class="flex items-center gap-2">
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-950 text-emerald-300 border border-emerald-600/60 flex items-center gap-1">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 live-dot"></span>
-                Gjeldende Live Fasit: Runde 28
-              </span>
-              <span class="text-xs text-slate-400 hidden sm:inline">• 2 serierunder gjenstår</span>
+        <!-- Pågående sesong advarsel -->
+        <div class="cyber-card rounded-2xl p-4 border border-amber-500/40 bg-amber-950/20 text-amber-200 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-amber-900/60 border border-amber-500/50 flex items-center justify-center text-lg flex-shrink-0">
+              ⏳
             </div>
-
-            <button id="refreshLiveTableBtn" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-700/40 text-xs font-bold flex items-center gap-1.5 self-start sm:self-auto transition-colors">
-              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-              <span>Oppdater tabell fra API</span>
-            </button>
+            <div>
+              <div class="font-black text-sm text-amber-300">Foreløpig stilling — Sesongen er ikke avgjort!</div>
+              <div class="text-xs text-slate-300">
+                2 serierunder (runde 29 og 30) pluss playoff gjenstår. Ingen vinner er kåret før fasiten er endelig.
+              </div>
+            </div>
           </div>
 
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
+          <button id="refreshLiveTableBtn" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-700/40 text-xs font-bold flex items-center gap-1.5 whitespace-nowrap">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>Hent Live API Tabell</span>
+          </button>
+        </div>
+
+        <!-- Poengsystem-velger -->
+        <div class="cyber-card rounded-3xl p-4 sm:p-5 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div class="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
               <i data-lucide="calculator" class="w-4 h-4 text-cyan-400"></i>
               <span>Poengberegning (Bytt live!)</span>
@@ -325,9 +315,9 @@
           </div>
         </div>
 
-        <!-- 3D VISUELT PODIUM (TOPP 3) -->
+        <!-- 3D FORELØPIG PODIUM (TOPP 3 I ØYEBLIKKET) -->
         <div id="podiumContainer" class="pt-2 pb-2">
-          <!-- Renderes av app.js -->
+          <!-- Renderes av app.js med "Foreløpig leder" -->
         </div>
 
         <!-- DELTAKER-TABELL -->
@@ -335,7 +325,7 @@
           <div class="px-5 py-4 border-b border-white/5 flex items-center justify-between">
             <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-200 flex items-center gap-2">
               <i data-lucide="users" class="w-4 h-4 text-cyan-400"></i>
-              <span>Sammenlagt Stilling (<span id="participantCount">0</span> deltakere)</span>
+              <span>Foreløpig Sammenlagtstilling (<span id="participantCount">0</span> deltakere)</span>
             </h3>
             <span class="text-xs text-slate-500">Klikk en rad for detaljert analyse</span>
           </div>
@@ -362,25 +352,24 @@
 
       </section>
 
-      <!-- ==================== FANE 3: SISTE KAMPENE & SESONG-STATS ==================== -->
-      <section id="tabContentStats" class="hidden space-y-6">
+      <!-- ==================== FANE 3: SIESPURT & PLAYOFF ==================== -->
+      <section id="tabContentStats" class="space-y-6">
         
-        <!-- SESONGAVSLUTNING SIMULATOR: PRØV SISTE KAMPENE! -->
+        <!-- PRØV SISTE SERIERUNDER -->
         <div class="cyber-card rounded-3xl p-5 sm:p-6 space-y-4 border border-amber-500/30 bg-gradient-to-br from-slate-900/90 via-[#07090e] to-slate-900/90 shadow-2xl">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <span class="text-[10px] font-black uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
                 <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i>
-                Sesongavslutning 2026: Siste 2 Kamper
+                Seriespurt 2026: Siste 2 Kamper
               </span>
               <h3 class="text-base sm:text-xl font-black text-white flex items-center gap-2 mt-0.5">
-                <span>⚡ Prøv siste serierundene nå!</span>
+                <span>⚡ Test ulike utfall i de siste rundene</span>
               </h3>
             </div>
-            <span class="text-xs text-slate-300">Klikk en runde for å se hvem i gjengen som ville vunnet:</span>
+            <span class="text-xs text-slate-300">Klikk for å se stillingen etter hver runde:</span>
           </div>
 
-          <!-- Runde-velgere (Runde 28, Runde 29, Runde 30) -->
           <div id="seasonRoundsContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <!-- Dynamisk fylles av app.js -->
           </div>
@@ -391,23 +380,68 @@
           </div>
         </div>
 
+        <!-- ================= NFF PLAYOFF & KVALIFISERING SIMULATOR ================= -->
+        <div class="cyber-card rounded-3xl p-5 sm:p-6 space-y-5 border border-sky-500/40 bg-gradient-to-b from-[#091124] to-[#07090e]">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
+            <div>
+              <span class="text-[10px] font-black uppercase tracking-widest text-cyan-400 flex items-center gap-1.5">
+                <i data-lucide="shield" class="w-3.5 h-3.5 text-cyan-400"></i>
+                Offisielt NFF-reglement
+              </span>
+              <h3 class="text-base sm:text-xl font-black text-white flex items-center gap-2 mt-0.5">
+                <span>🏆 Kvalifisering til Eliteserien & OBOS-ligaen 2026</span>
+              </h3>
+            </div>
+            <div class="text-xs text-slate-400">
+              Spilles i nov / des etter at 30. serierunde er fullført
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-300">
+            Kvalifiseringen avgjør hvem som rykker opp til Eliteserien og hvem som berger plassen i OBOS-ligaen. 
+            <strong class="text-cyan-300">Klikk på lagene i turneringsstigen under</strong> for å simulere hvem som vinner hver playoff-kamp!
+          </p>
+
+          <!-- ELITESERIEN KVALIFISERING TURNERINGSSTIGE -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span>Kvalifisering til Eliteserien (Nr. 3–6 i OBOS mot Nr. 14 i Eliteserien)</span>
+            </h4>
+
+            <div id="playoffBracketContainer" class="grid grid-cols-1 md:grid-cols-4 gap-3">
+              <!-- Dynamisk fylles av app.js med Kamp 1, Kamp 2, Kamp 3 og Dobbeltkamp Finale -->
+            </div>
+          </div>
+
+          <!-- OBOS-LIGAEN NEDRYKKSKVALIFISERING -->
+          <div class="pt-3 border-t border-white/10 space-y-3">
+            <h4 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+              <span>Kvalifisering til OBOS-ligaen (Nr. 14 i OBOS mot PostNord-vinner)</span>
+            </h4>
+
+            <div id="playoffRelegationContainer" class="max-w-xl">
+              <!-- Dynamisk fylles av app.js -->
+            </div>
+          </div>
+        </div>
+
         <!-- 2-KOLONNER: REELL OBOS-TABELL OG FOLKETS TABELL -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           
-          <!-- EKT LIVE OBOS-TABELL DETALJER (K, V, U, T, Mål, P) -->
+          <!-- EKT LIVE OBOS-TABELL -->
           <div class="cyber-card rounded-3xl p-5 space-y-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="text-sm sm:text-base font-black text-white flex items-center gap-2">
-                  <i data-lucide="table" class="w-4 h-4 text-emerald-400"></i>
-                  <span>OBOS-ligaen 2026 (Live Tabell)</span>
-                </h3>
-                <p class="text-xs text-slate-400">Reelle kamper, målforskjell og poeng:</p>
-              </div>
+            <div>
+              <h3 class="text-sm sm:text-base font-black text-white flex items-center gap-2">
+                <i data-lucide="table" class="w-4 h-4 text-emerald-400"></i>
+                <span>Gjeldende Live-tabell (Runde 28)</span>
+              </h3>
+              <p class="text-xs text-slate-400">Kamper, målforskjell og poeng:</p>
             </div>
 
             <div class="overflow-y-auto max-h-[440px] space-y-1.5 pr-1" id="officialLiveTableContainer">
-              <!-- Dynamisk fylles med ekte tall for K, Mål, Poeng -->
+              <!-- Dynamisk fylles med ekte tall -->
             </div>
           </div>
 
@@ -433,7 +467,6 @@
         <!-- H2H DUEL OG RANHEIM ANALYSE -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           
-          <!-- H2H KOMPIS-DUELL (HEAD-TO-HEAD) -->
           <div class="cyber-card rounded-3xl p-5 space-y-4">
             <div>
               <h3 class="text-sm sm:text-base font-black text-white flex items-center gap-2">
@@ -464,7 +497,6 @@
             </div>
           </div>
 
-          <!-- KLUBB-ANALYSE: RANHEIM TF -->
           <div class="cyber-card rounded-3xl p-5 space-y-4">
             <div class="flex items-center gap-3">
               <img src="https://images.fotmob.com/image_resources/logo/teamlogo/6563.png" alt="Ranheim TF" class="w-10 h-10 object-contain">
@@ -479,7 +511,7 @@
             </div>
 
             <div class="p-3 rounded-2xl bg-sky-950/40 border border-sky-700/40 text-xs text-sky-200">
-              💙 <strong>Status i dag:</strong> Ranheim har 38 poeng og 71–68 i målforskjell etter 28 runder. Med to seiere i de siste kampene kan Ranheim kapre kvalifiseringsplassen til Eliteserien!
+              💙 <strong>Status i dag:</strong> Ranheim har 38 poeng etter 28 runder. Med seier i de to siste kampene kan Ranheim kapre 5. eller 6. plass og gå rett inn i Playoff Kamp 1 den 22. november!
             </div>
           </div>
 
@@ -490,7 +522,6 @@
       <!-- ==================== FANE 4: FASIT & ADMIN ==================== -->
       <section id="tabContentSettings" class="hidden space-y-6">
         
-        <!-- Fasit-editor -->
         <div class="cyber-card rounded-3xl p-5 sm:p-6 space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
@@ -521,7 +552,6 @@
             </div>
           </div>
 
-          <!-- Hurtig-scenarier -->
           <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-white/5">
             <span class="text-xs font-bold text-slate-500">Forhåndsinnstillinger:</span>
             <button id="presetStandardBtn" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700">
@@ -532,13 +562,11 @@
             </button>
           </div>
 
-          <!-- Dra-og-slipp Fasit-liste -->
           <div id="fasitList" class="space-y-1.5 select-none pt-2">
             <!-- Dynamisk fylles av app.js -->
           </div>
         </div>
 
-        <!-- Sky-synk & Datahåndtering -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           
           <div class="cyber-card rounded-3xl p-5 space-y-3">
@@ -596,11 +624,11 @@
     <footer class="border-t border-white/5 py-4 text-center text-xs text-slate-500 cyber-panel">
       <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
         <div class="flex items-center gap-1.5 font-medium">
-          <span>OBOS Tabell-tipper for</span>
+          <span>OBOS Tabell-tipper & Playoff for</span>
           <strong class="text-slate-200">ranheimkraft.no</strong>
         </div>
         <div class="text-[11px] text-slate-600">
-          Live 2026 data • Mobil Drag-and-Drop
+          NFF Kvalifiseringsregler • Live 2026 data
         </div>
       </div>
     </footer>
@@ -620,7 +648,7 @@
               <span id="xrayAuthorName">Deltaker</span>
               <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-700">Tipsanalyse</span>
             </h3>
-            <p id="xraySummarySubtitle" class="text-xs text-slate-400">Tips vs. Gjeldende fasit</p>
+            <p id="xraySummarySubtitle" class="text-xs text-slate-400">Tips vs. Gjeldende fasit (Foreløpig)</p>
           </div>
         </div>
 
@@ -717,6 +745,7 @@
   <script src="js/scoring.js"></script>
   <script src="js/badges.js"></script>
   <script src="js/stats.js"></script>
+  <script src="js/playoff.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/app.js"></script>
   <script>

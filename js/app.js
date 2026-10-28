@@ -1,5 +1,5 @@
 /**
- * OBOS Tabell-tipper, Live Resultattavle & Sesong-Stats Hub 2026
+ * OBOS Tabell-tipper, Live Resultattavle & Playoff Hub 2026
  * Hovedapplikasjon (App Controller)
  */
 
@@ -62,10 +62,12 @@
     leaderboardTableBody: document.getElementById('leaderboardTableBody'),
     participantCount: document.getElementById('participantCount'),
 
-    // Fane 3: Siste kampene & Stats
+    // Fane 3: Seriespurt & Playoff
     seasonRoundsContainer: document.getElementById('seasonRoundsContainer'),
     roundInfoBanner: document.getElementById('roundInfoBanner'),
     roundInfoText: document.getElementById('roundInfoText'),
+    playoffBracketContainer: document.getElementById('playoffBracketContainer'),
+    playoffRelegationContainer: document.getElementById('playoffRelegationContainer'),
     officialLiveTableContainer: document.getElementById('officialLiveTableContainer'),
     consensusListContainer: document.getElementById('consensusListContainer'),
     h2hSelectA: document.getElementById('h2hSelectA'),
@@ -177,14 +179,14 @@
       override = (configOverride === 'locked');
     }
 
-    isSeasonLocked = (override !== null) ? override : true; // Standard: sesongen er i gang (28 runder spilt)
+    isSeasonLocked = (override !== null) ? override : true;
 
     if (isSeasonLocked) {
       dom.deadlineStatusPill.className =
-        'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 bg-rose-950 text-rose-300 border border-rose-700/60';
-      dom.deadlineStatusDot.className = 'w-2 h-2 rounded-full bg-rose-500';
-      dom.deadlineStatusLabel.textContent = '🔒 Tipping Stengt';
-      dom.deadlineSubtext.textContent = 'Sesong 2026 er i innspurten! 28 av 30 runder spilt.';
+        'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 bg-amber-950 text-amber-300 border border-amber-600/60';
+      dom.deadlineStatusDot.className = 'w-2 h-2 rounded-full bg-amber-400 live-dot';
+      dom.deadlineStatusLabel.textContent = 'Foreløpig Stilling';
+      dom.deadlineSubtext.textContent = '28 av 30 runder spilt. Ingen vinner er kåret før sesong og playoff er ferdig!';
       dom.lockedWarningBanner.classList.remove('hidden');
 
       dom.saveTipBtn.disabled = true;
@@ -234,6 +236,7 @@
     initSortableFasit();
     renderLeaderboard();
     renderSeasonRoundsUI();
+    renderPlayoffBracket();
     renderOfficialLiveTable();
     renderStatsDashboard();
     setupEventListeners();
@@ -281,6 +284,7 @@
       dom.tabContentStats.classList.remove('hidden');
       dom.tabBtnStats.classList.add('active', 'border-sky-400', 'text-sky-300');
       dom.tabBtnStats.classList.remove('border-transparent', 'text-slate-400');
+      renderPlayoffBracket();
       renderOfficialLiveTable();
       renderStatsDashboard();
     } else if (target === 'settings') {
@@ -459,7 +463,7 @@
   });
 
   /* ==========================================================================
-     6. FANE 2: RESULTATTAVLE & PODIUM
+     6. FANE 2: RESULTATTAVLE (FORELØPIG STILLING)
      ========================================================================== */
 
   dom.systemButtons.forEach(btn => {
@@ -516,7 +520,7 @@
 
   function getActiveStandings() {
     const rounds = window.SEASON_ROUNDS || [];
-    if (activeRoundIndex > 0 && rounds[activeRoundIndex]) {
+    if (activeRoundIndex >= 0 && rounds[activeRoundIndex]) {
       return rounds[activeRoundIndex].standings;
     }
     return StorageManager.getFasit();
@@ -534,66 +538,77 @@
     };
 
     dom.podiumContainer.innerHTML = `
-      <div class="grid grid-cols-3 gap-2 sm:gap-4 items-end max-w-2xl mx-auto px-2">
+      <div class="max-w-2xl mx-auto px-2 space-y-3">
         
-        <!-- 2. PLASS (SØLV) -->
-        <div class="order-1 flex flex-col items-center">
-          ${
-            p2
-              ? `
-            <div onclick="window.openXrayModal('${p2.id}')" class="w-full cyber-card hover:bg-slate-800/80 cursor-pointer rounded-3xl p-3.5 text-center border-t-4 border-slate-300 shadow-xl transition-all hover:-translate-y-1">
-              <div class="text-3xl mb-1">🥈</div>
-              <div class="text-xs sm:text-sm font-black text-white truncate">${p2.author}</div>
-              <div class="text-base sm:text-xl font-black text-slate-200 mt-1">${p2.score} <span class="text-[10px] font-normal text-slate-400">${meta.unit}</span></div>
-              <div class="text-[11px] text-slate-400 mt-0.5">🎯 ${p2.exactHits} treff</div>
-              <div class="mt-2 h-5 flex justify-center">${getBadgePill(p2)}</div>
-            </div>
-            <div class="w-full h-18 sm:h-24 podium-pedestal-2 rounded-t-2xl flex items-center justify-center font-black text-xl text-slate-300">
-              2
-            </div>
-          `
-              : `<div class="h-28 flex items-center justify-center text-xs text-slate-600">-</div>`
-          }
+        <div class="grid grid-cols-3 gap-2 sm:gap-4 items-end">
+          
+          <!-- 2. PLASS (SØLV) -->
+          <div class="order-1 flex flex-col items-center">
+            ${
+              p2
+                ? `
+              <div onclick="window.openXrayModal('${p2.id}')" class="w-full cyber-card hover:bg-slate-800/80 cursor-pointer rounded-3xl p-3.5 text-center border-t-4 border-slate-300 shadow-xl transition-all hover:-translate-y-1">
+                <div class="text-2xl mb-1">🥈</div>
+                <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Foreløpig 2.</div>
+                <div class="text-xs sm:text-sm font-black text-white truncate mt-0.5">${p2.author}</div>
+                <div class="text-base sm:text-lg font-black text-slate-200 mt-1">${p2.score} <span class="text-[10px] font-normal text-slate-400">${meta.unit}</span></div>
+                <div class="text-[11px] text-slate-400 mt-0.5">🎯 ${p2.exactHits} treff</div>
+                <div class="mt-2 h-5 flex justify-center">${getBadgePill(p2)}</div>
+              </div>
+              <div class="w-full h-18 sm:h-22 podium-pedestal-2 rounded-t-2xl flex items-center justify-center font-black text-xl text-slate-300">
+                2
+              </div>
+            `
+                : `<div class="h-28 flex items-center justify-center text-xs text-slate-600">-</div>`
+            }
+          </div>
+
+          <!-- 1. PLASS (GULL - FORELØPIG LEDER) -->
+          <div class="order-2 flex flex-col items-center">
+            ${
+              p1
+                ? `
+              <div onclick="window.openXrayModal('${p1.id}')" class="w-full cyber-card hover:bg-slate-800/90 cursor-pointer rounded-3xl p-4 text-center border-t-4 border-amber-400 shadow-2xl transition-all hover:-translate-y-1">
+                <div class="text-3xl mb-1 crown-anim">👑</div>
+                <div class="text-[10px] font-black uppercase tracking-wider text-amber-400">Leder i øyeblikket</div>
+                <div class="text-sm sm:text-base font-black text-amber-200 truncate mt-0.5">${p1.author}</div>
+                <div class="text-xl sm:text-2xl font-black text-amber-400 mt-1">${p1.score} <span class="text-xs font-normal text-amber-200/80">${meta.unit}</span></div>
+                <div class="text-xs text-amber-300 font-bold mt-0.5">🎯 ${p1.exactHits} fulltreffere</div>
+                <div class="mt-2 h-5 flex justify-center">${getBadgePill(p1)}</div>
+              </div>
+              <div class="w-full h-24 sm:h-28 podium-pedestal-1 rounded-t-2xl flex items-center justify-center font-black text-2xl text-amber-400">
+                1
+              </div>
+            `
+                : `<div class="h-36 flex items-center justify-center text-xs text-slate-600">-</div>`
+            }
+          </div>
+
+          <!-- 3. PLASS (BRONSE) -->
+          <div class="order-3 flex flex-col items-center">
+            ${
+              p3
+                ? `
+              <div onclick="window.openXrayModal('${p3.id}')" class="w-full cyber-card hover:bg-slate-800/80 cursor-pointer rounded-3xl p-3.5 text-center border-t-4 border-amber-700 shadow-xl transition-all hover:-translate-y-1">
+                <div class="text-2xl mb-1">🥉</div>
+                <div class="text-[10px] font-black uppercase tracking-wider text-amber-600">Foreløpig 3.</div>
+                <div class="text-xs sm:text-sm font-black text-white truncate mt-0.5">${p3.author}</div>
+                <div class="text-base sm:text-lg font-black text-amber-500 mt-1">${p3.score} <span class="text-[10px] font-normal text-slate-400">${meta.unit}</span></div>
+                <div class="text-[11px] text-slate-400 mt-0.5">🎯 ${p3.exactHits} treff</div>
+                <div class="mt-2 h-5 flex justify-center">${getBadgePill(p3)}</div>
+              </div>
+              <div class="w-full h-14 sm:h-18 podium-pedestal-3 rounded-t-2xl flex items-center justify-center font-black text-lg text-amber-600">
+                3
+              </div>
+            `
+                : `<div class="h-24 flex items-center justify-center text-xs text-slate-600">-</div>`
+            }
+          </div>
+
         </div>
 
-        <!-- 1. PLASS (GULL) -->
-        <div class="order-2 flex flex-col items-center">
-          ${
-            p1
-              ? `
-            <div onclick="window.openXrayModal('${p1.id}')" class="w-full cyber-card hover:bg-slate-800/90 cursor-pointer rounded-3xl p-4 text-center border-t-4 border-amber-400 shadow-2xl transition-all hover:-translate-y-1">
-              <div class="text-4xl mb-1 crown-anim">👑</div>
-              <div class="text-sm sm:text-base font-black text-amber-200 truncate">${p1.author}</div>
-              <div class="text-xl sm:text-2xl font-black text-amber-400 mt-1">${p1.score} <span class="text-xs font-normal text-amber-200/80">${meta.unit}</span></div>
-              <div class="text-xs text-amber-300 font-bold mt-0.5">🎯 ${p1.exactHits} treff</div>
-              <div class="mt-2 h-5 flex justify-center">${getBadgePill(p1)}</div>
-            </div>
-            <div class="w-full h-26 sm:h-32 podium-pedestal-1 rounded-t-2xl flex items-center justify-center font-black text-2xl text-amber-400">
-              1
-            </div>
-          `
-              : `<div class="h-36 flex items-center justify-center text-xs text-slate-600">-</div>`
-          }
-        </div>
-
-        <!-- 3. PLASS (BRONSE) -->
-        <div class="order-3 flex flex-col items-center">
-          ${
-            p3
-              ? `
-            <div onclick="window.openXrayModal('${p3.id}')" class="w-full cyber-card hover:bg-slate-800/80 cursor-pointer rounded-3xl p-3.5 text-center border-t-4 border-amber-700 shadow-xl transition-all hover:-translate-y-1">
-              <div class="text-3xl mb-1">🥉</div>
-              <div class="text-xs sm:text-sm font-black text-white truncate">${p3.author}</div>
-              <div class="text-base sm:text-xl font-black text-amber-500 mt-1">${p3.score} <span class="text-[10px] font-normal text-slate-400">${meta.unit}</span></div>
-              <div class="text-[11px] text-slate-400 mt-0.5">🎯 ${p3.exactHits} treff</div>
-              <div class="mt-2 h-5 flex justify-center">${getBadgePill(p3)}</div>
-            </div>
-            <div class="w-full h-14 sm:h-18 podium-pedestal-3 rounded-t-2xl flex items-center justify-center font-black text-lg text-amber-600">
-              3
-            </div>
-          `
-              : `<div class="h-24 flex items-center justify-center text-xs text-slate-600">-</div>`
-          }
+        <div class="text-center text-[11px] text-slate-400 py-1">
+          ℹ️ <em>Ingen vinner er kåret enda. Stillingen er basert på de 28 spilte rundene.</em>
         </div>
 
       </div>
@@ -659,7 +674,7 @@
   }
 
   /* ==========================================================================
-     7. FANE 3: SISTE KAMPENE & SESONG-STATS
+     7. FANE 3: SERIESPURT & PLAYOFF (NFF REGLER)
      ========================================================================== */
 
   function renderSeasonRoundsUI() {
@@ -669,7 +684,7 @@
     rounds.forEach((round, index) => {
       const isCurrent = (index === activeRoundIndex);
       const btn = document.createElement('button');
-      btn.className = `p-3 rounded-2xl border text-left transition-all relative overflow-hidden ${
+      btn.className = `p-3.5 rounded-2xl border text-left transition-all relative overflow-hidden ${
         isCurrent
           ? 'border-amber-400 bg-amber-950/40 text-amber-200 shadow-xl shadow-amber-950/50 ring-2 ring-amber-400/30'
           : 'border-white/5 bg-slate-900/80 hover:border-slate-700 text-slate-400'
@@ -682,13 +697,14 @@
           }">${round.badge || round.dateLabel}</span>
           <span class="text-xs text-slate-400">${round.dateLabel}</span>
         </div>
-        <div class="text-sm font-black text-white mt-1.5 truncate">${round.title}</div>
+        <div class="text-sm font-black text-white mt-2 truncate">${round.title}</div>
       `;
 
       btn.addEventListener('click', () => {
         activeRoundIndex = index;
         renderSeasonRoundsUI();
         dom.roundInfoText.textContent = round.description;
+        renderPlayoffBracket(); // Oppdater playoff med ny tabell
         renderLeaderboard();
         renderStatsDashboard();
       });
@@ -696,6 +712,119 @@
       dom.seasonRoundsContainer.appendChild(btn);
     });
   }
+
+  function renderPlayoffBracket() {
+    if (!dom.playoffBracketContainer || !window.PlayoffEngine) return;
+
+    const currentFasit = getActiveStandings();
+    const playoffData = PlayoffEngine.getPlayoffMatches(currentFasit);
+
+    dom.playoffBracketContainer.innerHTML = '';
+
+    // Render 4 kamper i Eliteserie-kvaliken
+    playoffData.eliteseriePlayoff.forEach(m => {
+      const homeTeam = getTeamById(m.homeTeamId) || { name: m.homeTeamId, logoUrl: '' };
+      const awayTeam = getTeamById(m.awayTeamId) || { name: m.awayTeamId, logoUrl: '' };
+
+      const isHomeWinner = m.winnerId === m.homeTeamId;
+      const isAwayWinner = m.winnerId === m.awayTeamId;
+
+      const card = document.createElement('div');
+      card.className = 'cyber-card p-3.5 rounded-2xl border border-white/10 space-y-2.5 flex flex-col justify-between';
+
+      card.innerHTML = `
+        <div>
+          <div class="flex items-center justify-between border-b border-white/5 pb-1.5 text-[10px] font-black text-cyan-400 uppercase">
+            <span>${m.stage}</span>
+            <span class="text-slate-400 font-bold">${m.date}</span>
+          </div>
+          <div class="text-xs font-black text-white mt-1.5">${m.title}</div>
+        </div>
+
+        <div class="space-y-1.5 pt-1">
+          <!-- Hjemmelag -->
+          <div onclick="window.pickPlayoffWinner(${m.matchNumber}, '${m.homeTeamId}')" class="p-2 rounded-xl flex items-center justify-between cursor-pointer border transition-all ${
+            isHomeWinner
+              ? 'bg-emerald-950/80 border-emerald-500 text-emerald-200 font-black shadow-md shadow-emerald-950'
+              : 'bg-slate-900/60 border-white/5 hover:border-slate-600 text-slate-300'
+          }">
+            <div class="flex items-center gap-2 min-w-0">
+              ${homeTeam.logoUrl ? `<img src="${homeTeam.logoUrl}" class="w-5 h-5 object-contain flex-shrink-0">` : '⚽'}
+              <span class="text-xs truncate font-bold">${homeTeam.name}</span>
+            </div>
+            <span class="text-[10px] uppercase font-bold text-slate-400 flex-shrink-0">
+              ${isHomeWinner ? '🏆 VINNER' : '(H)'}
+            </span>
+          </div>
+
+          <!-- Bortelag -->
+          <div onclick="window.pickPlayoffWinner(${m.matchNumber}, '${m.awayTeamId}')" class="p-2 rounded-xl flex items-center justify-between cursor-pointer border transition-all ${
+            isAwayWinner
+              ? 'bg-emerald-950/80 border-emerald-500 text-emerald-200 font-black shadow-md shadow-emerald-950'
+              : 'bg-slate-900/60 border-white/5 hover:border-slate-600 text-slate-300'
+          }">
+            <div class="flex items-center gap-2 min-w-0">
+              ${awayTeam.logoUrl ? `<img src="${awayTeam.logoUrl}" class="w-5 h-5 object-contain flex-shrink-0">` : '⚽'}
+              <span class="text-xs truncate font-bold">${awayTeam.name}</span>
+            </div>
+            <span class="text-[10px] uppercase font-bold text-slate-400 flex-shrink-0">
+              ${isAwayWinner ? '🏆 VINNER' : '(B)'}
+            </span>
+          </div>
+        </div>
+
+        <div class="text-[10px] text-slate-500 text-center pt-1">
+          Klikk på laget du tror vinner kampen
+        </div>
+      `;
+
+      dom.playoffBracketContainer.appendChild(card);
+    });
+
+    // Render OBOS-nedrykkskvalik
+    if (dom.playoffRelegationContainer) {
+      const obosM = playoffData.obosPlayoff;
+      const obosTeam = getTeamById(obosM.homeTeamId) || { name: obosM.homeTeamId, logoUrl: '' };
+      const isObosWinner = obosM.winnerId === obosM.homeTeamId;
+
+      dom.playoffRelegationContainer.innerHTML = `
+        <div class="cyber-card p-3.5 rounded-2xl border border-amber-500/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div>
+            <div class="text-[10px] font-black uppercase tracking-wider text-amber-400">Kamp 3 & 4 (${obosM.date})</div>
+            <div class="text-sm font-black text-white mt-0.5">${obosM.title}</div>
+            <div class="text-xs text-slate-400 mt-0.5">Vinneren spiller i OBOS-ligaen 2026. Taper rykker ned til PostNord.</div>
+          </div>
+
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <div onclick="window.pickPlayoffWinner('obos', '${obosM.homeTeamId}')" class="flex-1 sm:flex-initial px-3 py-2 rounded-xl border cursor-pointer flex items-center gap-2 ${
+              isObosWinner
+                ? 'bg-emerald-950/80 border-emerald-500 text-emerald-200 font-black'
+                : 'bg-slate-900 border-white/5 text-slate-300'
+            }">
+              ${obosTeam.logoUrl ? `<img src="${obosTeam.logoUrl}" class="w-5 h-5 object-contain">` : '⚽'}
+              <span class="text-xs font-bold">${obosTeam.name}</span>
+              ${isObosWinner ? '🏆' : ''}
+            </div>
+
+            <div onclick="window.pickPlayoffWinner('obos', 'postnord')" class="flex-1 sm:flex-initial px-3 py-2 rounded-xl border cursor-pointer flex items-center gap-2 ${
+              !isObosWinner
+                ? 'bg-emerald-950/80 border-emerald-500 text-emerald-200 font-black'
+                : 'bg-slate-900 border-white/5 text-slate-300'
+            }">
+              <span class="text-xs font-bold">PostNord-lag</span>
+              ${!isObosWinner ? '🏆' : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  window.pickPlayoffWinner = function (matchNumber, winnerId) {
+    if (!window.PlayoffEngine) return;
+    PlayoffEngine.setWinner(matchNumber, winnerId);
+    renderPlayoffBracket();
+  };
 
   function renderOfficialLiveTable() {
     if (!dom.officialLiveTableContainer) return;
@@ -706,7 +835,6 @@
       const team = getTeamById(item.id);
       if (!team) return;
 
-      const zone = getZoneForPosition(item.rank);
       const isRanheim = team.isRanheim;
 
       const row = document.createElement('div');
@@ -866,7 +994,7 @@
           </div>
 
           <div class="text-center pt-2 border-t border-white/5">
-            <span class="text-[11px] text-slate-400">Leder duellen:</span>
+            <span class="text-[11px] text-slate-400">Leder i øyeblikket:</span>
             <div class="text-sm font-black text-emerald-400">🏆 ${h2h.leader}</div>
           </div>
         </div>
@@ -1018,6 +1146,7 @@
       renderLeaderboard();
       renderOfficialLiveTable();
       renderStatsDashboard();
+      renderPlayoffBracket();
       renderFasitList();
       if (window.lucide) window.lucide.createIcons();
     }
@@ -1103,6 +1232,7 @@
       alert('Fasittabellen er oppdatert! Alle poengsummer er regnet ut på nytt.');
       renderLeaderboard();
       renderStatsDashboard();
+      renderPlayoffBracket();
     } catch (e) {
       alert('Feil: ' + e.message);
     }
@@ -1113,6 +1243,7 @@
     renderFasitList();
     renderLeaderboard();
     renderStatsDashboard();
+    renderPlayoffBracket();
     alert('Fasit tilbakestilt til live 2026-tabell (Runde 28).');
   });
 
@@ -1122,6 +1253,7 @@
     renderFasitList();
     renderLeaderboard();
     renderStatsDashboard();
+    renderPlayoffBracket();
     alert('Fasit er satt med Ranheim TF på 1. plass.');
   });
 
@@ -1169,6 +1301,7 @@
       alert('Synkronisering fullført! Hentet siste data.');
       renderLeaderboard();
       renderStatsDashboard();
+      renderPlayoffBracket();
       updateExistingTipsDropdown();
     } else {
       alert('Kunne ikke hente data fra Google Sheets. Sjekk GOOGLE_SCRIPT_URL i js/config.js.');
