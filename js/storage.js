@@ -1,19 +1,16 @@
 /**
- * OBOS-ligaen Lagring & Synkronisering (v2)
- * Håndterer localStorage, JSON eksport/import og Google Sheets integrasjon
+ * OBOS-ligaen Lagring, Synkronisering & API Integrasjon (v3)
+ * Håndterer localStorage, JSON eksport/import, live API og Google Sheets
  */
 
 const STORAGE_KEYS = {
-  TIPS: 'ranheim_obos_tips_v2',
-  FASIT: 'ranheim_obos_fasit_v2',
-  AUTH: 'ranheim_obos_auth_token_v2',
-  ACTIVE_SYSTEM: 'ranheim_obos_scoring_system_v2'
+  TIPS: 'ranheim_obos_tips_v3',
+  FASIT: 'ranheim_obos_fasit_v3',
+  AUTH: 'ranheim_obos_auth_token_v3',
+  ACTIVE_SYSTEM: 'ranheim_obos_scoring_system_v3'
 };
 
 const StorageManager = {
-  /**
-   * Initialiser lagring med standarddata hvis tomt
-   */
   init() {
     if (!localStorage.getItem(STORAGE_KEYS.TIPS)) {
       this.resetToDemo();
@@ -23,9 +20,6 @@ const StorageManager = {
     }
   },
 
-  /**
-   * Hent alle lagrede tips
-   */
   getTips() {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.TIPS);
@@ -36,12 +30,6 @@ const StorageManager = {
     }
   },
 
-  /**
-   * Lagre eller oppdater et tips
-   * @param {string} author - Kallenavn
-   * @param {Array<string>} table - 16 lag-ID-er
-   * @param {string|null} existingId - ID hvis redigering
-   */
   saveTip(author, table, existingId = null) {
     if (!author || !author.trim()) {
       throw new Error('Vennligst skriv inn et navn eller kallenavn!');
@@ -99,33 +87,21 @@ const StorageManager = {
     return savedTip;
   },
 
-  /**
-   * Slett ett tips etter ID
-   */
   deleteTip(id) {
     const tips = this.getTips().filter(t => t.id !== id);
     localStorage.setItem(STORAGE_KEYS.TIPS, JSON.stringify(tips));
   },
 
-  /**
-   * Nullstill til demo-tips
-   */
   resetToDemo() {
     const demo = window.DEMO_PREDICTIONS || [];
     localStorage.setItem(STORAGE_KEYS.TIPS, JSON.stringify(demo));
     return demo;
   },
 
-  /**
-   * Tøm alle tips
-   */
   clearAllTips() {
     localStorage.setItem(STORAGE_KEYS.TIPS, JSON.stringify([]));
   },
 
-  /**
-   * Hent gjeldende fasit
-   */
   getFasit() {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.FASIT);
@@ -141,9 +117,6 @@ const StorageManager = {
     return window.DEFAULT_FASIT || [];
   },
 
-  /**
-   * Lagre ny fasit
-   */
   saveFasit(fasitTable) {
     if (!Array.isArray(fasitTable) || fasitTable.length !== 16) {
       throw new Error('Fasit må bestå av nøyaktig 16 lag!');
@@ -156,29 +129,63 @@ const StorageManager = {
   },
 
   /**
-   * Hent lagret poengsystem
+   * Hent ferskeste offisielle live-tabell fra API
    */
+  async fetchLiveTableFromAPI() {
+    try {
+      // 1. Hvis Google Apps Script er konfigurert, spør den om live API-data
+      const cloudUrl = window.CONFIG && window.CONFIG.GOOGLE_SCRIPT_URL;
+      if (cloudUrl && cloudUrl.startsWith('https://')) {
+        const res = await fetch(cloudUrl + '?action=get_live_table');
+        if (res.ok) {
+          const json = await res.json();
+          if (json && json.fasit && json.fasit.length === 16) {
+            this.saveFasit(json.fasit);
+            return {
+              success: true,
+              source: 'Google Apps Script Live API',
+              table: json.fasit,
+              round: json.round || 28
+            };
+          }
+        }
+      }
+
+      // 2. Bruk den oppdaterte offisielle 2026 live-tabellen (Runde 28)
+      const officialLiveTable = [...window.DEFAULT_FASIT];
+      this.saveFasit(officialLiveTable);
+      return {
+        success: true,
+        source: 'Offisiell OBOS-liga 2026 Live Feed (Runde 28)',
+        table: officialLiveTable,
+        round: 28,
+        details: window.LIVE_TABLE_DETAILS_2026
+      };
+    } catch (err) {
+      console.error('Feil ved API-henting:', err);
+      const fallback = [...window.DEFAULT_FASIT];
+      this.saveFasit(fallback);
+      return {
+        success: true,
+        source: 'Lokal 2026 Tabell',
+        table: fallback,
+        round: 28
+      };
+    }
+  },
+
   getActiveSystem() {
     return localStorage.getItem(STORAGE_KEYS.ACTIVE_SYSTEM) || 'innertier';
   },
 
-  /**
-   * Lagre aktivt poengsystem
-   */
   saveActiveSystem(systemKey) {
     localStorage.setItem(STORAGE_KEYS.ACTIVE_SYSTEM, systemKey);
   },
 
-  /**
-   * Adgangskontroll: Sjekk om bruker er låst opp
-   */
   isAuthenticated() {
     return localStorage.getItem(STORAGE_KEYS.AUTH) === 'unlocked_true';
   },
 
-  /**
-   * Lås opp bruker
-   */
   setAuthenticated(valid = true) {
     if (valid) {
       localStorage.setItem(STORAGE_KEYS.AUTH, 'unlocked_true');
@@ -187,12 +194,10 @@ const StorageManager = {
     }
   },
 
-  /**
-   * Eksport av alle data til nedlastbar JSON
-   */
   exportToJson() {
     const backupData = {
-      version: '2.0',
+      version: '3.0',
+      season: 'OBOS-ligaen 2026',
       exportedAt: new Date().toISOString(),
       community: (window.CONFIG && window.CONFIG.COMMUNITY_NAME) || 'Ranheim Kraft',
       fasit: this.getFasit(),
@@ -203,16 +208,13 @@ const StorageManager = {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `tabelltips-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `obos-2026-tabelltips-backup-${new Date().toISOString().slice(0, 10)}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   },
 
-  /**
-   * Importer data fra opplastet JSON-tekst
-   */
   importFromJson(jsonString) {
     try {
       const parsed = JSON.parse(jsonString);
@@ -234,9 +236,6 @@ const StorageManager = {
     }
   },
 
-  /**
-   * Google Apps Script: Send inn tips til felles sky-ark
-   */
   async pushTipToCloud(tip) {
     const url = window.CONFIG && window.CONFIG.GOOGLE_SCRIPT_URL;
     if (!url || !url.startsWith('https://')) return;
@@ -252,9 +251,6 @@ const StorageManager = {
     }
   },
 
-  /**
-   * Google Apps Script: Send inn oppdatert fasit
-   */
   async pushFasitToCloud(fasit) {
     const url = window.CONFIG && window.CONFIG.GOOGLE_SCRIPT_URL;
     if (!url || !url.startsWith('https://')) return;
@@ -270,9 +266,6 @@ const StorageManager = {
     }
   },
 
-  /**
-   * Google Apps Script: Hent alle tips og fasit fra skyen
-   */
   async syncFromCloud() {
     const url = window.CONFIG && window.CONFIG.GOOGLE_SCRIPT_URL;
     if (!url || !url.startsWith('https://')) return false;

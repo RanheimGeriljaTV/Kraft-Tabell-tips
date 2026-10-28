@@ -1,8 +1,8 @@
 /**
- * Google Apps Script for Ranheim Kraft OBOS Tabell-tipper
+ * Google Apps Script for Ranheim Kraft OBOS Tabell-tipper 2026
  * 
  * BRUKSANVISNING:
- * 1. Åpne Google Disk (drive.google.com) og opprett et nytt Google Regneark (f.eks. "OBOS Tabelltips 2025").
+ * 1. Åpne Google Disk (drive.google.com) og opprett et nytt Google Regneark ("OBOS Tabelltips 2026").
  * 2. Gi arket to faner i bunnen:
  *    - Fane 1: "Tips"
  *    - Fane 2: "Fasit"
@@ -11,12 +11,13 @@
  * 5. Klikk "Distribuer" (Deploy) -> "Ny distribusjon" (New deployment).
  *    - Type: "Nettapp" (Web app)
  *    - Utfør som: "Meg" (Me)
- *    - Hvem har tilgang: "Alle" (Anyone) -> VIKTIG for at mobiler uten Google-innlogging kan lagre tips!
+ *    - Hvem har tilgang: "Alle" (Anyone)
  * 6. Klikk "Distribuer" og godkjenn tillatelser.
  * 7. Kopier Nettapp-URL-en (slutter på /exec) og lim den inn i `js/config.js` som `GOOGLE_SCRIPT_URL`.
  */
 
 function doGet(e) {
+  var action = (e && e.parameter && e.parameter.action) || 'get_all';
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var tipsSheet = ss.getSheetByName("Tips") || ss.insertSheet("Tips");
   var fasitSheet = ss.getSheetByName("Fasit") || ss.insertSheet("Fasit");
@@ -25,7 +26,7 @@ function doGet(e) {
   var tipsData = tipsSheet.getDataRange().getValues();
   var tips = [];
   
-  if (tipsData.length > 1) { // Har overskriftsrad
+  if (tipsData.length > 1) {
     for (var i = 1; i < tipsData.length; i++) {
       var row = tipsData[i];
       if (row[0]) {
@@ -55,6 +56,8 @@ function doGet(e) {
   
   var response = {
     status: "success",
+    action: action,
+    round: 28,
     tips: tips,
     fasit: fasit.length === 16 ? fasit : null
   };
@@ -80,7 +83,6 @@ function doPost(e) {
     var tip = data.tip;
     var tipsData = tipsSheet.getDataRange().getValues();
     
-    // Sett opp overskrift hvis tomt ark
     if (tipsData.length === 0 || tipsData[0][0] !== "ID") {
       tipsSheet.clear();
       tipsSheet.appendRow(["ID", "Forfatter", "Tabell (JSON)", "Oppdatert"]);
@@ -91,7 +93,7 @@ function doPost(e) {
     for (var i = 1; i < tipsData.length; i++) {
       if (String(tipsData[i][0]) === String(tip.id) || 
           String(tipsData[i][1]).toLowerCase() === String(tip.author).toLowerCase()) {
-        rowIndex = i + 1; // 1-basert rad
+        rowIndex = i + 1;
         break;
       }
     }

@@ -1,5 +1,5 @@
 /**
- * OBOS Tabell-tipper, Live Resultattavle & Sesong-Stats Hub
+ * OBOS Tabell-tipper, Live Resultattavle & Sesong-Stats Hub 2026
  * Hovedapplikasjon (App Controller)
  */
 
@@ -10,10 +10,9 @@
   let currentPredictionTable = [];
   let currentEditingTipId = null;
   let activeSystem = 'innertier';
-  let activeRoundIndex = 0;
+  let activeRoundIndex = 0; // 0 = Runde 28 (Live nå)
   let isSeasonLocked = false;
   let mockLockState = null;
-  let countdownTimerInterval = null;
   let sortablePrediction = null;
   let sortableFasit = null;
 
@@ -27,15 +26,14 @@
     lockAppBtn: document.getElementById('lockAppBtn'),
     mainApp: document.getElementById('mainApp'),
 
-    // Seriestart-nedtelling og sperre
+    // Live status og API-knapper
     deadlineStatusPill: document.getElementById('deadlineStatusPill'),
     deadlineStatusDot: document.getElementById('deadlineStatusDot'),
     deadlineStatusLabel: document.getElementById('deadlineStatusLabel'),
     deadlineSubtext: document.getElementById('deadlineSubtext'),
-    countdownDays: document.getElementById('countdownDays'),
-    countdownHours: document.getElementById('countdownHours'),
-    countdownMinutes: document.getElementById('countdownMinutes'),
-    countdownSeconds: document.getElementById('countdownSeconds'),
+    quickApiFetchBtn: document.getElementById('quickApiFetchBtn'),
+    refreshLiveTableBtn: document.getElementById('refreshLiveTableBtn'),
+    fetchApiFasitBtn: document.getElementById('fetchApiFasitBtn'),
     toggleMockLockBtn: document.getElementById('toggleMockLockBtn'),
     lockedWarningBanner: document.getElementById('lockedWarningBanner'),
 
@@ -64,10 +62,11 @@
     leaderboardTableBody: document.getElementById('leaderboardTableBody'),
     participantCount: document.getElementById('participantCount'),
 
-    // Fane 3: Sesong-Stats
+    // Fane 3: Siste kampene & Stats
     seasonRoundsContainer: document.getElementById('seasonRoundsContainer'),
     roundInfoBanner: document.getElementById('roundInfoBanner'),
     roundInfoText: document.getElementById('roundInfoText'),
+    officialLiveTableContainer: document.getElementById('officialLiveTableContainer'),
     consensusListContainer: document.getElementById('consensusListContainer'),
     h2hSelectA: document.getElementById('h2hSelectA'),
     h2hSelectB: document.getElementById('h2hSelectB'),
@@ -168,7 +167,7 @@
   });
 
   /* ==========================================================================
-     2. SERIESTART-NEDTELLING & TIPPESPERRE
+     2. SERIESTATUS & TIPPESPERRE
      ========================================================================== */
 
   function updateLockdownState() {
@@ -178,23 +177,14 @@
       override = (configOverride === 'locked');
     }
 
-    const deadlineStr = (window.CONFIG && window.CONFIG.SEASON_START_DEADLINE) || '2026-04-05T15:00:00';
-    const deadlineDate = new Date(deadlineStr).getTime();
-    const now = new Date().getTime();
-    const diff = deadlineDate - now;
-
-    if (override !== null) {
-      isSeasonLocked = override;
-    } else {
-      isSeasonLocked = (diff <= 0);
-    }
+    isSeasonLocked = (override !== null) ? override : true; // Standard: sesongen er i gang (28 runder spilt)
 
     if (isSeasonLocked) {
       dom.deadlineStatusPill.className =
         'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 bg-rose-950 text-rose-300 border border-rose-700/60';
       dom.deadlineStatusDot.className = 'w-2 h-2 rounded-full bg-rose-500';
       dom.deadlineStatusLabel.textContent = '🔒 Tipping Stengt';
-      dom.deadlineSubtext.textContent = 'Ligaen er i gang! Tabellene er låst for sesongen.';
+      dom.deadlineSubtext.textContent = 'Sesong 2026 er i innspurten! 28 av 30 runder spilt.';
       dom.lockedWarningBanner.classList.remove('hidden');
 
       dom.saveTipBtn.disabled = true;
@@ -209,7 +199,7 @@
         'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 bg-emerald-950 text-emerald-400 border border-emerald-700/60';
       dom.deadlineStatusDot.className = 'w-2 h-2 rounded-full bg-emerald-400 live-dot';
       dom.deadlineStatusLabel.textContent = '🟢 Tipping Åpen';
-      dom.deadlineSubtext.textContent = 'Sperres automatisk ved seriestart:';
+      dom.deadlineSubtext.textContent = 'Prøv og lever inn tabelltips for 2026:';
       dom.lockedWarningBanner.classList.add('hidden');
 
       dom.saveTipBtn.disabled = false;
@@ -220,37 +210,14 @@
         sortablePrediction.option('disabled', false);
       }
     }
-
-    if (diff > 0 && !isSeasonLocked) {
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-      dom.countdownDays.textContent = String(days).padStart(2, '0');
-      dom.countdownHours.textContent = String(hours).padStart(2, '0');
-      dom.countdownMinutes.textContent = String(minutes).padStart(2, '0');
-      dom.countdownSeconds.textContent = String(seconds).padStart(2, '0');
-    } else {
-      dom.countdownDays.textContent = '00';
-      dom.countdownHours.textContent = '00';
-      dom.countdownMinutes.textContent = '00';
-      dom.countdownSeconds.textContent = '00';
-    }
-  }
-
-  function startCountdownTimer() {
-    updateLockdownState();
-    if (countdownTimerInterval) clearInterval(countdownTimerInterval);
-    countdownTimerInterval = setInterval(updateLockdownState, 1000);
   }
 
   dom.toggleMockLockBtn.addEventListener('click', () => {
     mockLockState = !isSeasonLocked;
     updateLockdownState();
     alert(isSeasonLocked 
-      ? '🔒 Test-modus: Simulerer at LIGAEN ER I GANG (Tipping er sperret).' 
-      : '🟢 Test-modus: Simulerer FØR SERIESTART (Tipping er åpen for innsending).'
+      ? '🔒 Test-modus: Simulerer at LIGAEN ER I GANG (Tipping sperret).' 
+      : '🟢 Test-modus: Simulerer at TIPPING ER ÅPEN for redigering.'
     );
   });
 
@@ -260,13 +227,14 @@
 
   function initApp() {
     activeSystem = StorageManager.getActiveSystem();
-    startCountdownTimer();
+    updateLockdownState();
     loadPredictionTableInitial();
     updateExistingTipsDropdown();
     initSortablePrediction();
     initSortableFasit();
     renderLeaderboard();
     renderSeasonRoundsUI();
+    renderOfficialLiveTable();
     renderStatsDashboard();
     setupEventListeners();
     updateCloudStatusUI();
@@ -313,6 +281,7 @@
       dom.tabContentStats.classList.remove('hidden');
       dom.tabBtnStats.classList.add('active', 'border-sky-400', 'text-sky-300');
       dom.tabBtnStats.classList.remove('border-transparent', 'text-slate-400');
+      renderOfficialLiveTable();
       renderStatsDashboard();
     } else if (target === 'settings') {
       dom.tabContentSettings.classList.remove('hidden');
@@ -371,15 +340,12 @@
 
       itemEl.innerHTML = `
         <div class="flex items-center gap-3 flex-1 min-w-0">
-          <!-- Posisjonstall med sonefarge -->
           <div class="w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm border ${zone.colorClass} flex-shrink-0 shadow-inner">
             ${position}
           </div>
 
-          <!-- Offisiell klubblogo -->
           <img src="${team.logoUrl}" alt="${team.name}" class="w-7 h-7 object-contain flex-shrink-0 drop-shadow" onerror="this.style.display='none'">
 
-          <!-- Navn & detaljer -->
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2">
               <span class="text-sm sm:text-base font-black truncate ${isRanheim ? 'text-cyan-200' : 'text-white'}">
@@ -399,7 +365,6 @@
           </div>
         </div>
 
-        <!-- Dra-håndtak -->
         <div class="drag-handle px-2.5 py-1.5 text-slate-400 hover:text-cyan-300 flex items-center gap-1">
           <i data-lucide="grip-vertical" class="w-5 h-5"></i>
         </div>
@@ -466,7 +431,7 @@
 
   dom.saveTipBtn.addEventListener('click', () => {
     if (isSeasonLocked) {
-      alert('Tipping er stengt for sesongen. Ligaen er i gang!');
+      alert('Tipping er stengt for sesongen.');
       return;
     }
 
@@ -694,7 +659,7 @@
   }
 
   /* ==========================================================================
-     7. FANE 3: SESONG-STATS & ANALYSE HUB
+     7. FANE 3: SISTE KAMPENE & SESONG-STATS
      ========================================================================== */
 
   function renderSeasonRoundsUI() {
@@ -704,17 +669,20 @@
     rounds.forEach((round, index) => {
       const isCurrent = (index === activeRoundIndex);
       const btn = document.createElement('button');
-      btn.className = `p-2.5 rounded-2xl border text-left transition-all ${
+      btn.className = `p-3 rounded-2xl border text-left transition-all relative overflow-hidden ${
         isCurrent
-          ? 'border-cyan-400 bg-cyan-950/60 text-cyan-200 shadow-lg shadow-cyan-950/50'
+          ? 'border-amber-400 bg-amber-950/40 text-amber-200 shadow-xl shadow-amber-950/50 ring-2 ring-amber-400/30'
           : 'border-white/5 bg-slate-900/80 hover:border-slate-700 text-slate-400'
       }`;
 
       btn.innerHTML = `
-        <div class="text-[10px] font-black uppercase tracking-wider ${isCurrent ? 'text-cyan-400' : 'text-slate-500'}">
-          ${round.dateLabel}
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+            isCurrent ? 'bg-amber-400 text-slate-950 font-black' : 'bg-slate-800 text-slate-400'
+          }">${round.badge || round.dateLabel}</span>
+          <span class="text-xs text-slate-400">${round.dateLabel}</span>
         </div>
-        <div class="text-xs font-black text-white truncate">${round.title}</div>
+        <div class="text-sm font-black text-white mt-1.5 truncate">${round.title}</div>
       `;
 
       btn.addEventListener('click', () => {
@@ -726,6 +694,46 @@
       });
 
       dom.seasonRoundsContainer.appendChild(btn);
+    });
+  }
+
+  function renderOfficialLiveTable() {
+    if (!dom.officialLiveTableContainer) return;
+    const details = window.LIVE_TABLE_DETAILS_2026 || [];
+    dom.officialLiveTableContainer.innerHTML = '';
+
+    details.forEach(item => {
+      const team = getTeamById(item.id);
+      if (!team) return;
+
+      const zone = getZoneForPosition(item.rank);
+      const isRanheim = team.isRanheim;
+
+      const row = document.createElement('div');
+      row.className = `flex items-center justify-between p-2 rounded-xl border text-xs ${
+        isRanheim ? 'ranheim-card' : 'bg-slate-900/60 border-white/5'
+      }`;
+
+      row.innerHTML = `
+        <div class="flex items-center gap-2.5 min-w-0">
+          <span class="w-5 text-center font-black text-xs text-slate-400">${item.rank}</span>
+          <img src="${team.logoUrl}" alt="${team.name}" class="w-5 h-5 object-contain flex-shrink-0" onerror="this.style.display='none'">
+          <span class="font-extrabold truncate ${isRanheim ? 'text-cyan-300' : 'text-white'}">
+            ${team.name}
+          </span>
+          ${isRanheim ? '💙' : ''}
+        </div>
+
+        <div class="flex items-center gap-3 text-right flex-shrink-0 text-slate-300 font-bold">
+          <span class="text-slate-500 font-normal hidden sm:inline">${item.played}k (${item.won}-${item.draw}-${item.lost})</span>
+          <span class="text-slate-400 text-[11px]">${item.goals}</span>
+          <span class="px-2 py-0.5 rounded bg-slate-800 text-emerald-400 font-black text-xs min-w-[28px] text-center">
+            ${item.points}p
+          </span>
+        </div>
+      `;
+
+      dom.officialLiveTableContainer.appendChild(row);
     });
   }
 
@@ -780,7 +788,7 @@
 
         <div class="flex items-center gap-2 text-right flex-shrink-0">
           <div class="text-[11px] text-slate-400">
-            Snitt: <strong class="text-white">${item.avgPos}</strong> (Fasit: ${item.actualPos}.)
+            Snitt: <strong class="text-white">${item.avgPos}</strong> (Live: ${item.actualPos}.)
           </div>
           ${diffBadge}
         </div>
@@ -900,7 +908,7 @@
   }
 
   /* ==========================================================================
-     8. DETALJERT TIPSANALYSE (TIDLIGERE RØNTGEN)
+     8. DETALJERT TIPSANALYSE
      ========================================================================== */
 
   window.openXrayModal = function (participantId) {
@@ -919,7 +927,6 @@
     dom.xrayAuthorName.textContent = participant.author;
     dom.xraySummarySubtitle.textContent = `Score: ${evaluation.score}p | Totalt avvik: ${evaluation.totalDiff} plasser | Fulltreffere: ${evaluation.exactHits}`;
 
-    // Badges
     dom.xrayBadgesBar.innerHTML = '';
     if (withMyBadges.badges && withMyBadges.badges.length > 0) {
       withMyBadges.badges.forEach(b => {
@@ -932,7 +939,6 @@
       dom.xrayBadgesBar.innerHTML = `<span class="text-xs text-slate-500 font-bold">Ingen utmerkelser registrert.</span>`;
     }
 
-    // Rader side om side
     dom.xrayRowsContainer.innerHTML = '';
     evaluation.teamBreakdowns.forEach((item) => {
       const team = getTeamById(item.teamId);
@@ -992,8 +998,34 @@
   dom.closeXrayBottomBtn.addEventListener('click', () => dom.xrayModal.classList.add('hidden'));
 
   /* ==========================================================================
-     9. FANE 4: FASIT-EDITOR & ADMIN-FUNKSJONER
+     9. FANE 4: FASIT-EDITOR & LIVE API OPPDATERING
      ========================================================================== */
+
+  async function handleLiveApiFetch() {
+    const originalText = dom.quickApiFetchBtn ? dom.quickApiFetchBtn.innerHTML : '';
+    if (dom.quickApiFetchBtn) {
+      dom.quickApiFetchBtn.innerHTML = `<span>Henter live data...</span>`;
+    }
+
+    const result = await StorageManager.fetchLiveTableFromAPI();
+    
+    if (dom.quickApiFetchBtn) {
+      dom.quickApiFetchBtn.innerHTML = originalText;
+    }
+
+    if (result && result.success) {
+      alert(`✅ Fersk tabell hentet!\nKilde: ${result.source}\nRunde: ${result.round} spilt.`);
+      renderLeaderboard();
+      renderOfficialLiveTable();
+      renderStatsDashboard();
+      renderFasitList();
+      if (window.lucide) window.lucide.createIcons();
+    }
+  }
+
+  if (dom.quickApiFetchBtn) dom.quickApiFetchBtn.addEventListener('click', handleLiveApiFetch);
+  if (dom.refreshLiveTableBtn) dom.refreshLiveTableBtn.addEventListener('click', handleLiveApiFetch);
+  if (dom.fetchApiFasitBtn) dom.fetchApiFasitBtn.addEventListener('click', handleLiveApiFetch);
 
   function renderFasitList() {
     const fasit = StorageManager.getFasit();
@@ -1081,7 +1113,7 @@
     renderFasitList();
     renderLeaderboard();
     renderStatsDashboard();
-    alert('Fasit tilbakestilt til gjeldende OBOS-tabell.');
+    alert('Fasit tilbakestilt til live 2026-tabell (Runde 28).');
   });
 
   dom.presetRanheimChampBtn.addEventListener('click', () => {
@@ -1150,7 +1182,7 @@
   dom.openShareModalBtn.addEventListener('click', () => {
     const author = dom.authorNameInput.value.trim() || 'Mitt Tabelltips';
     dom.shareCardAuthor.textContent = author;
-    dom.shareCardDate.textContent = 'Sesongtips';
+    dom.shareCardDate.textContent = 'Sesongtips 2026';
 
     dom.shareCardTable.innerHTML = '';
     currentPredictionTable.forEach((teamId, index) => {
@@ -1200,7 +1232,7 @@
       .then((canvas) => {
         const link = document.createElement('a');
         const author = dom.authorNameInput.value.trim() || 'tips';
-        link.download = `tabelltips-${author.toLowerCase().replace(/\s+/g, '-')}.png`;
+        link.download = `tabelltips-2026-${author.toLowerCase().replace(/\s+/g, '-')}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
       });
