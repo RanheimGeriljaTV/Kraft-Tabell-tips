@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>OBOS Tabell-tipper & Playoff 2026 | Ranheim Kraft</title>
+  <title>OBOS Tabell-tipper 2026 | Ranheim Kraft</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -36,51 +36,43 @@
 
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="min-h-screen flex flex-col selection:bg-sky-500 selection:text-white">
+<body class="min-h-screen flex flex-col bg-[#090c14] text-slate-100 selection:bg-sky-500 selection:text-white">
 
-  <!-- ==================== LÅSESKJERM (ADGANGSKONTROLL) ==================== -->
-  <div id="lockScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-[#07090e]/95 backdrop-blur-xl p-4">
-    <div class="max-w-md w-full cyber-panel rounded-3xl p-8 border border-sky-500/30 text-center space-y-6 shadow-2xl">
-      <div class="w-16 h-16 bg-gradient-to-tr from-[#003366] via-sky-600 to-cyan-400 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-sky-500/30">
-        <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
+  <!-- ==================== LÅSESKJERM ==================== -->
+  <div id="lockScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-[#090c14]/95 backdrop-blur-xl p-4">
+    <div class="max-w-sm w-full sports-card p-6 text-center space-y-5 border border-white/10 shadow-2xl">
+      <div class="w-16 h-16 bg-gradient-to-tr from-[#003366] via-sky-600 to-cyan-400 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-sky-500/20">
+        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/6563.png" alt="Ranheim" class="w-10 h-10 object-contain">
       </div>
 
-      <div class="space-y-2">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-sky-950/80 text-sky-400 border border-sky-700/60 uppercase tracking-widest">
-          <span class="w-2 h-2 rounded-full bg-sky-400 live-dot"></span>
+      <div>
+        <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black bg-sky-950 text-sky-400 border border-sky-800 uppercase tracking-widest">
           Ranheim Kraft Internt
         </span>
-        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">OBOS Tabell-tipper</h1>
-        <p class="text-xs sm:text-sm text-slate-400">Live 2026-tabell, seriespurt og playoff for Ranheim Kraft.</p>
+        <h1 class="text-xl font-black text-white mt-1.5 tracking-tight">OBOS Tabell-tipper</h1>
+        <p class="text-xs text-slate-400 mt-1">Skriv inn adgangskoden fra gruppechatten</p>
       </div>
 
-      <form id="lockForm" class="space-y-4">
-        <div>
-          <input 
-            type="password" 
-            id="accessCodeInput" 
-            placeholder="Skriv inn adgangskode..." 
-            class="w-full px-4 py-3.5 bg-slate-900/90 border border-slate-700/80 rounded-2xl text-center text-lg tracking-widest text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
-            autofocus
-            required
-          >
-        </div>
+      <form id="lockForm" class="space-y-3">
+        <input 
+          type="password" 
+          id="accessCodeInput" 
+          placeholder="Skriv inn kode..." 
+          class="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-center text-base tracking-widest text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all font-mono"
+          autofocus
+          required
+        >
 
         <button 
           type="submit" 
-          class="w-full py-3.5 px-6 bg-gradient-to-r from-sky-600 via-blue-700 to-indigo-800 hover:from-sky-500 hover:to-indigo-700 text-white font-extrabold rounded-2xl shadow-lg shadow-sky-900/50 transition-all transform active:scale-95 flex items-center justify-center gap-2 btn-neon"
+          class="w-full py-3 px-4 bg-sky-600 hover:bg-sky-500 text-white font-black text-sm rounded-xl shadow-lg transition-all active:scale-95"
         >
-          <span>Lås opp tippeligaen</span>
-          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          Lås opp tippeligaen
         </button>
       </form>
 
-      <div id="lockError" class="hidden text-rose-400 text-xs font-bold bg-rose-950/50 border border-rose-800/80 rounded-xl p-3">
-        Feil adgangskode. Sjekk koden i gruppechatten eller lenken du fikk!
-      </div>
-
-      <div class="text-[11px] text-slate-500 pt-2 border-t border-slate-800/80">
-        💡 Enheten din huskes automatisk etter første opplåsing.
+      <div id="lockError" class="hidden text-rose-400 text-xs font-bold bg-rose-950/50 border border-rose-800/80 rounded-xl p-2.5">
+        Feil kode. Sjekk koden du fikk i chatten.
       </div>
     </div>
   </div>
@@ -88,621 +80,275 @@
   <!-- ==================== HOVEDAPPLIKASJON ==================== -->
   <div id="mainApp" class="hidden min-h-screen flex flex-col">
     
-    <!-- TOPPBAR / HEADER -->
-    <header class="cyber-panel sticky top-0 z-30 border-b border-white/5 bg-[#07090e]/85 backdrop-blur-md">
-      
-      <!-- Sesongstatus Banner -->
-      <div id="deadlineBanner" class="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border-b border-white/5 px-4 py-2">
-        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
-          
-          <div class="flex items-center gap-2">
-            <span id="deadlineStatusPill" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 bg-amber-950 text-amber-300 border border-amber-600/60">
-              <span id="deadlineStatusDot" class="w-2 h-2 rounded-full bg-amber-400 live-dot"></span>
-              <span id="deadlineStatusLabel">Foreløpig Stilling</span>
-            </span>
-            <span id="deadlineSubtext" class="text-slate-300 text-[11px]">28 av 30 runder spilt. Ingen vinner er kåret før sesong og playoff er ferdig!</span>
-          </div>
-
-          <div class="flex items-center gap-2 text-[11px]">
-            <button id="quickApiFetchBtn" class="px-2.5 py-1 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 font-bold border border-emerald-600/60 text-[10px] flex items-center gap-1 transition-all" title="Hent fersk live-tabell">
-              <i data-lucide="refresh-cw" class="w-3 h-3"></i>
-              <span>Hent Live API Tabell</span>
-            </button>
-            <button id="toggleMockLockBtn" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 font-bold border border-slate-700 text-[10px] transition-colors" title="Simuler åpen/låst tipping">
-              Lås/Åpne
-            </button>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- Merkevare & Tittel -->
-      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <img src="https://images.fotmob.com/image_resources/logo/teamlogo/6563.png" alt="Ranheim TF" class="w-10 h-10 object-contain drop-shadow-md">
+    <!-- SLIM MODERN TOPBAR -->
+    <header class="sticky top-0 z-30 bg-[#090c14]/90 backdrop-blur-md border-b border-white/[0.08]">
+      <div class="max-w-2xl mx-auto px-4 py-2.5 flex items-center justify-between">
+        
+        <div class="flex items-center gap-2.5">
+          <img src="https://images.fotmob.com/image_resources/logo/teamlogo/6563.png" alt="Ranheim TF" class="w-7 h-7 object-contain">
           <div>
-            <div class="flex items-center gap-2">
-              <h1 class="text-lg sm:text-xl font-black tracking-tight text-white flex items-center gap-1.5">
-                OBOS Tabell-tipper 2026
-              </h1>
-              <span class="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-gradient-to-r from-sky-950 to-blue-900 text-sky-300 border border-sky-700/60 shadow-sm">
-                Ranheim Kraft
+            <div class="flex items-center gap-1.5 leading-none">
+              <span class="text-sm font-black tracking-tight text-white">OBOS-tipper</span>
+              <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-800">
+                2026
               </span>
             </div>
-            <p class="text-xs text-slate-400">Live 2026-sesong • 2 serierunder og playoff gjenstår</p>
+            <span class="text-[10px] text-slate-400 font-medium">Ranheim Kraft</span>
           </div>
         </div>
 
         <div class="flex items-center gap-2">
-          <button id="lockAppBtn" title="Lås app" class="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800/80 transition-colors">
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span>
+            <span>28 runder spilt</span>
+          </span>
+          <button id="lockAppBtn" title="Lås app" class="p-1.5 text-slate-400 hover:text-white rounded-lg">
             <i data-lucide="log-out" class="w-4 h-4"></i>
           </button>
         </div>
+
       </div>
 
-      <!-- 4 FANER -->
-      <nav class="max-w-6xl mx-auto px-4 flex border-t border-white/5 overflow-x-auto no-scrollbar">
-        <button id="tabBtnPredict" class="tab-button active flex-1 py-3 px-3 text-xs sm:text-sm font-black flex items-center justify-center gap-2 border-b-2 border-sky-400 text-sky-300 transition-all whitespace-nowrap">
-          <i data-lucide="list-ordered" class="w-4 h-4"></i>
-          <span>1. Mitt Tabelltips</span>
+      <!-- 4 SEGMENTED NAVIGATION TABS -->
+      <nav class="max-w-2xl mx-auto px-3 pb-2 flex gap-1.5">
+        <button id="tabBtnPredict" class="flex-1 py-2 px-2 text-xs font-black rounded-xl bg-sky-500 text-slate-950 flex items-center justify-center gap-1.5 transition-all shadow-sm">
+          <i data-lucide="list-ordered" class="w-3.5 h-3.5"></i>
+          <span>1. Tips</span>
         </button>
 
-        <button id="tabBtnLeaderboard" class="tab-button flex-1 py-3 px-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all whitespace-nowrap">
-          <i data-lucide="trophy" class="w-4 h-4"></i>
-          <span>2. Foreløpig Resultattavle</span>
+        <button id="tabBtnLeaderboard" class="flex-1 py-2 px-2 text-xs font-bold rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/5 flex items-center justify-center gap-1.5 transition-all">
+          <i data-lucide="trophy" class="w-3.5 h-3.5"></i>
+          <span>2. Stilling</span>
         </button>
 
-        <button id="tabBtnStats" class="tab-button flex-1 py-3 px-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all whitespace-nowrap">
-          <i data-lucide="gamepad-2" class="w-4 h-4 text-amber-400"></i>
-          <span>3. 🎮 Gamification & Playoff</span>
+        <button id="tabBtnStats" class="flex-1 py-2 px-2 text-xs font-bold rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/5 flex items-center justify-center gap-1.5 transition-all">
+          <i data-lucide="swords" class="w-3.5 h-3.5"></i>
+          <span>3. Playoff</span>
         </button>
 
-        <button id="tabBtnSettings" class="tab-button flex-1 py-3 px-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all whitespace-nowrap">
-          <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
-          <span>4. Fasit & Admin</span>
+        <button id="tabBtnSettings" class="py-2 px-3 text-xs font-bold rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/5 flex items-center justify-center gap-1 transition-all">
+          <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Admin</span>
         </button>
       </nav>
     </header>
 
     <!-- HOVEDINNHOLD -->
-    <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-6">
+    <main class="flex-1 max-w-2xl w-full mx-auto p-3 sm:p-4 space-y-4">
 
       <!-- ==================== FANE 1: MITT TABELLTIPS ==================== -->
-      <section id="tabContentPredict" class="space-y-6">
+      <section id="tabContentPredict" class="space-y-3">
         
-        <div id="lockedWarningBanner" class="hidden cyber-card rounded-2xl p-4 border border-rose-500/40 bg-rose-950/30 text-rose-200 flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-rose-900/60 border border-rose-500/50 flex items-center justify-center flex-shrink-0 text-xl">
-            🔒
-          </div>
-          <div class="text-xs sm:text-sm">
-            <strong class="font-black block text-rose-300">Tipping er stengt for sesongen</strong>
-            Ligaen er i gang. Tabellene er nå låst, men du kan bla gjennom registrerte tips og eksportere delbare bilder.
-          </div>
-        </div>
-
-        <div class="cyber-card rounded-3xl p-5 sm:p-6 space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h2 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                <span>📝 Dra og slipp de 16 OBOS-lagene</span>
-              </h2>
-              <p class="text-xs sm:text-sm text-slate-400">
-                Hold og dra lagene til ønsket plassering. Skriv inn navnet ditt og lagre tipset.
-              </p>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <label for="existingTipSelect" class="sr-only">Velg tips</label>
-              <select id="existingTipSelect" class="bg-slate-900 border border-slate-700/80 text-xs font-semibold rounded-xl px-3 py-2 text-slate-300 focus:outline-none focus:ring-1 focus:ring-sky-500">
-                <option value="">➕ Opprett nytt tips</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-3 border-t border-white/5">
-            <div class="relative flex-1">
-              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <i data-lucide="user" class="w-4 h-4"></i>
-              </div>
-              <input 
-                type="text" 
-                id="authorNameInput" 
-                placeholder="Ditt navn / kallenavn..." 
-                class="w-full pl-10 pr-4 py-3 bg-slate-900/90 border border-slate-700/80 rounded-2xl text-sm font-bold text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
-                maxlength="30"
-              >
-            </div>
-
+        <!-- TOPP KONTROLL-KORT (INNSENDING) -->
+        <div class="sports-card p-3 sm:p-4 space-y-3 border border-white/10">
+          
+          <div class="flex gap-2">
+            <input 
+              type="text" 
+              id="authorNameInput" 
+              placeholder="Ditt navn / kallenavn..." 
+              class="flex-1 px-3.5 py-2.5 bg-black/40 border border-white/10 rounded-xl text-sm font-bold text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+              maxlength="25"
+            >
             <button 
               id="saveTipBtn" 
-              class="py-3 px-6 bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-700 hover:from-sky-500 hover:to-indigo-600 text-white text-sm font-black rounded-2xl shadow-lg shadow-sky-900/40 flex items-center justify-center gap-2 transition-all active:scale-95 btn-neon whitespace-nowrap"
+              class="px-4 py-2.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs sm:text-sm rounded-xl flex items-center gap-1.5 transition-all active:scale-95 whitespace-nowrap shadow-md shadow-sky-950"
             >
-              <i data-lucide="save" class="w-4 h-4"></i>
-              <span id="saveBtnLabel">Lagre tabelltips</span>
+              <i data-lucide="check" class="w-4 h-4"></i>
+              <span id="saveBtnLabel">Lagre tips</span>
             </button>
+          </div>
+
+          <div class="flex items-center justify-between pt-2 border-t border-white/5 text-xs">
+            <div class="flex items-center gap-1.5">
+              <label for="existingTipSelect" class="text-slate-400 font-bold text-[11px]">Mine tips:</label>
+              <select id="existingTipSelect" class="bg-black/40 border border-white/10 text-xs font-semibold rounded-lg px-2 py-1 text-slate-300 focus:outline-none">
+                <option value="">➕ Nytt tips</option>
+              </select>
+            </div>
 
             <button 
               id="openShareModalBtn" 
-              class="py-3 px-5 bg-slate-800/80 hover:bg-slate-700/80 text-cyan-300 border border-cyan-700/40 text-sm font-bold rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-95 whitespace-nowrap"
+              class="px-2.5 py-1 text-cyan-300 hover:text-white font-bold text-xs flex items-center gap-1 transition-colors"
             >
-              <i data-lucide="camera" class="w-4 h-4"></i>
-              <span>Lag delbart bilde</span>
+              <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+              <span>Del bilde</span>
             </button>
           </div>
+
         </div>
 
-        <div class="flex flex-wrap items-center gap-2 sm:gap-4 text-xs font-bold px-2">
-          <span class="text-slate-500 uppercase tracking-widest text-[10px]">OBOS-Soner:</span>
-          <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-950/40 border border-emerald-500/40 text-emerald-300">
-            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-            <span>1–2: Direkte opprykk</span>
-          </div>
-          <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-cyan-950/40 border border-cyan-500/40 text-cyan-300">
-            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
-            <span>3–6: Opprykkskvalik</span>
-          </div>
-          <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-950/40 border border-amber-500/40 text-amber-300">
-            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-            <span>14: Nedrykkskvalik</span>
-          </div>
-          <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-rose-950/40 border border-rose-500/40 text-rose-300">
-            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-            <span>15–16: Direkte nedrykk</span>
-          </div>
+        <!-- MINIMALISTISK SONE-FORKLARING -->
+        <div class="flex items-center justify-between text-[10px] font-bold text-slate-400 px-1 py-0.5">
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> 1–2 Opprykk</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-sky-400"></span> 3–6 Kvalik</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-400"></span> 14 Kvalik</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span> 15–16 Nedrykk</span>
         </div>
 
-        <div id="predictionList" class="space-y-2 select-none">
-          <!-- Dynamisk fylles av app.js -->
+        <!-- 16 TAKTILE LAG-RADER (MOBIL-OPTIMALISERT) -->
+        <div id="predictionList" class="space-y-1.5 select-none">
+          <!-- Dynamisk fylles av app.js med opp/ned-knapper og drag handle -->
         </div>
 
       </section>
 
-      <!-- ==================== FANE 2: RESULTATTAVLE (FORELØPIG STILLING) ==================== -->
-      <section id="tabContentLeaderboard" class="hidden space-y-6">
+      <!-- ==================== FANE 2: FORELØPIG RESULTATTAVLE ==================== -->
+      <section id="tabContentLeaderboard" class="hidden space-y-4">
         
-        <!-- Pågående sesong advarsel -->
-        <div class="cyber-card rounded-2xl p-4 border border-amber-500/40 bg-amber-950/20 text-amber-200 flex items-center justify-between gap-3">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-amber-900/60 border border-amber-500/50 flex items-center justify-center text-lg flex-shrink-0">
-              ⏳
+        <!-- POENGSYSTEM-VELGER (KOMPAKTE PILLS) -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+          <button data-system="innertier" class="pill-tab active">🎯 Fulltreffer (+5p)</button>
+          <button data-system="klassisk" class="pill-tab">⛳ Klassisk Avvik</button>
+          <button data-system="sone" class="pill-tab">💎 Sone-bonus</button>
+          <button data-system="ranheim_joker" class="pill-tab">💙 Ranheim 2x</button>
+        </div>
+
+        <!-- 3D FORELØPIG PODIUM (TOPP 3) -->
+        <div id="podiumContainer" class="pt-1">
+          <!-- Renderes av app.js -->
+        </div>
+
+        <!-- DELTAKERLISTE (MOBIL-KORT) -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between px-1 text-xs text-slate-400 font-bold">
+            <span>Alle deltakere (<span id="participantCount">0</span>)</span>
+            <span class="text-[11px] text-slate-500">Trykk for detaljer</span>
+          </div>
+
+          <div id="leaderboardCardsContainer" class="space-y-2">
+            <!-- Dynamisk fylles av app.js som mobile card rows -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ==================== FANE 3: PLAYOFF & GAMIFICATION ==================== -->
+      <section id="tabContentStats" class="space-y-4">
+        
+        <!-- GAMIFICATION STATUS CHIP -->
+        <div class="sports-card p-3 border border-sky-500/30 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div id="userCardAvatar" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-sm font-black text-slate-950 shadow-md">
+              RK
             </div>
             <div>
-              <div class="font-black text-sm text-amber-300">Foreløpig stilling — Sesongen er ikke avgjort!</div>
-              <div class="text-xs text-slate-300">
-                2 serierunder (runde 29 og 30) pluss playoff gjenstår. Ingen vinner er kåret før fasiten er endelig.
+              <div class="flex items-center gap-1.5">
+                <span id="activeUserName" class="text-sm font-black text-white">Deltaker</span>
+                <span id="activeUserBadge" class="text-xs">⭐</span>
               </div>
+              <div id="activeUserLevel" class="text-[11px] text-slate-400 font-semibold">Publikumsyndling • Nivå 4</div>
             </div>
           </div>
 
-          <button id="refreshLiveTableBtn" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-700/40 text-xs font-bold flex items-center gap-1.5 whitespace-nowrap">
-            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-            <span>Hent Live API Tabell</span>
+          <button id="openActivePlayerCardBtn" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-black text-amber-300 flex items-center gap-1">
+            <span>🃏 Spillerkort</span>
           </button>
         </div>
 
-        <!-- Poengsystem-velger -->
-        <div class="cyber-card rounded-3xl p-4 sm:p-5 space-y-3">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div class="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <i data-lucide="calculator" class="w-4 h-4 text-cyan-400"></i>
-              <span>Poengberegning (Bytt live!)</span>
+        <!-- INTERAKTIV PLAYOFF-TIPPER -->
+        <div class="sports-card p-4 space-y-3 border border-emerald-500/30">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-[10px] font-black uppercase text-emerald-400">NFF Kvalifisering 2026</div>
+              <h3 class="text-sm font-black text-white">Tipp Playoff-vinnerne</h3>
             </div>
-            <div id="activeSystemDescription" class="text-xs text-cyan-300 font-semibold">
-              <!-- Dynamisk beskrivelse -->
-            </div>
+            <button id="savePlayoffTipsBtn" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-md">
+              Lås tips (+15p)
+            </button>
           </div>
 
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
-            <button data-system="klassisk" class="system-btn p-3 rounded-2xl border border-slate-700/80 bg-slate-900/80 text-xs font-bold text-slate-300 hover:border-cyan-500 transition-all text-center">
-              <div class="font-extrabold text-sm text-white">Klassisk Avvik</div>
-              <div class="text-[10px] text-slate-400 mt-0.5">Lavest sum vinner</div>
-            </button>
+          <!-- Stige -->
+          <div id="playoffBracketContainer" class="space-y-2">
+            <!-- Dynamisk fylles med kompakte mobile kamper -->
+          </div>
 
-            <button data-system="innertier" class="system-btn p-3 rounded-2xl border border-sky-400 bg-sky-950/70 text-xs font-bold text-sky-200 transition-all text-center">
-              <div class="font-extrabold text-sm text-sky-200">Poeng + Fulltreffer</div>
-              <div class="text-[10px] text-sky-300 mt-0.5">256p base + 5p per treff</div>
-            </button>
-
-            <button data-system="sone" class="system-btn p-3 rounded-2xl border border-slate-700/80 bg-slate-900/80 text-xs font-bold text-slate-300 hover:border-cyan-500 transition-all text-center">
-              <div class="font-extrabold text-sm text-white">Sone-bonus</div>
-              <div class="text-[10px] text-slate-400 mt-0.5">+10p opprykk/nedrykk bonus</div>
-            </button>
-
-            <button data-system="ranheim_joker" class="system-btn p-3 rounded-2xl border border-slate-700/80 bg-slate-900/80 text-xs font-bold text-slate-300 hover:border-cyan-500 transition-all text-center">
-              <div class="font-extrabold text-sm text-white">Ranheim-Jokeren</div>
-              <div class="text-[10px] text-slate-400 mt-0.5">2x på Ranheim TF</div>
-            </button>
+          <!-- OBOS Kvalik -->
+          <div id="playoffRelegationContainer" class="pt-2 border-t border-white/5">
+            <!-- Dynamisk fylles -->
           </div>
         </div>
 
-        <!-- 3D FORELØPIG PODIUM (TOPP 3 I ØYEBLIKKET) -->
-        <div id="podiumContainer" class="pt-2 pb-2">
-          <!-- Renderes av app.js med "Foreløpig leder" -->
-        </div>
-
-        <!-- DELTAKER-TABELL -->
-        <div class="cyber-card rounded-3xl overflow-hidden border border-white/5">
-          <div class="px-5 py-4 border-b border-white/5 flex items-center justify-between">
-            <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-200 flex items-center gap-2">
-              <i data-lucide="users" class="w-4 h-4 text-cyan-400"></i>
-              <span>Foreløpig Sammenlagtstilling (<span id="participantCount">0</span> deltakere)</span>
+        <!-- MINE PRESTASJONER / TROFEER -->
+        <div class="sports-card p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+              <span>🏆 Trofé-rom</span>
             </h3>
-            <span class="text-xs text-slate-500">Klikk en rad for detaljert analyse</span>
+            <span id="trophyCountLabel" class="text-xs font-bold text-amber-300">4 av 6 fullført</span>
           </div>
 
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-sm">
-              <thead>
-                <tr class="bg-slate-900/80 border-b border-white/5 text-[10px] font-black uppercase tracking-wider text-slate-400">
-                  <th class="py-3 px-3 w-12 text-center">Plass</th>
-                  <th class="py-3 px-3">Deltaker</th>
-                  <th class="py-3 px-2 text-center">Kort</th>
-                  <th class="py-3 px-3 text-center hidden sm:table-cell">XP & Spillernivå</th>
-                  <th class="py-3 px-3 text-center">Score</th>
-                  <th class="py-3 px-2 text-center">🎯 Treff</th>
-                  <th class="py-3 px-2 text-center">Avvik</th>
-                  <th class="py-3 px-3 text-right">Handlinger</th>
-                </tr>
-              </thead>
-              <tbody id="leaderboardTableBody" class="divide-y divide-white/5 font-semibold">
-                <!-- Dynamisk fylles av app.js -->
-              </tbody>
-            </table>
+          <div id="achievementsGrid" class="grid grid-cols-2 gap-2 text-xs">
+            <!-- Dynamisk fylles -->
           </div>
         </div>
 
-      </section>
-
-      <!-- ==================== FANE 3: GAMIFICATION & PLAYOFF ==================== -->
-      <section id="tabContentStats" class="space-y-6">
-        
-        <!-- ================= GAMIFICATION SPILLERPROFIL & XP-STIGE ================= -->
-        <div class="cyber-card rounded-3xl p-5 sm:p-6 space-y-5 border border-sky-500/40 bg-gradient-to-br from-slate-900/90 via-[#07090e] to-slate-900/90 shadow-2xl">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
-            <div>
-              <span class="text-[10px] font-black uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
-                <i data-lucide="award" class="w-3.5 h-3.5 text-amber-400"></i>
-                Gamification & XP-Nivåer
-              </span>
-              <h3 class="text-base sm:text-xl font-black text-white flex items-center gap-2 mt-0.5">
-                <span>🎮 Spillerprofil & Rangering</span>
-              </h3>
-            </div>
-
-            <!-- Deltaker-velger for gamification visning -->
-            <div class="flex items-center gap-2">
-              <label for="gamificationUserSelect" class="text-xs text-slate-400 font-bold hidden sm:inline">Vis profil:</label>
-              <select id="gamificationUserSelect" class="bg-slate-900 border border-slate-700 text-xs font-bold rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-sky-500">
-                <!-- Dynamisk fylles av app.js -->
-              </select>
-            </div>
-          </div>
-
-          <!-- Aktiv Profil Hero-kort -->
-          <div id="gamificationHeroCard" class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-2xl bg-black/40 border border-white/5">
-            <!-- Dynamisk fylles av app.js -->
-          </div>
-
-          <!-- XP Nivå-stige forklaring -->
-          <div class="pt-2 border-t border-white/5">
-            <div class="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">Spillernivåer & Titler:</div>
-            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
-              <div class="p-2 rounded-xl bg-slate-900/80 border border-slate-700/60">
-                <div class="text-lg">🥉</div>
-                <div class="font-extrabold text-white text-[11px]">Benkesliter</div>
-                <div class="text-[9px] text-slate-400">0 – 119 XP</div>
-              </div>
-              <div class="p-2 rounded-xl bg-slate-900/80 border border-blue-600/60">
-                <div class="text-lg">🥈</div>
-                <div class="font-extrabold text-blue-300 text-[11px]">Roteringsspiller</div>
-                <div class="text-[9px] text-slate-400">120 – 249 XP</div>
-              </div>
-              <div class="p-2 rounded-xl bg-slate-900/80 border border-cyan-500/60">
-                <div class="text-lg">🥇</div>
-                <div class="font-extrabold text-cyan-300 text-[11px]">Fast Ellever</div>
-                <div class="text-[9px] text-slate-400">250 – 399 XP</div>
-              </div>
-              <div class="p-2 rounded-xl bg-slate-900/80 border border-amber-400/60">
-                <div class="text-lg">⭐</div>
-                <div class="font-extrabold text-amber-300 text-[11px]">Publikumsyndling</div>
-                <div class="text-[9px] text-slate-400">400 – 599 XP</div>
-              </div>
-              <div class="p-2 rounded-xl bg-slate-900/80 border border-purple-400/60">
-                <div class="text-lg">👑</div>
-                <div class="font-extrabold text-purple-300 text-[11px]">Klubblegende</div>
-                <div class="text-[9px] text-slate-400">600+ XP</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ================= TROFÉ-ROM & PRESTASJONER ================= -->
-        <div class="cyber-card rounded-3xl p-5 sm:p-6 space-y-4 border border-amber-500/30">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-3">
-            <div>
-              <span class="text-[10px] font-black uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
-                <i data-lucide="trophy" class="w-3.5 h-3.5 text-amber-400"></i>
-                Låsbare Utmerkelser
-              </span>
-              <h3 class="text-base sm:text-xl font-black text-white flex items-center gap-2 mt-0.5">
-                <span>🏆 Trofé-rom & Prestasjoner</span>
-              </h3>
-            </div>
-            <div id="trophyCountLabel" class="text-xs font-bold text-amber-300">
-              <!-- Dynamisk: f.eks. "4 av 6 trofeer låst opp" -->
-            </div>
-          </div>
-
-          <div id="achievementsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            <!-- Dynamisk fylles av app.js -->
-          </div>
-        </div>
-
-        <!-- ================= SPILLERKORT-GALLERI (FUT SHOWCASE) ================= -->
-        <div class="cyber-card rounded-3xl p-5 sm:p-6 space-y-4 border border-sky-500/30">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-3">
-            <div>
-              <span class="text-[10px] font-black uppercase tracking-widest text-sky-400 flex items-center gap-1.5">
-                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-sky-400"></i>
-                Samlekort & FIFA/FUT Stats
-              </span>
-              <h3 class="text-base sm:text-xl font-black text-white flex items-center gap-2 mt-0.5">
-                <span>🃏 Spillerkort for vennegjengen</span>
-              </h3>
-            </div>
-            <span class="text-xs text-slate-400">Klikk på et kort for å åpne og dele det!</span>
-          </div>
-
-          <div id="playerCardsGallery" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3.5">
-            <!-- Dynamisk fylles av app.js -->
-          </div>
-        </div>
-
-        <!-- ================= NFF PLAYOFF & KVALIFISERING SIMULATOR ================= -->
-        <div class="cyber-card rounded-3xl p-5 sm:p-6 space-y-5 border border-emerald-500/40 bg-gradient-to-b from-[#091522] to-[#07090e]">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="text-[10px] font-black uppercase tracking-widest text-emerald-400 flex items-center gap-1.5">
-                  <i data-lucide="shield" class="w-3.5 h-3.5 text-emerald-400"></i>
-                  Offisiell NFF Kvalifisering 2026
-                </span>
-                <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-950 text-emerald-300 border border-emerald-600/60">
-                  +15 BONUSPOENG PER TREFF
-                </span>
-              </div>
-              <h3 class="text-base sm:text-xl font-black text-white flex items-center gap-2 mt-0.5">
-                <span>🎯 Interaktiv Playoff-tipper</span>
-              </h3>
-            </div>
-            <div class="text-xs text-slate-300 font-bold">
-              Spilles i nov / des 2026
-            </div>
-          </div>
-
-          <div class="p-3 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 text-xs text-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div>
-              <strong class="font-black text-white">Slik fungerer det:</strong>
-              Klikk på lagene du tror vinner i stigen under, og lås inn dine playoff-tips! Riktige tips gir ekstra bonuspoeng og XP når kampene spilles.
-            </div>
-            <button id="savePlayoffTipsBtn" class="py-2 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 text-white font-extrabold text-xs flex items-center gap-1.5 whitespace-nowrap shadow-lg">
-              <i data-lucide="check" class="w-3.5 h-3.5"></i>
-              <span>Lås mine Playoff-tips</span>
+        <!-- KONSENSUS & REELL TABELL -->
+        <div class="sports-card p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-black uppercase tracking-wider text-slate-300">
+              Offisiell 2026-tabell (Runde 28)
+            </h3>
+            <button id="quickApiFetchBtn" class="text-xs text-sky-400 font-bold hover:underline flex items-center gap-1">
+              <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+              <span>Oppdater</span>
             </button>
           </div>
 
-          <!-- ELITESERIEN KVALIFISERING TURNERINGSSTIGE -->
-          <div class="space-y-3">
-            <h4 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span>Kvalifisering til Eliteserien (Nr. 3–6 i OBOS mot Nr. 14 i Eliteserien)</span>
-            </h4>
-
-            <div id="playoffBracketContainer" class="grid grid-cols-1 md:grid-cols-4 gap-3">
-              <!-- Dynamisk fylles av app.js med Kamp 1, Kamp 2, Kamp 3 og Dobbeltkamp Finale -->
-            </div>
+          <div id="officialLiveTableContainer" class="space-y-1 text-xs">
+            <!-- Dynamisk fylles -->
           </div>
-
-          <!-- OBOS-LIGAEN NEDRYKKSKVALIFISERING -->
-          <div class="pt-3 border-t border-white/10 space-y-3">
-            <h4 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-              <span>Kvalifisering til OBOS-ligaen (Nr. 14 i OBOS mot PostNord-vinner)</span>
-            </h4>
-
-            <div id="playoffRelegationContainer" class="max-w-xl">
-              <!-- Dynamisk fylles av app.js -->
-            </div>
-          </div>
-        </div>
-
-        <!-- 2-KOLONNER: REELL OBOS-TABELL OG FOLKETS TABELL -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          
-          <!-- EKT LIVE OBOS-TABELL -->
-          <div class="cyber-card rounded-3xl p-5 space-y-4">
-            <div>
-              <h3 class="text-sm sm:text-base font-black text-white flex items-center gap-2">
-                <i data-lucide="table" class="w-4 h-4 text-emerald-400"></i>
-                <span>Gjeldende Live-tabell (Runde 28)</span>
-              </h3>
-              <p class="text-xs text-slate-400">Kamper, målforskjell og poeng:</p>
-            </div>
-
-            <div class="overflow-y-auto max-h-[440px] space-y-1.5 pr-1" id="officialLiveTableContainer">
-              <!-- Dynamisk fylles med ekte tall -->
-            </div>
-          </div>
-
-          <!-- FOLKETS TABELL (KONSENSUS) -->
-          <div class="cyber-card rounded-3xl p-5 space-y-4">
-            <div>
-              <h3 class="text-sm sm:text-base font-black text-white flex items-center gap-2">
-                <i data-lucide="pie-chart" class="w-4 h-4 text-sky-400"></i>
-                <span>Folkets Tabell (Konsensus)</span>
-              </h3>
-              <p class="text-xs text-slate-400">Gjennomsnittet av hva alle i vennegjengen har tippet:</p>
-            </div>
-
-            <div class="overflow-y-auto max-h-[440px] space-y-1.5 pr-1">
-              <div id="consensusListContainer" class="space-y-1.5 text-xs">
-                <!-- Dynamisk fylles av app.js -->
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- H2H DUEL OG RANHEIM ANALYSE -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          
-          <div class="cyber-card rounded-3xl p-5 space-y-4">
-            <div>
-              <h3 class="text-sm sm:text-base font-black text-white flex items-center gap-2">
-                <i data-lucide="swords" class="w-4 h-4 text-cyan-400"></i>
-                <span>Innbyrdes Duell (Head-to-Head)</span>
-              </h3>
-              <p class="text-xs text-slate-400">Sammenlign to deltakere direkte mot hverandre:</p>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Deltaker A</label>
-                <select id="h2hSelectA" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:ring-1 focus:ring-sky-500">
-                  <!-- Dynamisk fylles -->
-                </select>
-              </div>
-
-              <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Deltaker B</label>
-                <select id="h2hSelectB" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:ring-1 focus:ring-sky-500">
-                  <!-- Dynamisk fylles -->
-                </select>
-              </div>
-            </div>
-
-            <div id="h2hComparisonContainer" class="pt-2">
-              <!-- Dynamisk fylles av app.js -->
-            </div>
-          </div>
-
-          <div class="cyber-card rounded-3xl p-5 space-y-4">
-            <div class="flex items-center gap-3">
-              <img src="https://images.fotmob.com/image_resources/logo/teamlogo/6563.png" alt="Ranheim TF" class="w-10 h-10 object-contain">
-              <div>
-                <h3 class="text-sm sm:text-base font-black text-white">Ranheim TF Gruppe-Analyse</h3>
-                <p class="text-xs text-slate-400">Hvordan har vennegjengen tippet Ranheim?</p>
-              </div>
-            </div>
-
-            <div id="ranheimBeliefContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <!-- Dynamisk fylles av app.js -->
-            </div>
-
-            <div class="p-3 rounded-2xl bg-sky-950/40 border border-sky-700/40 text-xs text-sky-200">
-              💙 <strong>Status i dag:</strong> Ranheim har 38 poeng etter 28 runder. Med seier i de to siste kampene kan Ranheim kapre 5. eller 6. plass og gå rett inn i Playoff Kamp 1 den 22. november!
-            </div>
-          </div>
-
         </div>
 
       </section>
 
       <!-- ==================== FANE 4: FASIT & ADMIN ==================== -->
-      <section id="tabContentSettings" class="hidden space-y-6">
+      <section id="tabContentSettings" class="hidden space-y-4">
         
-        <div class="cyber-card rounded-3xl p-5 sm:p-6 space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="sports-card p-4 space-y-3">
+          <div class="flex items-center justify-between">
             <div>
-              <h2 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                <span>⚙️ Offisiell Fasittabell</span>
-              </h2>
-              <p class="text-xs sm:text-sm text-slate-400">
-                Juster rekkefølgen slik den offisielle OBOS-tabellen ser ut, eller hent automatisk fra live feed.
-              </p>
+              <h2 class="text-sm font-black text-white">⚙️ Fasittabell</h2>
+              <p class="text-xs text-slate-400">Juster offisiell rekkefølge ved behov</p>
             </div>
-
-            <div class="flex flex-wrap items-center gap-2">
-              <button 
-                id="fetchApiFasitBtn" 
-                class="py-2.5 px-5 bg-sky-700 hover:bg-sky-600 text-white font-extrabold text-xs sm:text-sm rounded-2xl shadow-lg flex items-center gap-2 transition-all active:scale-95"
-              >
-                <i data-lucide="cloud-download" class="w-4 h-4"></i>
-                <span>Hent fra API</span>
+            <div class="flex items-center gap-2">
+              <button id="fetchApiFasitBtn" class="px-3 py-1.5 bg-sky-700 hover:bg-sky-600 text-white font-bold text-xs rounded-xl">
+                API Live
               </button>
-
-              <button 
-                id="saveFasitBtn" 
-                class="py-2.5 px-6 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm rounded-2xl shadow-lg shadow-emerald-950 flex items-center gap-2 transition-all active:scale-95"
-              >
-                <i data-lucide="check-circle" class="w-4 h-4"></i>
-                <span>Lagre fasit</span>
+              <button id="saveFasitBtn" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl">
+                Lagre
               </button>
             </div>
           </div>
 
-          <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-white/5">
-            <span class="text-xs font-bold text-slate-500">Forhåndsinnstillinger:</span>
-            <button id="presetStandardBtn" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700">
-              Live Stilling 2026 (Runde 28)
-            </button>
-            <button id="presetRanheimChampBtn" class="px-3 py-1 bg-sky-950 hover:bg-sky-900 text-sky-300 text-xs font-bold rounded-xl border border-sky-800">
-              Ranheim TF på 1. plass
-            </button>
-          </div>
-
-          <div id="fasitList" class="space-y-1.5 select-none pt-2">
-            <!-- Dynamisk fylles av app.js -->
+          <div id="fasitList" class="space-y-1 select-none pt-2">
+            <!-- Dynamisk fylles -->
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="sports-card p-4 space-y-3">
+          <h3 class="text-xs font-black uppercase tracking-wider text-slate-300">Sikkerhetskopi & Data</h3>
           
-          <div class="cyber-card rounded-3xl p-5 space-y-3">
-            <h3 class="text-sm sm:text-base font-black text-white flex items-center gap-2">
-              <i data-lucide="database" class="w-4 h-4 text-cyan-400"></i>
-              <span>Sikkerhetskopi & Data</span>
-            </h3>
-            <p class="text-xs text-slate-400">
-              Last ned alle tips som en JSON-fil, eller importer en eksisterende fil.
-            </p>
+          <div class="flex flex-wrap gap-2 text-xs">
+            <button id="exportJsonBtn" class="px-3 py-2 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl border border-white/10 flex items-center gap-1">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span>Eksporter JSON</span>
+            </button>
 
-            <div class="flex flex-wrap gap-2 pt-2">
-              <button id="exportJsonBtn" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-1.5">
-                <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                <span>Last ned JSON</span>
-              </button>
+            <label class="px-3 py-2 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl border border-white/10 flex items-center gap-1 cursor-pointer">
+              <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+              <span>Importer JSON</span>
+              <input type="file" id="importJsonInput" accept=".json" class="hidden">
+            </label>
 
-              <label class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-1.5 cursor-pointer">
-                <i data-lucide="upload" class="w-3.5 h-3.5"></i>
-                <span>Gjenopprett fra JSON</span>
-                <input type="file" id="importJsonInput" accept=".json" class="hidden">
-              </label>
-
-              <button id="resetDemoBtn" class="px-3 py-2 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 text-xs font-semibold rounded-xl border border-rose-800/60 flex items-center gap-1.5 ml-auto">
-                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-                <span>Nullstill testdata</span>
-              </button>
-            </div>
+            <button id="resetDemoBtn" class="px-3 py-2 bg-rose-950/40 text-rose-300 font-bold rounded-xl border border-rose-800/60 ml-auto">
+              Nullstill
+            </button>
           </div>
 
-          <div class="cyber-card rounded-3xl p-5 space-y-3">
-            <h3 class="text-sm sm:text-base font-black text-white flex items-center gap-2">
-              <i data-lucide="cloud" class="w-4 h-4 text-emerald-400"></i>
-              <span>Google Sheets Tilkobling</span>
-            </h3>
-            <p class="text-xs text-slate-400" id="cloudStatusText">
-              Konfigurert i <code class="text-cyan-300">js/config.js</code>.
-            </p>
-
-            <div class="pt-2 flex items-center gap-2">
-              <button id="syncNowBtn" class="px-4 py-2 bg-emerald-950/60 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-700/60 text-xs font-bold rounded-xl flex items-center gap-1.5">
-                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                <span>Synkroniser med Google Sheets</span>
-              </button>
-            </div>
+          <div class="pt-2 border-t border-white/5 text-[11px] text-slate-400" id="cloudStatusText">
+            Lokal lagring (localStorage).
           </div>
-
         </div>
 
       </section>
@@ -710,60 +356,52 @@
     </main>
 
     <!-- FOOTER -->
-    <footer class="border-t border-white/5 py-4 text-center text-xs text-slate-500 cyber-panel">
-      <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-        <div class="flex items-center gap-1.5 font-medium">
-          <span>OBOS Tabell-tipper & Playoff for</span>
-          <strong class="text-slate-200">ranheimkraft.no</strong>
-        </div>
-        <div class="text-[11px] text-slate-600">
-          NFF Kvalifiseringsregler • Live 2026 data
-        </div>
-      </div>
+    <footer class="border-t border-white/[0.06] py-3 text-center text-[11px] text-slate-500">
+      OBOS Tabell-tipper 2026 • Ranheim Kraft
     </footer>
   </div>
 
   <!-- ==================== MODAL 1: DETALJERT ANALYSE ==================== -->
-  <div id="xrayModal" class="fixed inset-0 z-50 hidden bg-[#07090e]/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
-    <div class="max-w-2xl w-full cyber-panel border border-slate-700/80 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+  <div id="xrayModal" class="fixed inset-0 z-50 hidden bg-[#090c14]/90 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="max-w-lg w-full bg-[#121826] border border-white/10 rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[88vh]">
       
-      <div class="p-4 sm:p-5 border-b border-white/5 flex items-center justify-between bg-slate-900/60">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-cyan-950/80 border border-cyan-500/50 flex items-center justify-center text-xl shadow-lg shadow-cyan-950">
+      <div class="p-4 border-b border-white/10 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-sky-950 text-sky-400 flex items-center justify-center font-black">
             📊
           </div>
           <div>
-            <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
-              <span id="xrayAuthorName">Deltaker</span>
-              <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-700">Tipsanalyse</span>
-            </h3>
-            <p id="xraySummarySubtitle" class="text-xs text-slate-400">Tips vs. Gjeldende fasit (Foreløpig)</p>
+            <h3 id="xrayAuthorName" class="text-sm font-black text-white">Deltaker</h3>
+            <p id="xraySummarySubtitle" class="text-[11px] text-slate-400">Tips vs Fasit</p>
           </div>
         </div>
 
-        <button id="closeXrayBtn" class="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors">
+        <button id="closeXrayBtn" class="p-1.5 text-slate-400 hover:text-white rounded-lg">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <div id="xrayBadgesBar" class="px-5 py-3 bg-slate-900/40 border-b border-white/5 flex flex-wrap items-center gap-2">
+      <div id="xrayBadgesBar" class="px-4 py-2 bg-black/30 border-b border-white/5 flex flex-wrap gap-1.5">
         <!-- Dynamiske badges -->
       </div>
 
-      <div class="overflow-y-auto p-4 sm:p-5 space-y-2 flex-1">
-        <div class="text-[10px] font-black uppercase tracking-wider text-slate-400 grid grid-cols-12 px-3 pb-1">
+      <div class="overflow-y-auto p-4 space-y-1.5 flex-1 text-xs">
+        <div class="text-[10px] font-black uppercase text-slate-400 grid grid-cols-12 px-2 pb-1">
           <div class="col-span-1 text-center">Pl.</div>
           <div class="col-span-5">Tippet Lag</div>
           <div class="col-span-3 text-center">Fasit</div>
           <div class="col-span-3 text-right">Avvik</div>
         </div>
-        <div id="xrayRowsContainer" class="space-y-1.5">
-          <!-- Dynamisk fylles av app.js -->
+        <div id="xrayRowsContainer" class="space-y-1">
+          <!-- Dynamisk fylles -->
         </div>
       </div>
 
-      <div class="p-4 border-t border-white/5 bg-slate-900/60 flex justify-end">
-        <button id="closeXrayBottomBtn" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-black text-xs rounded-xl">
+      <div class="p-3 border-t border-white/10 bg-black/40 flex justify-between items-center">
+        <button id="xrayOpenCardBtn" class="px-3 py-2 bg-amber-500/20 text-amber-300 font-bold text-xs rounded-xl border border-amber-500/40 flex items-center gap-1">
+          <span>🃏 Vis Spillerkort</span>
+        </button>
+        <button id="closeXrayBottomBtn" class="px-4 py-2 bg-white/10 text-white font-bold text-xs rounded-xl">
           Lukk
         </button>
       </div>
@@ -772,56 +410,54 @@
   </div>
 
   <!-- ==================== MODAL 2: DELBART BILDE ==================== -->
-  <div id="shareModal" class="fixed inset-0 z-50 hidden bg-[#07090e]/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
-    <div class="max-w-md w-full cyber-panel border border-slate-700/80 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+  <div id="shareModal" class="fixed inset-0 z-50 hidden bg-[#090c14]/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="max-w-xs w-full bg-[#121826] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
       
-      <div class="p-4 border-b border-white/5 flex items-center justify-between">
-        <h3 class="text-xs sm:text-sm font-black text-white flex items-center gap-2">
-          <i data-lucide="camera" class="w-4 h-4 text-cyan-400"></i>
+      <div class="p-3 border-b border-white/10 flex items-center justify-between">
+        <h3 class="text-xs font-black text-white flex items-center gap-1.5">
+          <i data-lucide="camera" class="w-3.5 h-3.5 text-cyan-400"></i>
           <span>Delbart Tabellkort</span>
         </h3>
-        <button id="closeShareBtn" class="p-1.5 text-slate-400 hover:text-white rounded-lg">
-          <i data-lucide="x" class="w-5 h-5"></i>
+        <button id="closeShareBtn" class="p-1 text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
-      <div class="p-4 overflow-y-auto flex-1 flex justify-center bg-slate-950/80">
-        <div id="shareCardContainer" class="w-full max-w-[360px] rounded-3xl p-5 border border-sky-500/40 text-white shadow-2xl space-y-3">
+      <div class="p-3 flex justify-center bg-black/60 overflow-y-auto max-h-[70vh]">
+        <div id="shareCardContainer" class="w-full rounded-2xl p-4 bg-[#090c14] border border-sky-500/40 text-white shadow-xl space-y-2">
           
-          <div class="flex items-center justify-between border-b border-white/10 pb-3">
-            <div class="flex items-center gap-2.5">
-              <img src="https://images.fotmob.com/image_resources/logo/teamlogo/6563.png" alt="Ranheim TF" class="w-8 h-8 object-contain">
+          <div class="flex items-center justify-between border-b border-white/10 pb-2">
+            <div class="flex items-center gap-2">
+              <img src="https://images.fotmob.com/image_resources/logo/teamlogo/6563.png" alt="Ranheim" class="w-6 h-6 object-contain">
               <div>
-                <div class="text-xs font-black tracking-tight text-white uppercase">OBOS TABELLTIPS 2026</div>
-                <div class="text-[9px] text-cyan-400 font-extrabold uppercase">ranheimkraft.no</div>
+                <div class="text-[11px] font-black uppercase text-white">OBOS TIPS 2026</div>
+                <div class="text-[8px] text-cyan-400 font-bold uppercase">ranheimkraft.no</div>
               </div>
             </div>
             <div class="text-right">
-              <div id="shareCardAuthor" class="text-xs font-black text-sky-300 truncate max-w-[120px]">Mitt Kallenavn</div>
-              <div id="shareCardDate" class="text-[9px] text-slate-400">Sesongtips 2026</div>
+              <div id="shareCardAuthor" class="text-xs font-black text-sky-300 truncate max-w-[100px]">Mitt Kallenavn</div>
             </div>
           </div>
 
-          <div id="shareCardTable" class="space-y-1 text-xs">
-            <!-- Dynamisk fylles før snapshot -->
+          <div id="shareCardTable" class="space-y-0.5 text-[11px]">
+            <!-- Dynamisk fylles -->
           </div>
 
-          <div class="text-[9px] text-center text-slate-400 pt-2 border-t border-white/10 flex items-center justify-between">
-            <span>OBOS-ligaen</span>
-            <span class="text-sky-300 font-bold">Ranheim Kraft Tippeliga</span>
+          <div class="text-[8px] text-center text-slate-400 pt-1.5 border-t border-white/10">
+            Ranheim Kraft Tippeliga
           </div>
 
         </div>
       </div>
 
-      <div class="p-4 border-t border-white/5 bg-slate-900/60 flex items-center gap-2">
-        <button id="downloadImageBtn" class="flex-1 py-3 px-4 bg-gradient-to-r from-sky-600 to-blue-700 hover:from-sky-500 hover:to-blue-600 text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md">
-          <i data-lucide="download" class="w-4 h-4"></i>
-          <span>Last ned PNG</span>
+      <div class="p-3 border-t border-white/10 bg-black/40 flex gap-2">
+        <button id="downloadImageBtn" class="flex-1 py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-black text-xs rounded-xl flex items-center justify-center gap-1 shadow-md">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i>
+          <span>Last ned</span>
         </button>
-        <button id="copyImageBtn" class="flex-1 py-3 px-4 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-700/50 font-extrabold text-xs rounded-xl flex items-center justify-center gap-2">
-          <i data-lucide="copy" class="w-4 h-4"></i>
-          <span>Kopier bilde</span>
+        <button id="copyImageBtn" class="flex-1 py-2.5 bg-white/10 hover:bg-white/15 text-white font-black text-xs rounded-xl flex items-center justify-center gap-1 border border-white/10">
+          <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+          <span>Kopier</span>
         </button>
       </div>
 
@@ -829,33 +465,32 @@
   </div>
 
   <!-- ==================== MODAL 3: FUT SPILLERKORT ==================== -->
-  <div id="playerCardModal" class="fixed inset-0 z-50 hidden bg-[#07090e]/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
-    <div class="max-w-md w-full cyber-panel border border-slate-700/80 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[94vh]">
+  <div id="playerCardModal" class="fixed inset-0 z-50 hidden bg-[#090c14]/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="max-w-sm w-full bg-[#121826] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
       
-      <div class="p-4 border-b border-white/5 flex items-center justify-between bg-slate-900/60">
-        <h3 class="text-xs sm:text-sm font-black text-white flex items-center gap-2">
-          <span class="text-amber-400">🃏</span>
-          <span>Offisielt Spillerkort • OBOS 2026</span>
+      <div class="p-3 border-b border-white/10 flex items-center justify-between">
+        <h3 class="text-xs font-black text-white flex items-center gap-1.5">
+          <span>🃏</span>
+          <span>Offisielt Spillerkort</span>
         </h3>
-        <button id="closePlayerCardBtn" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors">
-          <i data-lucide="x" class="w-5 h-5"></i>
+        <button id="closePlayerCardBtn" class="p-1 text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
-      <div class="p-4 overflow-y-auto flex-1 flex justify-center bg-slate-950/80">
-        <div id="playerCardModalContent" class="w-full max-w-[340px]">
+      <div class="p-4 flex justify-center bg-black/60 overflow-y-auto max-h-[75vh]">
+        <div id="playerCardModalContent" class="w-full max-w-[300px]">
           <!-- Dynamisk fylles av GamificationEngine.generatePlayerCardHTML -->
         </div>
       </div>
 
-      <div class="p-4 border-t border-white/5 bg-slate-900/60 flex items-center gap-2">
-        <button id="downloadPlayerCardBtn" class="flex-1 py-3 px-4 bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-all active:scale-95">
-          <i data-lucide="download" class="w-4 h-4"></i>
-          <span>Last ned Spillerkort PNG</span>
+      <div class="p-3 border-t border-white/10 bg-black/40 flex gap-2">
+        <button id="downloadPlayerCardBtn" class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl flex items-center justify-center gap-1 shadow-md">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i>
+          <span>Last ned kort</span>
         </button>
-        <button id="copyPlayerCardBtn" class="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-700/50 font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95">
-          <i data-lucide="copy" class="w-4 h-4"></i>
-          <span>Kopier</span>
+        <button id="copyPlayerCardBtn" class="py-2.5 px-3 bg-white/10 hover:bg-white/15 text-white font-black text-xs rounded-xl border border-white/10">
+          <i data-lucide="copy" class="w-3.5 h-3.5"></i>
         </button>
       </div>
 
