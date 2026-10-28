@@ -125,6 +125,19 @@ const StatsEngine = {
       });
     }
 
+    let leader = 'Uavgjort';
+    if (activeSystem === 'klassisk') {
+      if (evalA.score < evalB.score) leader = pA.author;
+      else if (evalB.score < evalA.score) leader = pB.author;
+      else if (evalA.exactHits > evalB.exactHits) leader = pA.author;
+      else if (evalB.exactHits > evalA.exactHits) leader = pB.author;
+    } else {
+      if (evalA.score > evalB.score) leader = pA.author;
+      else if (evalB.score > evalA.score) leader = pB.author;
+      else if (evalA.exactHits > evalB.exactHits) leader = pA.author;
+      else if (evalB.exactHits > evalA.exactHits) leader = pB.author;
+    }
+
     return {
       userA: {
         id: pA.id,
@@ -142,7 +155,7 @@ const StatsEngine = {
         totalDiff: evalB.totalDiff,
         ranheimPos: evalB.ranheimPredictedPos
       },
-      leader: evalA.score > evalB.score ? pA.author : evalB.score > evalA.score ? pB.author : 'Uavgjort',
+      leader,
       identicalPositions,
       comparisons
     };

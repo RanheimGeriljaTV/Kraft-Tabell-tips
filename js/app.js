@@ -28,10 +28,12 @@
     // Faner
     tabBtnPredict: document.getElementById('tabBtnPredict'),
     tabBtnLeaderboard: document.getElementById('tabBtnLeaderboard'),
+    tabBtnGroupStats: document.getElementById('tabBtnGroupStats'),
     tabBtnStats: document.getElementById('tabBtnStats'),
     tabBtnSettings: document.getElementById('tabBtnSettings'),
     tabContentPredict: document.getElementById('tabContentPredict'),
     tabContentLeaderboard: document.getElementById('tabContentLeaderboard'),
+    tabContentGroupStats: document.getElementById('tabContentGroupStats'),
     tabContentStats: document.getElementById('tabContentStats'),
     tabContentSettings: document.getElementById('tabContentSettings'),
 
@@ -49,7 +51,16 @@
     leaderboardCardsContainer: document.getElementById('leaderboardCardsContainer'),
     participantCount: document.getElementById('participantCount'),
 
-    // Fane 3: Playoff & Gamification
+    // Fane 3: Gruppe-statistikk (Folkets tabell, H2H, Superlativer)
+    groupStatsCountLabel: document.getElementById('groupStatsCountLabel'),
+    groupRecordsContainer: document.getElementById('groupRecordsContainer'),
+    h2hSelectA: document.getElementById('h2hSelectA'),
+    h2hSelectB: document.getElementById('h2hSelectB'),
+    h2hComparisonContainer: document.getElementById('h2hComparisonContainer'),
+    consensusListContainer: document.getElementById('consensusListContainer'),
+
+    // Fane 4: Playoff & Gamification
+    profileUserSelect: document.getElementById('profileUserSelect'),
     activeUserName: document.getElementById('activeUserName'),
     activeUserBadge: document.getElementById('activeUserBadge'),
     activeUserLevel: document.getElementById('activeUserLevel'),
@@ -154,11 +165,16 @@
   function initApp() {
     StorageManager.init();
     activeSystem = StorageManager.getActiveSystem();
+    const savedActiveName = localStorage.getItem('ranheim_active_user_name');
+    if (savedActiveName && dom.authorNameInput && !dom.authorNameInput.value) {
+      dom.authorNameInput.value = savedActiveName;
+    }
     loadPredictionTableInitial();
     updateExistingTipsDropdown();
     initSortablePrediction();
     initSortableFasit();
     renderLeaderboard();
+    renderGroupStats();
     renderPlayoffBracket();
     renderOfficialLiveTable();
     renderGamificationHub();
@@ -174,14 +190,27 @@
      ========================================================================== */
 
   function switchTab(target) {
-    dom.tabContentPredict.classList.add('hidden');
-    dom.tabContentLeaderboard.classList.add('hidden');
-    dom.tabContentStats.classList.add('hidden');
-    dom.tabContentSettings.classList.add('hidden');
+    [
+      dom.tabContentPredict,
+      dom.tabContentLeaderboard,
+      dom.tabContentGroupStats,
+      dom.tabContentStats,
+      dom.tabContentSettings
+    ].forEach(c => {
+      if (c) c.classList.add('hidden');
+    });
 
-    [dom.tabBtnPredict, dom.tabBtnLeaderboard, dom.tabBtnStats, dom.tabBtnSettings].forEach(btn => {
-      btn.classList.remove('bg-sky-500', 'text-slate-950');
-      btn.classList.add('text-slate-400');
+    [
+      dom.tabBtnPredict,
+      dom.tabBtnLeaderboard,
+      dom.tabBtnGroupStats,
+      dom.tabBtnStats,
+      dom.tabBtnSettings
+    ].forEach(btn => {
+      if (btn) {
+        btn.classList.remove('bg-sky-500', 'text-slate-950');
+        btn.classList.add('text-slate-400');
+      }
     });
 
     if (target === 'predict') {
@@ -193,6 +222,13 @@
       dom.tabBtnLeaderboard.classList.add('bg-sky-500', 'text-slate-950');
       dom.tabBtnLeaderboard.classList.remove('text-slate-400');
       renderLeaderboard();
+    } else if (target === 'groupStats') {
+      if (dom.tabContentGroupStats) dom.tabContentGroupStats.classList.remove('hidden');
+      if (dom.tabBtnGroupStats) {
+        dom.tabBtnGroupStats.classList.add('bg-sky-500', 'text-slate-950');
+        dom.tabBtnGroupStats.classList.remove('text-slate-400');
+      }
+      renderGroupStats();
     } else if (target === 'stats') {
       dom.tabContentStats.classList.remove('hidden');
       dom.tabBtnStats.classList.add('bg-sky-500', 'text-slate-950');
@@ -336,10 +372,19 @@
     if (tip) {
       currentEditingTipId = tip.id;
       dom.authorNameInput.value = tip.author;
+      localStorage.setItem('ranheim_active_user_name', tip.author);
       dom.saveBtnLabel.textContent = 'Oppdater tips';
       currentPredictionTable = [...tip.table];
       renderPredictionList();
       renderPlayoffBracket();
+      renderGamificationHub();
+    }
+  });
+
+  dom.authorNameInput.addEventListener('input', () => {
+    const val = dom.authorNameInput.value.trim();
+    if (val) {
+      localStorage.setItem('ranheim_active_user_name', val);
     }
   });
 
@@ -353,8 +398,10 @@
 
     try {
       StorageManager.saveTip(author, currentPredictionTable, currentEditingTipId);
+      localStorage.setItem('ranheim_active_user_name', author);
       updateExistingTipsDropdown();
       renderLeaderboard();
+      renderGroupStats();
       renderGamificationHub();
       renderPlayoffBracket();
       switchTab('leaderboard');
@@ -518,7 +565,273 @@
   }
 
   /* ==========================================================================
-     6. FANE 3: PLAYOFF & GAMIFICATION
+     6. FANE 3: GRUPPE-STATS FOR ALLE SOM ER MED (KONSENSUS, H2H, SUPERLATIVER)
+     ========================================================================== */
+
+  let h2hSelectedUserA = null;
+  let h2hSelectedUserB = null;
+
+  function renderGroupStats() {
+    const tips = StorageManager.getTips();
+    const currentFasit = getActiveStandings();
+
+    if (!dom.tabContentGroupStats) return;
+
+    if (dom.groupStatsCountLabel) {
+      dom.groupStatsCountLabel.textContent = `${tips.length} deltakere`;
+    }
+
+    if (tips.length === 0) {
+      if (dom.groupRecordsContainer) {
+        dom.groupRecordsContainer.innerHTML = '<div class="col-span-2 text-center py-4 text-xs text-slate-500 font-bold">Ingen tips lagret ennå.</div>';
+      }
+      if (dom.h2hComparisonContainer) {
+        dom.h2hComparisonContainer.innerHTML = '<div class="text-center py-4 text-xs text-slate-500">Minst to deltakere kreves for H2H-duell.</div>';
+      }
+      if (dom.consensusListContainer) {
+        dom.consensusListContainer.innerHTML = '<div class="text-center py-4 text-xs text-slate-500">Ingen tips å beregne snitt fra.</div>';
+      }
+      return;
+    }
+
+    // 1. Gruppe-superlativer
+    renderGroupSuperlatives(tips, currentFasit);
+
+    // 2. Head-to-Head (H2H) duell
+    setupH2HControls(tips, currentFasit);
+
+    // 3. Folkets Tabell (Konsensus)
+    renderConsensusTable(tips, currentFasit);
+
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  }
+
+  function renderGroupSuperlatives(tips, currentFasit) {
+    if (!dom.groupRecordsContainer) return;
+    dom.groupRecordsContainer.innerHTML = '';
+
+    const ranked = rankLeaderboard(tips, currentFasit, activeSystem);
+    const ranheimReport = window.StatsEngine ? StatsEngine.getTeamBeliefReport('ranheim', tips) : null;
+
+    // Mest fulltreffere
+    const mostExact = [...ranked].sort((a, b) => b.exactHits - a.exactHits)[0];
+
+    // Lavest totalavvik (Tabell-orakel)
+    const bestDev = [...ranked].sort((a, b) => a.totalDiff - b.totalDiff)[0];
+
+    // Ranheim optimisme
+    const ranheimOpt = ranheimReport ? ranheimReport.highest : null;
+    const ranheimAvg = ranheimReport ? ranheimReport.avgPos : '-';
+
+    const cards = [
+      {
+        title: 'Ranheim-patriot 💙',
+        value: ranheimOpt ? `${ranheimOpt.author}` : '-',
+        sub: ranheimOpt ? `Tippet #${ranheimOpt.predictedPos} (Snitt: #${ranheimAvg})` : '',
+        bg: 'border-sky-500/30 bg-sky-950/20 text-sky-300'
+      },
+      {
+        title: 'Fulltreffer-konge 🎯',
+        value: mostExact ? `${mostExact.author}` : '-',
+        sub: mostExact ? `${mostExact.exactHits} innertiere (spot-on)` : '',
+        bg: 'border-amber-500/30 bg-amber-950/20 text-amber-300'
+      },
+      {
+        title: 'Tabell-orakel ⚡',
+        value: bestDev ? `${bestDev.author}` : '-',
+        sub: bestDev ? `Kun ${bestDev.totalDiff} plasser totalavvik` : '',
+        bg: 'border-emerald-500/30 bg-emerald-950/20 text-emerald-300'
+      },
+      {
+        title: 'Gruppas Konsensus 👥',
+        value: `${tips.length} tips registrert`,
+        sub: `Snittavvik: ${(ranked.reduce((acc, r) => acc + r.totalDiff, 0) / ranked.length).toFixed(1)} plasser`,
+        bg: 'border-purple-500/30 bg-purple-950/20 text-purple-300'
+      }
+    ];
+
+    cards.forEach(c => {
+      const el = document.createElement('div');
+      el.className = `p-3 rounded-xl border ${c.bg} flex flex-col justify-between`;
+      el.innerHTML = `
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">${c.title}</div>
+        <div class="text-sm font-black text-white mt-1 truncate">${c.value}</div>
+        <div class="text-[10px] text-slate-400 mt-0.5 truncate">${c.sub}</div>
+      `;
+      dom.groupRecordsContainer.appendChild(el);
+    });
+  }
+
+  function setupH2HControls(tips, currentFasit) {
+    if (!dom.h2hSelectA || !dom.h2hSelectB || !dom.h2hComparisonContainer) return;
+
+    const savedA = h2hSelectedUserA || (tips[0] ? tips[0].id : null);
+    let savedB = h2hSelectedUserB || (tips[1] ? tips[1].id : (tips[0] ? tips[0].id : null));
+    if (savedB === savedA && tips.length > 1) {
+      savedB = tips[1].id;
+    }
+
+    h2hSelectedUserA = savedA;
+    h2hSelectedUserB = savedB;
+
+    dom.h2hSelectA.innerHTML = '';
+    tips.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.id;
+      opt.textContent = t.author;
+      if (t.id === h2hSelectedUserA) opt.selected = true;
+      dom.h2hSelectA.appendChild(opt);
+    });
+
+    dom.h2hSelectB.innerHTML = '';
+    tips.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.id;
+      opt.textContent = t.author;
+      if (t.id === h2hSelectedUserB) opt.selected = true;
+      dom.h2hSelectB.appendChild(opt);
+    });
+
+    dom.h2hSelectA.onchange = (e) => {
+      h2hSelectedUserA = e.target.value;
+      renderH2HDuel(tips, currentFasit);
+    };
+
+    dom.h2hSelectB.onchange = (e) => {
+      h2hSelectedUserB = e.target.value;
+      renderH2HDuel(tips, currentFasit);
+    };
+
+    renderH2HDuel(tips, currentFasit);
+  }
+
+  function renderH2HDuel(tips, currentFasit) {
+    if (!dom.h2hComparisonContainer || !window.StatsEngine) return;
+    if (tips.length < 2) {
+      dom.h2hComparisonContainer.innerHTML = '<div class="text-xs text-slate-500 text-center py-2">Minst to deltakere kreves for å kjøre duell.</div>';
+      return;
+    }
+
+    const duell = StatsEngine.compareH2H(h2hSelectedUserA, h2hSelectedUserB, tips, currentFasit, activeSystem);
+    if (!duell) {
+      dom.h2hComparisonContainer.innerHTML = '<div class="text-xs text-slate-500 text-center py-2">Velg to deltakere i listene over.</div>';
+      return;
+    }
+
+    const isKlassisk = (activeSystem === 'klassisk');
+    const unit = isKlassisk ? 'avvik' : 'p';
+
+    const leaderText = duell.leader === 'Uavgjort'
+      ? '🤝 Helt likt mellom begge!'
+      : `👑 ${duell.leader} leder duellen!`;
+
+    // Finn største uenighet mellom de to
+    let biggestDisagreement = null;
+    let maxDiff = -1;
+    const pA = tips.find(t => t.id === h2hSelectedUserA);
+    const pB = tips.find(t => t.id === h2hSelectedUserB);
+
+    if (pA && pB) {
+      window.TEAMS.forEach(team => {
+        const posA = pA.table.indexOf(team.id) + 1;
+        const posB = pB.table.indexOf(team.id) + 1;
+        const diff = Math.abs(posA - posB);
+        if (diff > maxDiff) {
+          maxDiff = diff;
+          biggestDisagreement = {
+            teamName: team.name,
+            posA,
+            posB,
+            diff
+          };
+        }
+      });
+    }
+
+    dom.h2hComparisonContainer.innerHTML = `
+      <div class="p-2.5 rounded-xl bg-black/40 border border-white/10 flex items-center justify-between">
+        <span class="text-xs font-black text-amber-300">${leaderText}</span>
+        <span class="text-[10px] text-slate-400 font-bold">${duell.identicalPositions} av 16 lag like</span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 text-center text-xs">
+        <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 space-y-0.5">
+          <div class="font-extrabold text-white text-sm truncate">${duell.userA.author}</div>
+          <div class="text-sky-400 font-black">${duell.userA.score} ${unit}</div>
+          <div class="text-[10px] text-emerald-400 font-bold">🎯 ${duell.userA.exactHits} innertiere</div>
+          <div class="text-[10px] text-slate-400">Ranheim: #${duell.userA.ranheimPos}</div>
+        </div>
+
+        <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 space-y-0.5">
+          <div class="font-extrabold text-white text-sm truncate">${duell.userB.author}</div>
+          <div class="text-sky-400 font-black">${duell.userB.score} ${unit}</div>
+          <div class="text-[10px] text-emerald-400 font-bold">🎯 ${duell.userB.exactHits} innertiere</div>
+          <div class="text-[10px] text-slate-400">Ranheim: #${duell.userB.ranheimPos}</div>
+        </div>
+      </div>
+
+      ${biggestDisagreement ? `
+        <div class="text-[10px] text-slate-400 bg-white/[0.02] p-2 rounded-lg border border-white/5 flex items-center justify-between">
+          <span>Største uenighet: <strong class="text-white">${biggestDisagreement.teamName}</strong></span>
+          <span class="text-slate-300 font-bold">#${biggestDisagreement.posA} vs #${biggestDisagreement.posB} (${biggestDisagreement.diff} plasser)</span>
+        </div>
+      ` : ''}
+    `;
+  }
+
+  function renderConsensusTable(tips, currentFasit) {
+    if (!dom.consensusListContainer || !window.StatsEngine) return;
+    dom.consensusListContainer.innerHTML = '';
+
+    const consensus = StatsEngine.calculateConsensus(tips, currentFasit);
+    if (!consensus || consensus.length === 0) return;
+
+    consensus.forEach((item) => {
+      const team = getTeamById(item.teamId);
+      if (!team) return;
+
+      const isRanheim = team.isRanheim;
+      const stripeClass = getZoneStripeClass(item.consensusRank);
+
+      let diffBadge = '';
+      if (item.difference > 0) {
+        diffBadge = `<span class="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800">+${item.difference.toFixed(1)}</span>`;
+      } else if (item.difference < 0) {
+        diffBadge = `<span class="text-[10px] font-bold text-rose-400 bg-rose-950/60 px-1.5 py-0.5 rounded border border-rose-800">${item.difference.toFixed(1)}</span>`;
+      } else {
+        diffBadge = `<span class="text-[10px] font-bold text-slate-400 bg-white/5 px-1.5 py-0.5 rounded">🎯 Spot on</span>`;
+      }
+
+      const row = document.createElement('div');
+      row.className = `p-2 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-between gap-2 ${stripeClass} ${isRanheim ? 'team-row-ranheim' : ''}`;
+
+      row.innerHTML = `
+        <div class="flex items-center gap-2 min-w-0 flex-1">
+          <span class="w-5 text-center font-black text-xs text-slate-400">${item.consensusRank}</span>
+          <img src="${team.logoUrl}" alt="${team.name}" class="w-5 h-5 object-contain flex-shrink-0" onerror="this.style.display='none'">
+          <div class="truncate">
+            <span class="font-extrabold text-xs ${isRanheim ? 'text-cyan-300' : 'text-white'}">${team.name}</span>
+            ${isRanheim ? '<span class="ml-1 text-[10px]">💙</span>' : ''}
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 flex-shrink-0 text-right">
+          <div class="text-[10px] text-slate-400">
+            Snitt: <strong class="text-white">#${item.avgPos}</strong>
+            <span class="text-[9px] text-slate-500 block">Spenn: #${item.highestTipped}-#${item.lowestTipped}</span>
+          </div>
+          ${diffBadge}
+        </div>
+      `;
+
+      dom.consensusListContainer.appendChild(row);
+    });
+  }
+
+  /* ==========================================================================
+     7. FANE 4: PLAYOFF & GAMIFICATION
      ========================================================================== */
 
   function renderGamificationHub() {
@@ -526,9 +839,45 @@
     const currentFasit = getActiveStandings();
     if (tips.length === 0) return;
 
-    // Aktiv deltaker (første eller sist redigerte)
-    const activeParticipant = (currentEditingTipId ? tips.find(t => t.id === currentEditingTipId) : null) || tips[0];
+    // Aktiv deltaker
+    const savedActiveName = localStorage.getItem('ranheim_active_user_name');
+    let activeParticipant = null;
+
+    if (currentEditingTipId) {
+      activeParticipant = tips.find(t => t.id === currentEditingTipId);
+    } else if (savedActiveName) {
+      activeParticipant = tips.find(t => t.author.toLowerCase() === savedActiveName.toLowerCase());
+    }
+
+    if (!activeParticipant && dom.authorNameInput && dom.authorNameInput.value.trim()) {
+      const typed = dom.authorNameInput.value.trim().toLowerCase();
+      activeParticipant = tips.find(t => t.author.toLowerCase() === typed);
+    }
+
+    if (!activeParticipant) {
+      activeParticipant = tips[0];
+    }
     if (!activeParticipant || !window.GamificationEngine) return;
+
+    // Populer nedtrekksliste for profilvalg
+    if (dom.profileUserSelect) {
+      dom.profileUserSelect.innerHTML = '';
+      tips.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.author;
+        opt.textContent = t.author;
+        if (t.author.toLowerCase() === activeParticipant.author.toLowerCase()) {
+          opt.selected = true;
+        }
+        dom.profileUserSelect.appendChild(opt);
+      });
+
+      dom.profileUserSelect.onchange = (e) => {
+        const chosen = e.target.value;
+        localStorage.setItem('ranheim_active_user_name', chosen);
+        renderGamificationHub();
+      };
+    }
 
     const ranked = rankLeaderboard(tips, currentFasit, activeSystem);
     const rank = ranked.findIndex(r => r.author === activeParticipant.author) + 1 || 1;
@@ -1059,10 +1408,11 @@
      ========================================================================== */
 
   function setupEventListeners() {
-    dom.tabBtnPredict.addEventListener('click', () => switchTab('predict'));
-    dom.tabBtnLeaderboard.addEventListener('click', () => switchTab('leaderboard'));
-    dom.tabBtnStats.addEventListener('click', () => switchTab('stats'));
-    dom.tabBtnSettings.addEventListener('click', () => switchTab('settings'));
+    if (dom.tabBtnPredict) dom.tabBtnPredict.addEventListener('click', () => switchTab('predict'));
+    if (dom.tabBtnLeaderboard) dom.tabBtnLeaderboard.addEventListener('click', () => switchTab('leaderboard'));
+    if (dom.tabBtnGroupStats) dom.tabBtnGroupStats.addEventListener('click', () => switchTab('groupStats'));
+    if (dom.tabBtnStats) dom.tabBtnStats.addEventListener('click', () => switchTab('stats'));
+    if (dom.tabBtnSettings) dom.tabBtnSettings.addEventListener('click', () => switchTab('settings'));
   }
 
   document.addEventListener('DOMContentLoaded', checkAccess);
