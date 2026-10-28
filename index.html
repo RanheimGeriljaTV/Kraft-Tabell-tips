@@ -153,8 +153,8 @@
         </button>
 
         <button id="tabBtnStats" class="tab-button flex-1 py-3 px-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all whitespace-nowrap">
-          <i data-lucide="git-merge" class="w-4 h-4 text-amber-400"></i>
-          <span>3. Seriespurt & Playoff</span>
+          <i data-lucide="gamepad-2" class="w-4 h-4 text-amber-400"></i>
+          <span>3. 🎮 Gamification & Playoff</span>
         </button>
 
         <button id="tabBtnSettings" class="tab-button flex-1 py-3 px-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all whitespace-nowrap">
@@ -334,13 +334,14 @@
             <table class="w-full text-left border-collapse text-sm">
               <thead>
                 <tr class="bg-slate-900/80 border-b border-white/5 text-[10px] font-black uppercase tracking-wider text-slate-400">
-                  <th class="py-3 px-4 w-14 text-center">Plass</th>
-                  <th class="py-3 px-4">Deltaker</th>
+                  <th class="py-3 px-3 w-12 text-center">Plass</th>
+                  <th class="py-3 px-3">Deltaker</th>
+                  <th class="py-3 px-2 text-center">Kort</th>
+                  <th class="py-3 px-3 text-center hidden sm:table-cell">XP & Spillernivå</th>
                   <th class="py-3 px-3 text-center">Score</th>
-                  <th class="py-3 px-3 text-center">🎯 Treff</th>
-                  <th class="py-3 px-3 text-center">Avvik</th>
-                  <th class="py-3 px-4 hidden md:table-cell">Utmerkelser</th>
-                  <th class="py-3 px-4 text-right">Analyse</th>
+                  <th class="py-3 px-2 text-center">🎯 Treff</th>
+                  <th class="py-3 px-2 text-center">Avvik</th>
+                  <th class="py-3 px-3 text-right">Handlinger</th>
                 </tr>
               </thead>
               <tbody id="leaderboardTableBody" class="divide-y divide-white/5 font-semibold">
@@ -352,55 +353,143 @@
 
       </section>
 
-      <!-- ==================== FANE 3: SIESPURT & PLAYOFF ==================== -->
+      <!-- ==================== FANE 3: GAMIFICATION & PLAYOFF ==================== -->
       <section id="tabContentStats" class="space-y-6">
         
-        <!-- PRØV SISTE SERIERUNDER -->
-        <div class="cyber-card rounded-3xl p-5 sm:p-6 space-y-4 border border-amber-500/30 bg-gradient-to-br from-slate-900/90 via-[#07090e] to-slate-900/90 shadow-2xl">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <!-- ================= GAMIFICATION SPILLERPROFIL & XP-STIGE ================= -->
+        <div class="cyber-card rounded-3xl p-5 sm:p-6 space-y-5 border border-sky-500/40 bg-gradient-to-br from-slate-900/90 via-[#07090e] to-slate-900/90 shadow-2xl">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
             <div>
               <span class="text-[10px] font-black uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
-                <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i>
-                Seriespurt 2026: Siste 2 Kamper
+                <i data-lucide="award" class="w-3.5 h-3.5 text-amber-400"></i>
+                Gamification & XP-Nivåer
               </span>
               <h3 class="text-base sm:text-xl font-black text-white flex items-center gap-2 mt-0.5">
-                <span>⚡ Test ulike utfall i de siste rundene</span>
+                <span>🎮 Spillerprofil & Rangering</span>
               </h3>
             </div>
-            <span class="text-xs text-slate-300">Klikk for å se stillingen etter hver runde:</span>
+
+            <!-- Deltaker-velger for gamification visning -->
+            <div class="flex items-center gap-2">
+              <label for="gamificationUserSelect" class="text-xs text-slate-400 font-bold hidden sm:inline">Vis profil:</label>
+              <select id="gamificationUserSelect" class="bg-slate-900 border border-slate-700 text-xs font-bold rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-sky-500">
+                <!-- Dynamisk fylles av app.js -->
+              </select>
+            </div>
           </div>
 
-          <div id="seasonRoundsContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <!-- Aktiv Profil Hero-kort -->
+          <div id="gamificationHeroCard" class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-2xl bg-black/40 border border-white/5">
             <!-- Dynamisk fylles av app.js -->
           </div>
 
-          <div id="roundInfoBanner" class="p-3.5 rounded-2xl bg-slate-900/90 border border-white/5 text-xs text-slate-300 flex items-center gap-3">
-            <i data-lucide="info" class="w-4 h-4 text-cyan-400 flex-shrink-0"></i>
-            <span id="roundInfoText">Viser tabell etter 28 runder spilt. Ranheim kjemper om kvalikplass!</span>
+          <!-- XP Nivå-stige forklaring -->
+          <div class="pt-2 border-t border-white/5">
+            <div class="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">Spillernivåer & Titler:</div>
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
+              <div class="p-2 rounded-xl bg-slate-900/80 border border-slate-700/60">
+                <div class="text-lg">🥉</div>
+                <div class="font-extrabold text-white text-[11px]">Benkesliter</div>
+                <div class="text-[9px] text-slate-400">0 – 119 XP</div>
+              </div>
+              <div class="p-2 rounded-xl bg-slate-900/80 border border-blue-600/60">
+                <div class="text-lg">🥈</div>
+                <div class="font-extrabold text-blue-300 text-[11px]">Roteringsspiller</div>
+                <div class="text-[9px] text-slate-400">120 – 249 XP</div>
+              </div>
+              <div class="p-2 rounded-xl bg-slate-900/80 border border-cyan-500/60">
+                <div class="text-lg">🥇</div>
+                <div class="font-extrabold text-cyan-300 text-[11px]">Fast Ellever</div>
+                <div class="text-[9px] text-slate-400">250 – 399 XP</div>
+              </div>
+              <div class="p-2 rounded-xl bg-slate-900/80 border border-amber-400/60">
+                <div class="text-lg">⭐</div>
+                <div class="font-extrabold text-amber-300 text-[11px]">Publikumsyndling</div>
+                <div class="text-[9px] text-slate-400">400 – 599 XP</div>
+              </div>
+              <div class="p-2 rounded-xl bg-slate-900/80 border border-purple-400/60">
+                <div class="text-lg">👑</div>
+                <div class="font-extrabold text-purple-300 text-[11px]">Klubblegende</div>
+                <div class="text-[9px] text-slate-400">600+ XP</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= TROFÉ-ROM & PRESTASJONER ================= -->
+        <div class="cyber-card rounded-3xl p-5 sm:p-6 space-y-4 border border-amber-500/30">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-3">
+            <div>
+              <span class="text-[10px] font-black uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
+                <i data-lucide="trophy" class="w-3.5 h-3.5 text-amber-400"></i>
+                Låsbare Utmerkelser
+              </span>
+              <h3 class="text-base sm:text-xl font-black text-white flex items-center gap-2 mt-0.5">
+                <span>🏆 Trofé-rom & Prestasjoner</span>
+              </h3>
+            </div>
+            <div id="trophyCountLabel" class="text-xs font-bold text-amber-300">
+              <!-- Dynamisk: f.eks. "4 av 6 trofeer låst opp" -->
+            </div>
+          </div>
+
+          <div id="achievementsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <!-- Dynamisk fylles av app.js -->
+          </div>
+        </div>
+
+        <!-- ================= SPILLERKORT-GALLERI (FUT SHOWCASE) ================= -->
+        <div class="cyber-card rounded-3xl p-5 sm:p-6 space-y-4 border border-sky-500/30">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-3">
+            <div>
+              <span class="text-[10px] font-black uppercase tracking-widest text-sky-400 flex items-center gap-1.5">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-sky-400"></i>
+                Samlekort & FIFA/FUT Stats
+              </span>
+              <h3 class="text-base sm:text-xl font-black text-white flex items-center gap-2 mt-0.5">
+                <span>🃏 Spillerkort for vennegjengen</span>
+              </h3>
+            </div>
+            <span class="text-xs text-slate-400">Klikk på et kort for å åpne og dele det!</span>
+          </div>
+
+          <div id="playerCardsGallery" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3.5">
+            <!-- Dynamisk fylles av app.js -->
           </div>
         </div>
 
         <!-- ================= NFF PLAYOFF & KVALIFISERING SIMULATOR ================= -->
-        <div class="cyber-card rounded-3xl p-5 sm:p-6 space-y-5 border border-sky-500/40 bg-gradient-to-b from-[#091124] to-[#07090e]">
+        <div class="cyber-card rounded-3xl p-5 sm:p-6 space-y-5 border border-emerald-500/40 bg-gradient-to-b from-[#091522] to-[#07090e]">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
             <div>
-              <span class="text-[10px] font-black uppercase tracking-widest text-cyan-400 flex items-center gap-1.5">
-                <i data-lucide="shield" class="w-3.5 h-3.5 text-cyan-400"></i>
-                Offisielt NFF-reglement
-              </span>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-black uppercase tracking-widest text-emerald-400 flex items-center gap-1.5">
+                  <i data-lucide="shield" class="w-3.5 h-3.5 text-emerald-400"></i>
+                  Offisiell NFF Kvalifisering 2026
+                </span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-950 text-emerald-300 border border-emerald-600/60">
+                  +15 BONUSPOENG PER TREFF
+                </span>
+              </div>
               <h3 class="text-base sm:text-xl font-black text-white flex items-center gap-2 mt-0.5">
-                <span>🏆 Kvalifisering til Eliteserien & OBOS-ligaen 2026</span>
+                <span>🎯 Interaktiv Playoff-tipper</span>
               </h3>
             </div>
-            <div class="text-xs text-slate-400">
-              Spilles i nov / des etter at 30. serierunde er fullført
+            <div class="text-xs text-slate-300 font-bold">
+              Spilles i nov / des 2026
             </div>
           </div>
 
-          <p class="text-xs text-slate-300">
-            Kvalifiseringen avgjør hvem som rykker opp til Eliteserien og hvem som berger plassen i OBOS-ligaen. 
-            <strong class="text-cyan-300">Klikk på lagene i turneringsstigen under</strong> for å simulere hvem som vinner hver playoff-kamp!
-          </p>
+          <div class="p-3 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 text-xs text-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div>
+              <strong class="font-black text-white">Slik fungerer det:</strong>
+              Klikk på lagene du tror vinner i stigen under, og lås inn dine playoff-tips! Riktige tips gir ekstra bonuspoeng og XP når kampene spilles.
+            </div>
+            <button id="savePlayoffTipsBtn" class="py-2 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 text-white font-extrabold text-xs flex items-center gap-1.5 whitespace-nowrap shadow-lg">
+              <i data-lucide="check" class="w-3.5 h-3.5"></i>
+              <span>Lås mine Playoff-tips</span>
+            </button>
+          </div>
 
           <!-- ELITESERIEN KVALIFISERING TURNERINGSSTIGE -->
           <div class="space-y-3">
@@ -739,6 +828,40 @@
     </div>
   </div>
 
+  <!-- ==================== MODAL 3: FUT SPILLERKORT ==================== -->
+  <div id="playerCardModal" class="fixed inset-0 z-50 hidden bg-[#07090e]/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="max-w-md w-full cyber-panel border border-slate-700/80 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[94vh]">
+      
+      <div class="p-4 border-b border-white/5 flex items-center justify-between bg-slate-900/60">
+        <h3 class="text-xs sm:text-sm font-black text-white flex items-center gap-2">
+          <span class="text-amber-400">🃏</span>
+          <span>Offisielt Spillerkort • OBOS 2026</span>
+        </h3>
+        <button id="closePlayerCardBtn" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-4 overflow-y-auto flex-1 flex justify-center bg-slate-950/80">
+        <div id="playerCardModalContent" class="w-full max-w-[340px]">
+          <!-- Dynamisk fylles av GamificationEngine.generatePlayerCardHTML -->
+        </div>
+      </div>
+
+      <div class="p-4 border-t border-white/5 bg-slate-900/60 flex items-center gap-2">
+        <button id="downloadPlayerCardBtn" class="flex-1 py-3 px-4 bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-all active:scale-95">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span>Last ned Spillerkort PNG</span>
+        </button>
+        <button id="copyPlayerCardBtn" class="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-700/50 font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95">
+          <i data-lucide="copy" class="w-4 h-4"></i>
+          <span>Kopier</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Skripts -->
   <script src="js/config.js"></script>
   <script src="js/data.js"></script>
@@ -746,6 +869,7 @@
   <script src="js/badges.js"></script>
   <script src="js/stats.js"></script>
   <script src="js/playoff.js"></script>
+  <script src="js/gamification.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/app.js"></script>
   <script>

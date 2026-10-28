@@ -294,71 +294,6 @@ const LIVE_TABLE_DETAILS_2026 = [
 // Standard fasittabell for appen (nøyaktig gjeldende reell tabell)
 const DEFAULT_FASIT = LIVE_TABLE_DETAILS_2026.map(item => item.id);
 
-// Sesong-tidslinje med de siste kampene i 2026
-const SEASON_ROUNDS = [
-  {
-    id: 'round-28',
-    roundNumber: 28,
-    title: 'Runde 28 (Live nå)',
-    dateLabel: '28 / 30 kamper',
-    badge: 'LIVE NÅ',
-    description: 'Årets gjeldende tabell etter 28 runder! Ranheim ligger på 7. plass med 38p, kun 2 poeng bak opprykkskvalik!',
-    standings: [...DEFAULT_FASIT]
-  },
-  {
-    id: 'round-29',
-    roundNumber: 29,
-    title: 'Runde 29 (Nest siste)',
-    dateLabel: '29 / 30 kamper',
-    badge: 'SIMULER',
-    description: 'Ranheim knuser til med 3-1 seier på EXTRA Arena, mens Bryne avgir poeng! Ranheim klatrer opp på 6. plass!',
-    standings: [
-      'haugesund',
-      'stromsgodset',
-      'kongsvinger',
-      'stabaek',
-      'odd',
-      'ranheim',     // Ranheim opp på kvalikplass! (41p)
-      'bryne',       // Bryne (41p, dårligere målforskjell)
-      'hodd',
-      'strommen',
-      'egersund',
-      'lyn',
-      'sogndal',
-      'moss',
-      'sandnesulf',
-      'aasane',
-      'raufoss'
-    ]
-  },
-  {
-    id: 'round-30',
-    roundNumber: 30,
-    title: 'Runde 30 (Siste serierunde)',
-    dateLabel: '30 / 30 kamper',
-    badge: 'FINALE',
-    description: 'Sesongavslutning! Ranheim sikrer kvalifiseringen til Eliteserien. Haugesund og Strømsgodset rykker direkte opp!',
-    standings: [
-      'haugesund',   // Mester & opprykk
-      'stromsgodset',// Direkte opprykk
-      'kongsvinger', // Kvalik
-      'stabaek',     // Kvalik
-      'ranheim',     // Ranheim klatrer til 5. plass!
-      'odd',         // Kvalik
-      'bryne',
-      'hodd',
-      'strommen',
-      'egersund',
-      'lyn',
-      'sogndal',
-      'sandnesulf',
-      'moss',        // Nedrykkskvalik
-      'aasane',      // Nedrykk
-      'raufoss'      // Nedrykk
-    ]
-  }
-];
-
 // Realistiske mockup-tips for 2026-sesongen
 const DEMO_PREDICTIONS = [
   {
@@ -509,7 +444,6 @@ if (typeof module !== 'undefined' && module.exports) {
     getZoneForPosition,
     getTeamById,
     LIVE_TABLE_DETAILS_2026,
-    SEASON_ROUNDS,
     DEMO_PREDICTIONS
   };
 } else if (typeof window !== 'undefined') {
@@ -519,6 +453,5 @@ if (typeof module !== 'undefined' && module.exports) {
   window.getZoneForPosition = getZoneForPosition;
   window.getTeamById = getTeamById;
   window.LIVE_TABLE_DETAILS_2026 = LIVE_TABLE_DETAILS_2026;
-  window.SEASON_ROUNDS = SEASON_ROUNDS;
   window.DEMO_PREDICTIONS = DEMO_PREDICTIONS;
 }

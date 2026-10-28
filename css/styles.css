@@ -185,3 +185,81 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #38bdf8;
 }
+
+/* ==========================================================================
+   GAMIFICATION & FUT-STYLE SPILLERKORT STYLES
+   ========================================================================== */
+
+.fut-card {
+  position: relative;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.fut-card:hover {
+  transform: translateY(-4px) scale(1.01);
+}
+
+.fut-card-gold {
+  box-shadow: 0 10px 30px -10px rgba(245, 158, 11, 0.4), 0 0 15px rgba(251, 191, 36, 0.2);
+}
+
+.fut-card-legend {
+  box-shadow: 0 10px 35px -10px rgba(168, 85, 247, 0.5), 0 0 20px rgba(192, 132, 252, 0.3);
+}
+
+.fut-card-blue {
+  box-shadow: 0 10px 30px -10px rgba(2, 132, 199, 0.4), 0 0 15px rgba(56, 189, 248, 0.2);
+}
+
+.fut-card-silver {
+  box-shadow: 0 8px 25px -10px rgba(148, 163, 184, 0.3);
+}
+
+/* Holografisk shimmer over samlekort */
+.fut-shimmer {
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.03) 30%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.03) 70%,
+    transparent 100%
+  );
+  background-size: 200% 200%;
+  animation: fut-shimmer-anim 6s infinite ease-in-out;
+}
+
+@keyframes fut-shimmer-anim {
+  0% {
+    background-position: -200% -200%;
+  }
+  50% {
+    background-position: 200% 200%;
+  }
+  100% {
+    background-position: -200% -200%;
+  }
+}
+
+/* Prestasjon / Achievement Card */
+.achievement-card {
+  transition: all 0.25s ease;
+}
+
+.achievement-card:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  transform: translateY(-2px);
+}
+
+.achievement-unlocked {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(13, 19, 33, 0.9) 100%);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.achievement-locked {
+  background: rgba(15, 23, 42, 0.6);
+  opacity: 0.75;
+}
+

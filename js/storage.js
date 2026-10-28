@@ -4,10 +4,10 @@
  */
 
 const STORAGE_KEYS = {
-  TIPS: 'ranheim_obos_tips_v3',
-  FASIT: 'ranheim_obos_fasit_v3',
-  AUTH: 'ranheim_obos_auth_token_v3',
-  ACTIVE_SYSTEM: 'ranheim_obos_scoring_system_v3'
+  TIPS: 'ranheim_obos_tips_v4',
+  FASIT: 'ranheim_obos_fasit_v4',
+  AUTH: 'ranheim_obos_auth_token_v4',
+  ACTIVE_SYSTEM: 'ranheim_obos_scoring_system_v4'
 };
 
 const StorageManager = {

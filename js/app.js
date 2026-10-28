@@ -10,7 +10,6 @@
   let currentPredictionTable = [];
   let currentEditingTipId = null;
   let activeSystem = 'innertier';
-  let activeRoundIndex = 0; // 0 = Runde 28 (Live nå)
   let isSeasonLocked = false;
   let mockLockState = null;
   let sortablePrediction = null;
@@ -62,10 +61,13 @@
     leaderboardTableBody: document.getElementById('leaderboardTableBody'),
     participantCount: document.getElementById('participantCount'),
 
-    // Fane 3: Seriespurt & Playoff
-    seasonRoundsContainer: document.getElementById('seasonRoundsContainer'),
-    roundInfoBanner: document.getElementById('roundInfoBanner'),
-    roundInfoText: document.getElementById('roundInfoText'),
+    // Fane 3: Gamification & Playoff
+    gamificationUserSelect: document.getElementById('gamificationUserSelect'),
+    gamificationHeroCard: document.getElementById('gamificationHeroCard'),
+    trophyCountLabel: document.getElementById('trophyCountLabel'),
+    achievementsGrid: document.getElementById('achievementsGrid'),
+    playerCardsGallery: document.getElementById('playerCardsGallery'),
+    savePlayoffTipsBtn: document.getElementById('savePlayoffTipsBtn'),
     playoffBracketContainer: document.getElementById('playoffBracketContainer'),
     playoffRelegationContainer: document.getElementById('playoffRelegationContainer'),
     officialLiveTableContainer: document.getElementById('officialLiveTableContainer'),
@@ -103,7 +105,14 @@
     shareCardTable: document.getElementById('shareCardTable'),
     downloadImageBtn: document.getElementById('downloadImageBtn'),
     copyImageBtn: document.getElementById('copyImageBtn'),
-    closeShareBtn: document.getElementById('closeShareBtn')
+    closeShareBtn: document.getElementById('closeShareBtn'),
+
+    // Modal 3: FUT Spillerkort
+    playerCardModal: document.getElementById('playerCardModal'),
+    playerCardModalContent: document.getElementById('playerCardModalContent'),
+    closePlayerCardBtn: document.getElementById('closePlayerCardBtn'),
+    downloadPlayerCardBtn: document.getElementById('downloadPlayerCardBtn'),
+    copyPlayerCardBtn: document.getElementById('copyPlayerCardBtn')
   };
 
   /* ==========================================================================
@@ -235,7 +244,7 @@
     initSortablePrediction();
     initSortableFasit();
     renderLeaderboard();
-    renderSeasonRoundsUI();
+    renderGamificationHub();
     renderPlayoffBracket();
     renderOfficialLiveTable();
     renderStatsDashboard();
@@ -284,6 +293,7 @@
       dom.tabContentStats.classList.remove('hidden');
       dom.tabBtnStats.classList.add('active', 'border-sky-400', 'text-sky-300');
       dom.tabBtnStats.classList.remove('border-transparent', 'text-slate-400');
+      renderGamificationHub();
       renderPlayoffBracket();
       renderOfficialLiveTable();
       renderStatsDashboard();
@@ -472,6 +482,7 @@
       StorageManager.saveActiveSystem(activeSystem);
       renderLeaderboard();
       renderStatsDashboard();
+      renderGamificationHub();
     });
   });
 
@@ -510,6 +521,13 @@
     const ranked = rankLeaderboard(tips, currentFasit, activeSystem);
     const withBadges = assignBadges(ranked, currentFasit);
 
+    // Beregn gamification-profil (OVR, XP, Nivå, Hot Streak) for hver deltaker
+    withBadges.forEach((p, idx) => {
+      if (window.GamificationEngine) {
+        p.profile = GamificationEngine.calculatePlayerProfile(p, currentFasit, activeSystem, idx + 1);
+      }
+    });
+
     renderPodium(withBadges, meta);
     renderLeaderboardTable(withBadges, meta);
 
@@ -519,10 +537,6 @@
   }
 
   function getActiveStandings() {
-    const rounds = window.SEASON_ROUNDS || [];
-    if (activeRoundIndex >= 0 && rounds[activeRoundIndex]) {
-      return rounds[activeRoundIndex].standings;
-    }
     return StorageManager.getFasit();
   }
 
@@ -531,84 +545,64 @@
     const p2 = participants[1];
     const p3 = participants[2];
 
-    const getBadgePill = (p) => {
-      if (!p || !p.badges || p.badges.length === 0) return '';
-      const b = p.badges[0];
-      return `<span class="inline-block text-[10px] px-2.5 py-0.5 rounded-full border ${b.colorClass} truncate max-w-full font-black">${b.label}</span>`;
+    const renderPodiumStep = (p, rankNum, pedestalClass, borderColor, badgeEmoji, labelText, titleColor) => {
+      if (!p) {
+        return `<div class="h-28 flex items-center justify-center text-xs text-slate-600">-</div>`;
+      }
+
+      const prof = p.profile;
+      const ovr = prof ? prof.overallRating : 75;
+      const level = prof ? prof.level : { title: 'Deltaker', badge: '⚽' };
+      const xp = prof ? prof.xp : 0;
+
+      return `
+        <div onclick="window.openPlayerCardModal('${p.author}')" class="w-full cyber-card hover:bg-slate-800/90 cursor-pointer rounded-3xl p-3 sm:p-4 text-center border-t-4 ${borderColor} shadow-xl transition-all hover:-translate-y-1 group">
+          <div class="text-2xl sm:text-3xl mb-1">${badgeEmoji}</div>
+          <div class="text-[9px] sm:text-[10px] font-black uppercase tracking-wider ${titleColor}">${labelText}</div>
+          <div class="text-xs sm:text-sm font-black text-white truncate mt-0.5">${p.author}</div>
+          
+          <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-black/50 border border-white/10 text-cyan-300 mt-1">
+            <span class="text-amber-300 font-extrabold">${ovr} OVR</span>
+            <span>•</span>
+            <span>${level.badge}</span>
+          </div>
+
+          <div class="text-base sm:text-lg font-black text-white mt-1.5">${p.score} <span class="text-[10px] font-normal text-slate-400">${meta.unit}</span></div>
+          <div class="text-[10px] sm:text-[11px] text-emerald-400 font-bold">🎯 ${p.exactHits} fulltreffere</div>
+          <div class="text-[9px] text-slate-400 mt-0.5">${xp} XP</div>
+          
+          <button onclick="event.stopPropagation(); window.openPlayerCardModal('${p.author}')" class="w-full mt-2 py-1 px-2 rounded-xl bg-slate-900 border border-white/10 group-hover:border-amber-400 text-[10px] font-black text-amber-300 flex items-center justify-center gap-1 transition-all">
+            <span>🃏 Spillerkort</span>
+          </button>
+        </div>
+        <div class="w-full ${rankNum === 1 ? 'h-24 sm:h-28 text-2xl text-amber-400' : rankNum === 2 ? 'h-18 sm:h-22 text-xl text-slate-300' : 'h-14 sm:h-18 text-lg text-amber-600'} ${pedestalClass} rounded-t-2xl flex items-center justify-center font-black">
+          ${rankNum}
+        </div>
+      `;
     };
 
     dom.podiumContainer.innerHTML = `
       <div class="max-w-2xl mx-auto px-2 space-y-3">
         
         <div class="grid grid-cols-3 gap-2 sm:gap-4 items-end">
-          
           <!-- 2. PLASS (SØLV) -->
           <div class="order-1 flex flex-col items-center">
-            ${
-              p2
-                ? `
-              <div onclick="window.openXrayModal('${p2.id}')" class="w-full cyber-card hover:bg-slate-800/80 cursor-pointer rounded-3xl p-3.5 text-center border-t-4 border-slate-300 shadow-xl transition-all hover:-translate-y-1">
-                <div class="text-2xl mb-1">🥈</div>
-                <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Foreløpig 2.</div>
-                <div class="text-xs sm:text-sm font-black text-white truncate mt-0.5">${p2.author}</div>
-                <div class="text-base sm:text-lg font-black text-slate-200 mt-1">${p2.score} <span class="text-[10px] font-normal text-slate-400">${meta.unit}</span></div>
-                <div class="text-[11px] text-slate-400 mt-0.5">🎯 ${p2.exactHits} treff</div>
-                <div class="mt-2 h-5 flex justify-center">${getBadgePill(p2)}</div>
-              </div>
-              <div class="w-full h-18 sm:h-22 podium-pedestal-2 rounded-t-2xl flex items-center justify-center font-black text-xl text-slate-300">
-                2
-              </div>
-            `
-                : `<div class="h-28 flex items-center justify-center text-xs text-slate-600">-</div>`
-            }
+            ${renderPodiumStep(p2, 2, 'podium-pedestal-2', 'border-slate-300', '🥈', 'Foreløpig 2.', 'text-slate-400')}
           </div>
 
           <!-- 1. PLASS (GULL - FORELØPIG LEDER) -->
           <div class="order-2 flex flex-col items-center">
-            ${
-              p1
-                ? `
-              <div onclick="window.openXrayModal('${p1.id}')" class="w-full cyber-card hover:bg-slate-800/90 cursor-pointer rounded-3xl p-4 text-center border-t-4 border-amber-400 shadow-2xl transition-all hover:-translate-y-1">
-                <div class="text-3xl mb-1 crown-anim">👑</div>
-                <div class="text-[10px] font-black uppercase tracking-wider text-amber-400">Leder i øyeblikket</div>
-                <div class="text-sm sm:text-base font-black text-amber-200 truncate mt-0.5">${p1.author}</div>
-                <div class="text-xl sm:text-2xl font-black text-amber-400 mt-1">${p1.score} <span class="text-xs font-normal text-amber-200/80">${meta.unit}</span></div>
-                <div class="text-xs text-amber-300 font-bold mt-0.5">🎯 ${p1.exactHits} fulltreffere</div>
-                <div class="mt-2 h-5 flex justify-center">${getBadgePill(p1)}</div>
-              </div>
-              <div class="w-full h-24 sm:h-28 podium-pedestal-1 rounded-t-2xl flex items-center justify-center font-black text-2xl text-amber-400">
-                1
-              </div>
-            `
-                : `<div class="h-36 flex items-center justify-center text-xs text-slate-600">-</div>`
-            }
+            ${renderPodiumStep(p1, 1, 'podium-pedestal-1', 'border-amber-400', '👑', 'Foreløpig Leder', 'text-amber-400')}
           </div>
 
           <!-- 3. PLASS (BRONSE) -->
           <div class="order-3 flex flex-col items-center">
-            ${
-              p3
-                ? `
-              <div onclick="window.openXrayModal('${p3.id}')" class="w-full cyber-card hover:bg-slate-800/80 cursor-pointer rounded-3xl p-3.5 text-center border-t-4 border-amber-700 shadow-xl transition-all hover:-translate-y-1">
-                <div class="text-2xl mb-1">🥉</div>
-                <div class="text-[10px] font-black uppercase tracking-wider text-amber-600">Foreløpig 3.</div>
-                <div class="text-xs sm:text-sm font-black text-white truncate mt-0.5">${p3.author}</div>
-                <div class="text-base sm:text-lg font-black text-amber-500 mt-1">${p3.score} <span class="text-[10px] font-normal text-slate-400">${meta.unit}</span></div>
-                <div class="text-[11px] text-slate-400 mt-0.5">🎯 ${p3.exactHits} treff</div>
-                <div class="mt-2 h-5 flex justify-center">${getBadgePill(p3)}</div>
-              </div>
-              <div class="w-full h-14 sm:h-18 podium-pedestal-3 rounded-t-2xl flex items-center justify-center font-black text-lg text-amber-600">
-                3
-              </div>
-            `
-                : `<div class="h-24 flex items-center justify-center text-xs text-slate-600">-</div>`
-            }
+            ${renderPodiumStep(p3, 3, 'podium-pedestal-3', 'border-amber-700', '🥉', 'Foreløpig 3.', 'text-amber-600')}
           </div>
-
         </div>
 
         <div class="text-center text-[11px] text-slate-400 py-1">
-          ℹ️ <em>Ingen vinner er kåret enda. Stillingen er basert på de 28 spilte rundene.</em>
+          ℹ️ <em>Ingen vinner er kåret enda. 2 serierunder og playoff gjenstår i 2026!</em>
         </div>
 
       </div>
@@ -628,44 +622,74 @@
       else if (p.rank === 2) rankDisplay = '🥈 2';
       else if (p.rank === 3) rankDisplay = '🥉 3';
 
-      const badgeHtml = (p.badges || [])
-        .map(
-          b =>
-            `<span class="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full border ${b.colorClass} mr-1 font-bold" title="${b.description}">
-              ${b.label}
-            </span>`
-        )
-        .join('');
+      const prof = p.profile;
+      const ovr = prof ? prof.overallRating : 75;
+      const level = prof ? prof.level : { title: 'Benkesliter', badge: '🥉', level: 1 };
+      const xp = prof ? prof.xp : 0;
+      const isHot = prof && prof.isHotStreak;
+
+      const progressPercent = prof && prof.nextLevel 
+        ? Math.min(100, Math.round((xp / prof.nextLevel.minXp) * 100)) 
+        : 100;
 
       row.innerHTML = `
-        <td class="py-3 px-4 text-center font-black text-slate-400">${rankDisplay}</td>
-        <td class="py-3 px-4">
-          <div class="font-black text-white text-sm sm:text-base flex items-center gap-2">
+        <td class="py-3 px-3 text-center font-black text-slate-400">${rankDisplay}</td>
+        
+        <td class="py-3 px-3">
+          <div class="font-black text-white text-sm sm:text-base flex items-center gap-1.5 flex-wrap">
             <span>${p.author}</span>
             ${p.author.toLowerCase().includes('ranheim') ? '<span class="text-xs">💙</span>' : ''}
+            ${isHot ? '<span class="text-[9px] font-black text-rose-400 bg-rose-950/80 px-1.5 py-0.5 rounded border border-rose-600/50">🔥 I FORM</span>' : ''}
           </div>
-          <div class="text-[11px] text-slate-500 sm:hidden">
-            ${(p.badges && p.badges[0]) ? p.badges[0].label : ''}
+          <div class="text-[10px] text-slate-400 font-bold flex items-center gap-1 mt-0.5">
+            <span>${level.badge}</span>
+            <span>${level.title}</span>
           </div>
         </td>
+
+        <td class="py-3 px-2 text-center">
+          <button onclick="event.stopPropagation(); window.openPlayerCardModal('${p.author}')" class="px-2 py-1 rounded-xl bg-slate-900 border border-amber-500/50 hover:border-amber-400 text-amber-300 font-black text-xs inline-flex items-center gap-1 transition-all hover:scale-105 shadow-sm" title="Åpne spillerkort for ${p.author}">
+            <span class="text-xs">🃏</span>
+            <span>${ovr}</span>
+          </button>
+        </td>
+
+        <td class="py-3 px-3 hidden sm:table-cell text-center">
+          <div class="inline-block text-left">
+            <div class="flex items-center justify-between text-[10px] font-bold text-slate-300 gap-2">
+              <span class="text-sky-300 font-black">${xp} XP</span>
+              <span class="text-slate-500 text-[9px]">${prof && prof.nextLevel ? `${prof.nextLevel.minXp - xp} til Lvl ${level.level + 1}` : 'Maks'}</span>
+            </div>
+            <div class="w-24 sm:w-28 h-1.5 bg-black/60 rounded-full overflow-hidden border border-white/10 mt-1">
+              <div class="h-full bg-gradient-to-r from-sky-500 to-cyan-400 rounded-full" style="width: ${progressPercent}%"></div>
+            </div>
+          </div>
+        </td>
+
         <td class="py-3 px-3 text-center">
           <span class="font-black text-sm sm:text-base text-cyan-300">${p.score}</span>
         </td>
-        <td class="py-3 px-3 text-center">
-          <span class="inline-flex items-center justify-center font-black px-2.5 py-0.5 rounded-lg bg-emerald-950/70 text-emerald-300 border border-emerald-600/50 text-xs">
+
+        <td class="py-3 px-2 text-center">
+          <span class="inline-flex items-center justify-center font-black px-2 py-0.5 rounded-lg bg-emerald-950/70 text-emerald-300 border border-emerald-600/50 text-xs whitespace-nowrap">
             🎯 ${p.exactHits}
           </span>
         </td>
-        <td class="py-3 px-3 text-center text-xs text-slate-400 font-bold">
+
+        <td class="py-3 px-2 text-center text-xs text-slate-400 font-bold whitespace-nowrap">
           ${p.totalDiff} pl
         </td>
-        <td class="py-3 px-4 hidden md:table-cell">
-          <div class="flex flex-wrap gap-1">${badgeHtml || '<span class="text-xs text-slate-600">-</span>'}</div>
-        </td>
-        <td class="py-3 px-4 text-right">
-          <button class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 rounded-xl text-xs font-black border border-slate-700">
-            Analyse
-          </button>
+
+        <td class="py-3 px-3 text-right">
+          <div class="flex items-center justify-end gap-1.5">
+            <button onclick="event.stopPropagation(); window.openPlayerCardModal('${p.author}')" class="px-2.5 py-1.5 bg-gradient-to-r from-amber-600/30 to-yellow-600/30 hover:bg-amber-600/50 text-amber-300 rounded-xl text-xs font-black border border-amber-500/40 transition-all flex items-center gap-1" title="Åpne spillerkort">
+              <span>🃏</span>
+              <span class="hidden md:inline">Kort</span>
+            </button>
+            <button onclick="event.stopPropagation(); window.openXrayModal('${p.id}')" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 rounded-xl text-xs font-black border border-slate-700 transition-all" title="Se detaljert analyse">
+              Analyse
+            </button>
+          </div>
         </td>
       `;
 
@@ -674,42 +698,278 @@
   }
 
   /* ==========================================================================
-     7. FANE 3: SERIESPURT & PLAYOFF (NFF REGLER)
+     7. FANE 3: GAMIFICATION HUB & PLAYOFF
      ========================================================================== */
 
-  function renderSeasonRoundsUI() {
-    const rounds = window.SEASON_ROUNDS || [];
-    dom.seasonRoundsContainer.innerHTML = '';
+  let selectedGamificationAuthor = null;
 
-    rounds.forEach((round, index) => {
-      const isCurrent = (index === activeRoundIndex);
-      const btn = document.createElement('button');
-      btn.className = `p-3.5 rounded-2xl border text-left transition-all relative overflow-hidden ${
-        isCurrent
-          ? 'border-amber-400 bg-amber-950/40 text-amber-200 shadow-xl shadow-amber-950/50 ring-2 ring-amber-400/30'
-          : 'border-white/5 bg-slate-900/80 hover:border-slate-700 text-slate-400'
-      }`;
+  function renderGamificationHub() {
+    const tips = StorageManager.getTips();
+    const currentFasit = getActiveStandings();
+    if (tips.length === 0) return;
 
-      btn.innerHTML = `
-        <div class="flex items-center justify-between">
-          <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
-            isCurrent ? 'bg-amber-400 text-slate-950 font-black' : 'bg-slate-800 text-slate-400'
-          }">${round.badge || round.dateLabel}</span>
-          <span class="text-xs text-slate-400">${round.dateLabel}</span>
-        </div>
-        <div class="text-sm font-black text-white mt-2 truncate">${round.title}</div>
-      `;
+    // Fyll dropdown med deltakere
+    if (dom.gamificationUserSelect) {
+      const currentSelected = selectedGamificationAuthor || tips[0].author;
+      dom.gamificationUserSelect.innerHTML = '';
 
-      btn.addEventListener('click', () => {
-        activeRoundIndex = index;
-        renderSeasonRoundsUI();
-        dom.roundInfoText.textContent = round.description;
-        renderPlayoffBracket(); // Oppdater playoff med ny tabell
-        renderLeaderboard();
-        renderStatsDashboard();
+      tips.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.author;
+        opt.textContent = t.author;
+        if (t.author === currentSelected) opt.selected = true;
+        dom.gamificationUserSelect.appendChild(opt);
       });
 
-      dom.seasonRoundsContainer.appendChild(btn);
+      dom.gamificationUserSelect.onchange = (e) => {
+        selectedGamificationAuthor = e.target.value;
+        renderGamificationHeroAndAchievements(tips, currentFasit);
+      };
+    }
+
+    if (!selectedGamificationAuthor && tips.length > 0) {
+      selectedGamificationAuthor = tips[0].author;
+    }
+
+    renderGamificationHeroAndAchievements(tips, currentFasit);
+    renderPlayerCardsGallery(tips, currentFasit);
+    setupPlayoffTipping();
+  }
+
+  function renderGamificationHeroAndAchievements(tips, currentFasit) {
+    const author = selectedGamificationAuthor || (tips[0] && tips[0].author);
+    const participant = tips.find(t => t.author === author) || tips[0];
+    if (!participant || !window.GamificationEngine) return;
+
+    const ranked = rankLeaderboard(tips, currentFasit, activeSystem);
+    const participantRank = ranked.findIndex(r => r.author === author) + 1 || 1;
+    const profile = GamificationEngine.calculatePlayerProfile(participant, currentFasit, activeSystem, participantRank);
+
+    // Render Hero Card
+    if (dom.gamificationHeroCard) {
+      const { overallRating, level, xp, stats, nextLevel } = profile;
+      const progressPercent = nextLevel ? Math.min(100, Math.round((xp / nextLevel.minXp) * 100)) : 100;
+
+      dom.gamificationHeroCard.innerHTML = `
+        <!-- OVR & Hovedstatus -->
+        <div class="flex items-center gap-4">
+          <div class="w-20 h-24 rounded-2xl bg-gradient-to-b from-amber-500/20 via-yellow-600/10 to-slate-900 border-2 border-amber-400/60 flex flex-col items-center justify-center shadow-lg shadow-amber-950/40 relative flex-shrink-0">
+            <span class="text-3xl font-black text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]">${overallRating}</span>
+            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">OVR</span>
+            <span class="absolute -bottom-2 px-2 py-0.5 rounded-full text-[9px] font-black bg-black border border-white/10 text-cyan-300">#${participantRank}</span>
+          </div>
+
+          <div class="min-w-0">
+            <div class="text-base sm:text-lg font-black text-white flex items-center gap-2 flex-wrap">
+              <span class="truncate">${profile.author}</span>
+              ${profile.isHotStreak ? '<span class="text-[10px] text-rose-400 bg-rose-950/80 px-2 py-0.5 rounded-full border border-rose-600/50 font-black">🔥 I FORM</span>' : ''}
+            </div>
+            
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-slate-900 border border-white/10 text-slate-300 mt-1">
+              <span>${level.badge}</span>
+              <span>${level.title}</span>
+              <span class="text-slate-500">• Nivå ${level.level}</span>
+            </div>
+
+            <div class="mt-2">
+              <button onclick="window.openPlayerCardModal('${profile.author}')" class="px-3 py-1.5 bg-gradient-to-r from-amber-500 via-yellow-600 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs rounded-xl shadow-md flex items-center gap-1.5 transition-all active:scale-95">
+                <span>🃏 Åpne Fullt Spillerkort</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- XP-stige og progresjon -->
+        <div class="flex flex-col justify-center space-y-2 border-y md:border-y-0 md:border-x border-white/5 py-3 md:py-0 md:px-4">
+          <div class="flex justify-between items-center text-xs font-bold">
+            <span class="text-slate-400">Total XP: <strong class="text-sky-300 font-black">${xp} XP</strong></span>
+            <span class="text-amber-400 text-[11px]">${nextLevel ? `${nextLevel.minXp - xp} XP til ${nextLevel.title}` : '👑 Klubblegende!'}</span>
+          </div>
+          <div class="w-full h-3 bg-black/60 rounded-full overflow-hidden border border-white/10">
+            <div class="h-full bg-gradient-to-r from-sky-500 via-cyan-400 to-emerald-400 rounded-full transition-all duration-700" style="width: ${progressPercent}%"></div>
+          </div>
+          <div class="flex justify-between text-[10px] text-slate-500">
+            <span>${level.minXp} XP (${level.title})</span>
+            <span>${nextLevel ? `${nextLevel.minXp} XP` : 'MAX'}</span>
+          </div>
+        </div>
+
+        <!-- 4 FUT Power Stats -->
+        <div class="grid grid-cols-4 gap-2 text-center items-center">
+          <div class="p-2 rounded-xl bg-slate-900/80 border border-white/5">
+            <div class="text-sm sm:text-base font-black text-emerald-400">${stats.accuracy}</div>
+            <div class="text-[9px] font-bold text-slate-400">ACC</div>
+            <div class="text-[8px] text-slate-500">Treff</div>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-900/80 border border-white/5">
+            <div class="text-sm sm:text-base font-black text-sky-400">${stats.patriotism}</div>
+            <div class="text-[9px] font-bold text-slate-400">PAT</div>
+            <div class="text-[8px] text-slate-500">Ranheim</div>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-900/80 border border-white/5">
+            <div class="text-sm sm:text-base font-black text-amber-400">${stats.stability}</div>
+            <div class="text-[9px] font-bold text-slate-400">STA</div>
+            <div class="text-[8px] text-slate-500">Stabil</div>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-900/80 border border-white/5">
+            <div class="text-sm sm:text-base font-black text-purple-400">${stats.tactics}</div>
+            <div class="text-[9px] font-bold text-slate-400">TAK</div>
+            <div class="text-[8px] text-slate-500">Sone</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Render Achievements Grid
+    if (dom.achievementsGrid) {
+      dom.achievementsGrid.innerHTML = '';
+      const { unlockedAchievements } = profile;
+      let totalEarnedXp = 0;
+
+      window.ACHIEVEMENTS.forEach(ach => {
+        const isUnlocked = unlockedAchievements.some(u => u.id === ach.id);
+        const progressText = ach.progress(profile.evaluation, currentFasit, participantRank);
+        if (isUnlocked) totalEarnedXp += ach.xpReward;
+
+        const card = document.createElement('div');
+        card.className = `achievement-card p-3.5 rounded-2xl border flex flex-col justify-between ${
+          isUnlocked
+            ? 'achievement-unlocked'
+            : 'achievement-locked border-white/5'
+        }`;
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-base">${ach.title.split(' ')[0]}</span>
+              <span class="text-[10px] font-black px-2 py-0.5 rounded-full ${
+                isUnlocked
+                  ? 'bg-emerald-950 text-emerald-300 border border-emerald-600/60'
+                  : 'bg-slate-800 text-slate-400'
+              }">+${ach.xpReward} XP</span>
+            </div>
+            <div class="text-xs font-black text-white mt-1">${ach.title.substring(ach.title.indexOf(' ') + 1)}</div>
+            <div class="text-[11px] text-slate-400 mt-1">${ach.description}</div>
+          </div>
+
+          <div class="mt-3 pt-2 border-t border-white/5 flex items-center justify-between text-[10px]">
+            <span class="font-bold text-slate-400">${progressText}</span>
+            <span class="font-black ${isUnlocked ? 'text-emerald-400' : 'text-slate-500'}">
+              ${isUnlocked ? '✓ LÅST OPP' : '🔒 LÅST'}
+            </span>
+          </div>
+        `;
+
+        dom.achievementsGrid.appendChild(card);
+      });
+
+      if (dom.trophyCountLabel) {
+        dom.trophyCountLabel.innerHTML = `🏆 <strong>${unlockedAchievements.length} av ${window.ACHIEVEMENTS.length}</strong> låst opp (${totalEarnedXp} XP)`;
+      }
+    }
+  }
+
+  function renderPlayerCardsGallery(tips, currentFasit) {
+    if (!dom.playerCardsGallery || !window.GamificationEngine) return;
+    dom.playerCardsGallery.innerHTML = '';
+
+    const ranked = rankLeaderboard(tips, currentFasit, activeSystem);
+
+    ranked.forEach((p, index) => {
+      const profile = GamificationEngine.calculatePlayerProfile(p, currentFasit, activeSystem, index + 1);
+      const cardContainer = document.createElement('div');
+      cardContainer.innerHTML = GamificationEngine.generatePlayerCardHTML(profile, true);
+      cardContainer.onclick = () => window.openPlayerCardModal(profile.author);
+      dom.playerCardsGallery.appendChild(cardContainer.firstElementChild);
+    });
+  }
+
+  function setupPlayoffTipping() {
+    if (dom.savePlayoffTipsBtn) {
+      dom.savePlayoffTipsBtn.onclick = () => {
+        if (window.confetti) {
+          confetti({
+            particleCount: 80,
+            spread: 70,
+            origin: { y: 0.6 }
+          });
+        }
+        alert('🎉 Dine Playoff-tips er låst for Ranheim Kraft Tippeliga! Riktige vinnere gir +15 bonuspoeng og +50 XP per kamp når playoff spilles i nov/des 2026!');
+      };
+    }
+  }
+
+  /* ==========================================================================
+     MODAL 3: FUT-STYLE SPILLERKORT INTERAKSJON
+     ========================================================================== */
+
+  window.openPlayerCardModal = function (authorName) {
+    const tips = StorageManager.getTips();
+    const currentFasit = getActiveStandings();
+    const participant = tips.find(t => t.author === authorName) || tips[0];
+    if (!participant || !window.GamificationEngine || !dom.playerCardModalContent) return;
+
+    const ranked = rankLeaderboard(tips, currentFasit, activeSystem);
+    const rank = ranked.findIndex(r => r.author === authorName) + 1 || 1;
+    const profile = GamificationEngine.calculatePlayerProfile(participant, currentFasit, activeSystem, rank);
+
+    dom.playerCardModalContent.innerHTML = GamificationEngine.generatePlayerCardHTML(profile, false);
+    dom.playerCardModal.classList.remove('hidden');
+
+    if (window.lucide) window.lucide.createIcons();
+  };
+
+  if (dom.closePlayerCardBtn) {
+    dom.closePlayerCardBtn.addEventListener('click', () => {
+      dom.playerCardModal.classList.add('hidden');
+    });
+  }
+
+  if (dom.playerCardModal) {
+    dom.playerCardModal.addEventListener('click', (e) => {
+      if (e.target === dom.playerCardModal) {
+        dom.playerCardModal.classList.add('hidden');
+      }
+    });
+  }
+
+  if (dom.downloadPlayerCardBtn) {
+    dom.downloadPlayerCardBtn.addEventListener('click', () => {
+      if (!window.html2canvas || !dom.playerCardModalContent) return;
+      const card = dom.playerCardModalContent.firstElementChild;
+      if (!card) return;
+
+      window.html2canvas(card, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#07090e'
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `obos-spillerkort-${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    });
+  }
+
+  if (dom.copyPlayerCardBtn) {
+    dom.copyPlayerCardBtn.addEventListener('click', () => {
+      if (!window.html2canvas || !dom.playerCardModalContent) return;
+      const card = dom.playerCardModalContent.firstElementChild;
+      if (!card) return;
+
+      window.html2canvas(card, { scale: 2, useCORS: true, backgroundColor: '#07090e' }).then(canvas => {
+        canvas.toBlob(blob => {
+          if (!blob) return;
+          if (navigator.clipboard && window.ClipboardItem) {
+            navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+              .then(() => alert('Spillerkortet ble kopiert til utklippstavlen! Lim det rett inn i chatten (Ctrl+V).'))
+              .catch(() => alert('Kunne ikke kopiere automatisk. Bruk "Last ned PNG".'));
+          } else {
+            alert('Nettleseren støtter ikke direkte bildekopiering. Bruk "Last ned PNG".');
+          }
+        });
+      });
     });
   }
 
