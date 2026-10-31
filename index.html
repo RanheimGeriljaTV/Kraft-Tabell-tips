@@ -46,7 +46,7 @@
   <!-- xlsx-js-style (Styling og farger i Excel .xlsx eksport) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css?v=3.0.1">
 </head>
 <body class="min-h-screen flex flex-col bg-[#090c14] text-slate-100 selection:bg-sky-500 selection:text-white">
 
@@ -71,9 +71,10 @@
           <input 
             type="password" 
             id="accessCodeInput" 
-            placeholder="Skriv inn kode (ranheim1901)..." 
+            placeholder="Skriv inn gruppekode..." 
             class="w-full px-3.5 py-2.5 bg-black/50 border border-white/10 rounded-xl text-center text-sm tracking-wider text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all font-mono"
             required
+            autocomplete="current-password"
           >
         </div>
 
@@ -780,16 +781,16 @@
   </div>
 
   <!-- Skripts -->
-  <script src="js/config.js"></script>
-  <script src="js/data.js"></script>
-  <script src="js/scoring.js"></script>
-  <script src="js/badges.js"></script>
-  <script src="js/stats.js"></script>
-  <script src="js/playoff.js"></script>
-  <script src="js/gamification.js"></script>
-  <script src="js/storage.js"></script>
-  <script src="js/export.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/config.js?v=3.0.1"></script>
+  <script src="js/data.js?v=3.0.1"></script>
+  <script src="js/scoring.js?v=3.0.1"></script>
+  <script src="js/badges.js?v=3.0.1"></script>
+  <script src="js/stats.js?v=3.0.1"></script>
+  <script src="js/playoff.js?v=3.0.1"></script>
+  <script src="js/gamification.js?v=3.0.1"></script>
+  <script src="js/storage.js?v=3.0.1"></script>
+  <script src="js/export.js?v=3.0.1"></script>
+  <script src="js/app.js?v=3.0.1"></script>
   <script>
     if (window.lucide) {
       lucide.createIcons();

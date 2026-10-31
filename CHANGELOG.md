@@ -34,6 +34,12 @@ Formatet er basert på [Keep a Changelog](https://keepachangelog.com/no/1.0.0/).
   - Ekte sky-synkronisering med tabellene `tips`, `fasit`, `users` og `user_logs`.
   - Fallback til `localStorage` dersom nettverk eller skyløsning er utilgjengelig.
 
+### Sikkerhet (security)
+- **Fjernet passord fra UI-felt:** 
+  - Fjernet kode-eksempelet fra `placeholder`-teksten i adgangskontroll-skjemaet (`#accessCodeInput`). Feltet viser nå en nøytral hjelpetekst (*«Skriv inn gruppekode...»*) og har `autocomplete="current-password"`.
+- **Oppdatert `.gitignore`:**
+  - Omfattende blokkering av `.env`, tokens, nøkler, `.xlsx`-eksporter, backuper og testfiler.
+
 ### Forbedret (enhancement)
 - **Ranheim-identitet & terminologi:**
   - Konsekvent omdøpt fra «Ranheim TF» til kun **«Ranheim»** i hele systemet, databasen og rapportene.
