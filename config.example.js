@@ -13,6 +13,10 @@ const CONFIG = {
   // e.g. "https://script.google.com/macros/s/AKfycbx.../exec"
   GOOGLE_SCRIPT_URL: '',
 
+  // Valgfri Supabase-konfigurasjon for felles sky-synkronisering
+  SUPABASE_URL: '', // f.eks. https://xxxx.supabase.co
+  SUPABASE_ANON_KEY: '', // anon/public key
+
   APP_TITLE: 'OBOS-ligaen Tabell-tipper',
   APP_SUBTITLE: 'Ranheim Kraft Vennegjeng & Kollegatabell',
   COMMUNITY_NAME: 'Ranheim Kraft',

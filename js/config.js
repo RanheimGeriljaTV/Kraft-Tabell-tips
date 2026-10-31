@@ -23,6 +23,11 @@ const CONFIG = {
   // Valgfri Google Apps Script Web App URL for felles sanntids-sky-synkronisering
   GOOGLE_SCRIPT_URL: '',
 
+  // Valgfri Supabase-konfigurasjon for felles sky-synkronisering
+  // Opprett et prosjekt på https://supabase.com, kjør SQL-skjemaet (se README), og fyll inn:
+  SUPABASE_URL: 'https://cuspqdbjyrywmvherpca.supabase.co',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN1c3BxZGJqeXJ5d212aGVycGNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM0MTQ4ODksImV4cCI6MjEwODk5MDg4OX0.gMwKsZVysmButhdPeuyaXmi9oFPM4fqko2qq-DMNuUs',
+
   // Merkevare og sesong
   APP_TITLE: 'OBOS Tabell-tipper',
   APP_SUBTITLE: 'Ranheim Kraft Vennegjeng & Kollegatabell',

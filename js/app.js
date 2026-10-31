@@ -14,18 +14,23 @@
   let sortablePrediction = null;
   let sortableFasit = null;
   let activeParticipantForAnalysis = null;
+  let eventListenersAttached = false;
+  let appInitialized = false;
 
   // DOM-elementer
   const dom = {
-    // Låseskjerm
+    // Låseskjerm & Innlogging
     lockScreen: document.getElementById('lockScreen'),
     lockForm: document.getElementById('lockForm'),
     accessCodeInput: document.getElementById('accessCodeInput'),
+    userNicknameInput: document.getElementById('userNicknameInput'),
+    userEmailInput: document.getElementById('userEmailInput'),
     lockError: document.getElementById('lockError'),
     lockAppBtn: document.getElementById('lockAppBtn'),
     mainApp: document.getElementById('mainApp'),
 
-    // Faner
+    // Faner & Navigasjon
+    mainNav: document.getElementById('mainNav'),
     tabBtnPredict: document.getElementById('tabBtnPredict'),
     tabBtnLeaderboard: document.getElementById('tabBtnLeaderboard'),
     tabBtnGroupStats: document.getElementById('tabBtnGroupStats'),
@@ -38,26 +43,40 @@
     tabContentSettings: document.getElementById('tabContentSettings'),
 
     // Fane 1: Mitt Tabelltips
+    seasonLockedBanner: document.getElementById('seasonLockedBanner'),
+    userBadgeNickname: document.getElementById('userBadgeNickname'),
+    userBadgeEmail: document.getElementById('userBadgeEmail'),
+    switchUserBtn: document.getElementById('switchUserBtn'),
     authorNameInput: document.getElementById('authorNameInput'),
-    existingTipSelect: document.getElementById('existingTipSelect'),
+    userTipStatusBadge: document.getElementById('userTipStatusBadge'),
+    userTipStatusDot: document.getElementById('userTipStatusDot'),
+    userTipStatusText: document.getElementById('userTipStatusText'),
     saveTipBtn: document.getElementById('saveTipBtn'),
     saveBtnLabel: document.getElementById('saveBtnLabel'),
     openShareModalBtn: document.getElementById('openShareModalBtn'),
+    randomizeBtn: document.getElementById('randomizeBtn'),
     predictionList: document.getElementById('predictionList'),
 
     // Fane 2: Resultattavle
     systemButtons: document.querySelectorAll('.pill-tab'),
+    systemExplainerBox: document.getElementById('systemExplainerBox'),
+    systemExplainerIcon: document.getElementById('systemExplainerIcon'),
+    systemExplainerTitle: document.getElementById('systemExplainerTitle'),
+    systemExplainerDesc: document.getElementById('systemExplainerDesc'),
+    systemExplainerBadge: document.getElementById('systemExplainerBadge'),
     podiumContainer: document.getElementById('podiumContainer'),
     leaderboardCardsContainer: document.getElementById('leaderboardCardsContainer'),
     participantCount: document.getElementById('participantCount'),
 
-    // Fane 3: Gruppe-statistikk (Folkets tabell, H2H, Superlativer)
+    // Fane 3: Gruppe-statistikk (Folkets tabell, H2H, Superlativer, Matrise)
+    copyTextBtn: document.getElementById('copyTextBtn'),
     groupStatsCountLabel: document.getElementById('groupStatsCountLabel'),
     groupRecordsContainer: document.getElementById('groupRecordsContainer'),
     h2hSelectA: document.getElementById('h2hSelectA'),
     h2hSelectB: document.getElementById('h2hSelectB'),
     h2hComparisonContainer: document.getElementById('h2hComparisonContainer'),
     consensusListContainer: document.getElementById('consensusListContainer'),
+    allTipsMatrixContainer: document.getElementById('allTipsMatrixContainer'),
 
     // Fane 4: Playoff & Gamification
     profileUserSelect: document.getElementById('profileUserSelect'),
@@ -74,13 +93,21 @@
     officialLiveTableContainer: document.getElementById('officialLiveTableContainer'),
     quickApiFetchBtn: document.getElementById('quickApiFetchBtn'),
 
-    // Fane 4: Fasit & Innstillinger
+    // Fane 5: Fasit, Brukere & Admin
+    adminLogoutBtn: document.getElementById('adminLogoutBtn'),
+    adminLockStatusBadge: document.getElementById('adminLockStatusBadge'),
+    adminLockOverrideSelect: document.getElementById('adminLockOverrideSelect'),
+    adminUserCountBadge: document.getElementById('adminUserCountBadge'),
+    adminUserListContainer: document.getElementById('adminUserListContainer'),
+    adminLoginTrigger: document.getElementById('adminLoginTrigger'),
     fasitList: document.getElementById('fasitList'),
     saveFasitBtn: document.getElementById('saveFasitBtn'),
     fetchApiFasitBtn: document.getElementById('fetchApiFasitBtn'),
     exportJsonBtn: document.getElementById('exportJsonBtn'),
+    adminExportExcelBtn: document.getElementById('adminExportExcelBtn'),
     importJsonInput: document.getElementById('importJsonInput'),
     resetDemoBtn: document.getElementById('resetDemoBtn'),
+    syncCloudBtn: document.getElementById('syncCloudBtn'),
     cloudStatusText: document.getElementById('cloudStatusText'),
 
     // Modal 1: Detaljert Tipsanalyse
@@ -124,6 +151,22 @@
       window.history.replaceState({}, document.title, window.location.pathname);
     }
 
+    const adminParam = urlParams.get('admin');
+    const expectedPin = (window.CONFIG && window.CONFIG.ADMIN_PIN) || '1901';
+    if (adminParam && (adminParam === expectedPin || adminParam === 'true')) {
+      StorageManager.setAdmin(true);
+    }
+
+    const activeUser = StorageManager.getActiveUser();
+    if (dom.userNicknameInput && activeUser.nickname) {
+      dom.userNicknameInput.value = activeUser.nickname;
+    }
+    if (dom.userEmailInput && activeUser.email) {
+      dom.userEmailInput.value = activeUser.email;
+    }
+
+    updateAdminVisibility();
+
     if (StorageManager.isAuthenticated()) {
       dom.lockScreen.classList.add('hidden');
       dom.mainApp.classList.remove('hidden');
@@ -134,21 +177,81 @@
     }
   }
 
+  function updateAdminVisibility() {
+    const isAdmin = StorageManager.isAdmin();
+    if (dom.tabBtnSettings) {
+      if (isAdmin) {
+        dom.tabBtnSettings.classList.remove('hidden');
+        if (dom.mainNav) {
+          dom.mainNav.classList.remove('grid-cols-4');
+          dom.mainNav.classList.add('grid-cols-5');
+        }
+      } else {
+        dom.tabBtnSettings.classList.add('hidden');
+        if (dom.mainNav) {
+          dom.mainNav.classList.remove('grid-cols-5');
+          dom.mainNav.classList.add('grid-cols-4');
+        }
+      }
+    }
+  }
+
+  function updateUserBadgeDisplay() {
+    const user = StorageManager.getActiveUser();
+    if (dom.userBadgeNickname) {
+      dom.userBadgeNickname.textContent = user.nickname || 'Deltaker';
+    }
+    if (dom.userBadgeEmail) {
+      dom.userBadgeEmail.textContent = user.email ? `(${user.email})` : '';
+    }
+    if (dom.authorNameInput && !dom.authorNameInput.value.trim() && user.nickname) {
+      dom.authorNameInput.value = user.nickname;
+    }
+  }
+
   dom.lockForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const configCode = (window.CONFIG && window.CONFIG.ACCESS_CODE) || 'ranheim1901';
     const entered = dom.accessCodeInput.value.trim();
+    const nickname = dom.userNicknameInput ? dom.userNicknameInput.value.trim() : '';
+    const email = dom.userEmailInput ? dom.userEmailInput.value.trim() : '';
 
-    if (entered.toLowerCase() === configCode.toLowerCase()) {
-      StorageManager.setAuthenticated(true);
-      dom.lockError.classList.add('hidden');
-      dom.lockScreen.classList.add('hidden');
-      dom.mainApp.classList.remove('hidden');
-      initApp();
-    } else {
+    if (entered.toLowerCase() !== configCode.toLowerCase()) {
+      dom.lockError.textContent = 'Feil kode. Sjekk koden du fikk i chatten.';
       dom.lockError.classList.remove('hidden');
       dom.accessCodeInput.classList.add('border-rose-500');
+      return;
     }
+
+    if (!nickname) {
+      dom.lockError.textContent = 'Vennligst oppgi et kallenavn!';
+      dom.lockError.classList.remove('hidden');
+      if (dom.userNicknameInput) dom.userNicknameInput.focus();
+      return;
+    }
+
+    if (!email) {
+      dom.lockError.textContent = 'Vennligst oppgi en e-postadresse!';
+      dom.lockError.classList.remove('hidden');
+      if (dom.userEmailInput) dom.userEmailInput.focus();
+      return;
+    }
+
+    // Duplikatbeskyttelse ved registrering / innlogging
+    const validation = StorageManager.validateRegistrationCredentials(nickname, email);
+    if (!validation.valid) {
+      dom.lockError.textContent = validation.error;
+      dom.lockError.classList.remove('hidden');
+      return;
+    }
+
+    StorageManager.setAuthenticated(true);
+    StorageManager.setActiveUser(nickname, email);
+    StorageManager.registerUserInCloud(nickname, email, 'LOGIN');
+    dom.lockError.classList.add('hidden');
+    dom.lockScreen.classList.add('hidden');
+    dom.mainApp.classList.remove('hidden');
+    initApp(true);
   });
 
   dom.lockAppBtn.addEventListener('click', () => {
@@ -162,23 +265,108 @@
      2. INITIALISERING AV APP
      ========================================================================== */
 
-  function initApp() {
-    StorageManager.init();
-    activeSystem = StorageManager.getActiveSystem();
-    const savedActiveName = localStorage.getItem('ranheim_active_user_name');
-    if (savedActiveName && dom.authorNameInput && !dom.authorNameInput.value) {
-      dom.authorNameInput.value = savedActiveName;
+  function updateSeasonLockUI() {
+    const isLocked = StorageManager.isSeasonLocked();
+    const status = StorageManager.getSeasonLockStatus();
+
+    // Fane 1: Banner & Lagre-knapp
+    if (dom.seasonLockedBanner) {
+      if (isLocked) {
+        dom.seasonLockedBanner.classList.remove('hidden');
+      } else {
+        dom.seasonLockedBanner.classList.add('hidden');
+      }
     }
+
+    if (dom.saveTipBtn) {
+      if (isLocked) {
+        dom.saveTipBtn.disabled = true;
+        dom.saveTipBtn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+        if (dom.saveBtnLabel) dom.saveBtnLabel.textContent = '🔒 Låst for sesongen';
+      } else {
+        dom.saveTipBtn.disabled = false;
+        dom.saveTipBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+        if (dom.saveBtnLabel) {
+          dom.saveBtnLabel.textContent = currentEditingTipId ? 'Oppdater tips' : 'Lagre tips';
+        }
+      }
+    }
+
+    if (dom.authorNameInput) {
+      dom.authorNameInput.disabled = isLocked;
+    }
+
+    if (dom.randomizeBtn) {
+      dom.randomizeBtn.disabled = isLocked;
+      if (isLocked) {
+        dom.randomizeBtn.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+      } else {
+        dom.randomizeBtn.classList.remove('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+      }
+    }
+
+    // Admin Fane status badge & selector
+    if (dom.adminLockStatusBadge) {
+      if (isLocked) {
+        dom.adminLockStatusBadge.textContent = '🔒 Låst (hardlock)';
+        dom.adminLockStatusBadge.className = 'text-[10px] font-black px-2 py-0.5 rounded-lg border bg-rose-950/60 border-rose-800 text-rose-300';
+      } else {
+        dom.adminLockStatusBadge.textContent = '🟢 Åpen';
+        dom.adminLockStatusBadge.className = 'text-[10px] font-black px-2 py-0.5 rounded-lg border bg-emerald-950/60 border-emerald-800 text-emerald-300';
+      }
+    }
+
+    if (dom.adminLockOverrideSelect) {
+      dom.adminLockOverrideSelect.value = status.override;
+    }
+  }
+
+  function initApp(force = false) {
+    if (appInitialized && !force) return;
+    appInitialized = true;
+    const isFirstRun = !localStorage.getItem('ranheim_obos_tips_v4');
+    StorageManager.init();
+    if (!isFirstRun) {
+      localStorage.setItem('ranheim_has_visited', 'true');
+    }
+    activeSystem = StorageManager.getActiveSystem();
+    updateUserBadgeDisplay();
+    updateAdminVisibility();
+    updateSeasonLockUI();
     loadPredictionTableInitial();
     updateExistingTipsDropdown();
     initSortablePrediction();
     initSortableFasit();
+    if (!eventListenersAttached) {
+      setupEventListeners();
+      eventListenersAttached = true;
+    }
     renderLeaderboard();
     renderGroupStats();
     renderPlayoffBracket();
     renderOfficialLiveTable();
     renderGamificationHub();
-    setupEventListeners();
+
+    // Automatisk bakgrunns-synkronisering fra Supabase (skyen overstyrer aldri urettmessig, men holder alle deltakere oppdatert)
+    if (window.CONFIG && window.CONFIG.SUPABASE_URL && window.CONFIG.SUPABASE_ANON_KEY) {
+      StorageManager.syncFromCloud().then(synced => {
+        if (synced) {
+          renderLeaderboard();
+          renderGroupStats();
+          renderPlayoffBracket();
+          renderGamificationHub();
+          updateUserTipStatus();
+          const active = StorageManager.getActiveUser();
+          const cloudTip = StorageManager.getUserTip(active.email, active.nickname);
+          if (cloudTip && !currentEditingTipId) {
+            loadPredictionTableInitial();
+          }
+          if (StorageManager.isAdmin()) renderAdminUserList();
+        }
+      }).catch(err => {
+        console.warn('Bakgrunnssynk fra Supabase feilet:', err);
+      });
+    }
 
     if (window.lucide) {
       window.lucide.createIcons();
@@ -237,9 +425,14 @@
       renderOfficialLiveTable();
       renderGamificationHub();
     } else if (target === 'settings') {
+      if (!StorageManager.isAdmin()) {
+        switchTab('predict');
+        return;
+      }
       dom.tabContentSettings.classList.remove('hidden');
       dom.tabBtnSettings.classList.add('bg-sky-500', 'text-slate-950');
       dom.tabBtnSettings.classList.remove('text-slate-400');
+      renderAdminUserList();
       renderFasitList();
     }
 
@@ -252,10 +445,85 @@
      4. FANE 1: MITT TABELLTIPS (TAKTIEL DRAG & DROP + OPP/NED KNAPPER)
      ========================================================================== */
 
+  function repairTable(table) {
+    const validTeams = (window.TEAMS || []).map(t => t.id);
+    if (!validTeams || validTeams.length !== 16) {
+      return Array.isArray(table) ? table : [];
+    }
+    const seen = new Set();
+    const result = [];
+    if (Array.isArray(table)) {
+      for (const id of table) {
+        if (validTeams.includes(id) && !seen.has(id)) {
+          seen.add(id);
+          result.push(id);
+        }
+      }
+    }
+    for (const id of validTeams) {
+      if (!seen.has(id)) {
+        seen.add(id);
+        result.push(id);
+      }
+    }
+    return result.slice(0, 16);
+  }
+
   function loadPredictionTableInitial() {
-    const fasit = StorageManager.getFasit();
-    currentPredictionTable = [...fasit];
+    const active = StorageManager.getActiveUser();
+    const myTip = StorageManager.getUserTip(active.email, active.nickname);
+
+    if (myTip && Array.isArray(myTip.table) && myTip.table.length > 0) {
+      currentEditingTipId = myTip.id;
+      currentPredictionTable = repairTable(myTip.table);
+      if (dom.authorNameInput) dom.authorNameInput.value = myTip.author;
+    } else {
+      currentEditingTipId = null;
+      const alpha = getAlphabeticalTeamIds();
+      const fasit = StorageManager.getFasit();
+      const hasVisited = localStorage.getItem('ranheim_has_visited');
+      const candidate = hasVisited ? fasit : (alpha.length === 16 ? alpha : fasit);
+      currentPredictionTable = repairTable(candidate);
+      if (dom.authorNameInput && active.nickname) {
+        dom.authorNameInput.value = active.nickname;
+      }
+    }
+
+    localStorage.setItem('ranheim_has_visited', 'true');
+    updateUserTipStatus();
     renderPredictionList();
+  }
+
+  function randomizePredictionTable() {
+    if (StorageManager.isSeasonLocked()) {
+      alert('Tippingen er stengt for sesongen! Du kan ikke endre tips nå.');
+      return;
+    }
+
+    currentPredictionTable = repairTable(currentPredictionTable);
+    const shuffled = [...currentPredictionTable];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    currentPredictionTable = shuffled;
+    renderPredictionList();
+    renderPlayoffBracket();
+    renderGamificationHub();
+
+    if (dom.randomizeBtn) {
+      dom.randomizeBtn.classList.add('scale-105', 'bg-amber-800/80');
+      setTimeout(() => {
+        dom.randomizeBtn.classList.remove('scale-105', 'bg-amber-800/80');
+      }, 250);
+    }
+  }
+
+  function getAlphabeticalTeamIds() {
+    return (window.TEAMS || []).slice().sort((a, b) => {
+      return String(a.name).localeCompare(String(b.name), 'no');
+    }).map(t => t.id);
   }
 
   function getZoneStripeClass(pos) {
@@ -268,6 +536,9 @@
 
   function renderPredictionList() {
     dom.predictionList.innerHTML = '';
+    const isLocked = StorageManager.isSeasonLocked();
+
+    currentPredictionTable = repairTable(currentPredictionTable);
 
     currentPredictionTable.forEach((teamId, index) => {
       const pos = index + 1;
@@ -283,6 +554,16 @@
       }`;
       card.dataset.id = team.id;
 
+      const controlsHtml = isLocked
+        ? `<div class="text-[10px] text-slate-500 font-bold px-2 py-1 flex items-center gap-1"><span>🔒</span> Låst</div>`
+        : `
+          <button type="button" onclick="window.movePredictionTeam(${index}, -1)" ${index === 0 ? 'disabled' : ''} class="reorder-btn ${index === 0 ? 'opacity-20 pointer-events-none' : ''}" title="Flytt opp">▲</button>
+          <button type="button" onclick="window.movePredictionTeam(${index}, 1)" ${index === 15 ? 'disabled' : ''} class="reorder-btn ${index === 15 ? 'opacity-20 pointer-events-none' : ''}" title="Flytt ned">▼</button>
+          <div class="drag-handle reorder-btn cursor-grab active:cursor-grabbing text-slate-400" title="Hold og dra">
+            <i data-lucide="grip-vertical" class="w-4 h-4"></i>
+          </div>
+        `;
+
       card.innerHTML = `
         <div class="flex items-center gap-2.5 min-w-0 flex-1">
           <span class="w-6 text-center font-black text-sm text-slate-400">${pos}</span>
@@ -296,11 +577,7 @@
         </div>
 
         <div class="flex items-center gap-1 flex-shrink-0">
-          <button type="button" onclick="window.movePredictionTeam(${index}, -1)" ${index === 0 ? 'disabled' : ''} class="reorder-btn ${index === 0 ? 'opacity-20 pointer-events-none' : ''}" title="Flytt opp">▲</button>
-          <button type="button" onclick="window.movePredictionTeam(${index}, 1)" ${index === 15 ? 'disabled' : ''} class="reorder-btn ${index === 15 ? 'opacity-20 pointer-events-none' : ''}" title="Flytt ned">▼</button>
-          <div class="drag-handle reorder-btn cursor-grab active:cursor-grabbing text-slate-400" title="Hold og dra">
-            <i data-lucide="grip-vertical" class="w-4 h-4"></i>
-          </div>
+          ${controlsHtml}
         </div>
       `;
 
@@ -313,6 +590,10 @@
   }
 
   window.movePredictionTeam = function (index, direction) {
+    if (StorageManager.isSeasonLocked()) {
+      alert('🔒 Tippingen er stengt for sesongen! Ingen endringer kan gjøres etter seriestart.');
+      return;
+    }
     const targetIndex = index + direction;
     if (targetIndex < 0 || targetIndex >= currentPredictionTable.length) return;
 
@@ -325,7 +606,11 @@
   function initSortablePrediction() {
     if (sortablePrediction) {
       sortablePrediction.destroy();
+      sortablePrediction = null;
     }
+
+    if (StorageManager.isSeasonLocked()) return;
+    if (!dom.predictionList) return;
 
     sortablePrediction = new Sortable(dom.predictionList, {
       animation: 180,
@@ -342,44 +627,34 @@
     });
   }
 
-  function updateExistingTipsDropdown() {
-    const tips = StorageManager.getTips();
-    dom.existingTipSelect.innerHTML = '<option value="">➕ Nytt tips</option>';
+  function updateUserTipStatus() {
+    if (!dom.userTipStatusText || !dom.userTipStatusDot) return;
+    const active = StorageManager.getActiveUser();
+    const myTip = StorageManager.getUserTip(active.email, active.nickname);
 
-    tips.forEach(t => {
-      const opt = document.createElement('option');
-      opt.value = t.id;
-      opt.textContent = t.author;
-      if (currentEditingTipId === t.id) {
-        opt.selected = true;
+    if (myTip) {
+      currentEditingTipId = myTip.id;
+      dom.userTipStatusDot.className = 'w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0';
+      const timeStr = myTip.updatedAt ? new Date(myTip.updatedAt).toLocaleDateString('no-NO', { day: 'numeric', month: 'short' }) : 'levert';
+      dom.userTipStatusText.textContent = `✅ Tips levert (${timeStr})`;
+      dom.userTipStatusText.className = 'truncate text-emerald-300 font-bold';
+      if (dom.saveBtnLabel && !StorageManager.isSeasonLocked()) {
+        dom.saveBtnLabel.textContent = 'Oppdater mitt tips';
       }
-      dom.existingTipSelect.appendChild(opt);
-    });
+    } else {
+      currentEditingTipId = null;
+      dom.userTipStatusDot.className = 'w-2 h-2 rounded-full bg-amber-400 flex-shrink-0';
+      dom.userTipStatusText.textContent = 'Ikke levert ennå';
+      dom.userTipStatusText.className = 'truncate text-amber-300/80 font-bold';
+      if (dom.saveBtnLabel && !StorageManager.isSeasonLocked()) {
+        dom.saveBtnLabel.textContent = 'Lagre mitt tips';
+      }
+    }
   }
 
-  dom.existingTipSelect.addEventListener('change', (e) => {
-    const selectedId = e.target.value;
-    if (!selectedId) {
-      currentEditingTipId = null;
-      dom.authorNameInput.value = '';
-      dom.saveBtnLabel.textContent = 'Lagre tips';
-      loadPredictionTableInitial();
-      return;
-    }
-
-    const tips = StorageManager.getTips();
-    const tip = tips.find(t => t.id === selectedId);
-    if (tip) {
-      currentEditingTipId = tip.id;
-      dom.authorNameInput.value = tip.author;
-      localStorage.setItem('ranheim_active_user_name', tip.author);
-      dom.saveBtnLabel.textContent = 'Oppdater tips';
-      currentPredictionTable = [...tip.table];
-      renderPredictionList();
-      renderPlayoffBracket();
-      renderGamificationHub();
-    }
-  });
+  function updateExistingTipsDropdown() {
+    updateUserTipStatus();
+  }
 
   dom.authorNameInput.addEventListener('input', () => {
     const val = dom.authorNameInput.value.trim();
@@ -396,9 +671,23 @@
       return;
     }
 
+    const activeUser = StorageManager.getActiveUser();
+    let userEmail = activeUser.email || '';
+
+    // Hvis e-post mangler (f.eks. ved direkte innlogging via lenke), be om e-post for logg og premie
+    if (!userEmail) {
+      const enteredEmail = prompt('Skriv inn din e-postadresse (brukes til bekreftelse og premievarsling):');
+      if (enteredEmail && enteredEmail.trim()) {
+        userEmail = enteredEmail.trim().toLowerCase();
+        StorageManager.setActiveUser(author, userEmail);
+        StorageManager.registerUserInCloud(author, userEmail, 'SAVE_TIP_REGISTER');
+      }
+    }
+
     try {
-      StorageManager.saveTip(author, currentPredictionTable, currentEditingTipId);
-      localStorage.setItem('ranheim_active_user_name', author);
+      StorageManager.saveTip(author, currentPredictionTable, currentEditingTipId, userEmail);
+      StorageManager.setActiveUser(author, userEmail);
+      updateUserBadgeDisplay();
       updateExistingTipsDropdown();
       renderLeaderboard();
       renderGroupStats();
@@ -410,6 +699,34 @@
     }
   });
 
+  if (dom.switchUserBtn) {
+    dom.switchUserBtn.addEventListener('click', () => {
+      const active = StorageManager.getActiveUser();
+      const newNick = prompt('Endre kallenavn / visningsnavn:', active.nickname);
+      if (newNick === null) return;
+      const newEmail = prompt('Endre e-postadresse:', active.email);
+      if (newEmail === null) return;
+
+      const trimmedNick = newNick.trim() || active.nickname;
+      const trimmedEmail = newEmail.trim().toLowerCase() || active.email;
+
+      // Duplikatbeskyttelse
+      const currentTip = StorageManager.getUserTip(active.email, active.nickname);
+      const val = StorageManager.validateTipCredentials(trimmedNick, trimmedEmail, currentTip ? currentTip.id : null);
+      if (!val.valid) {
+        alert(val.error);
+        return;
+      }
+
+      StorageManager.setActiveUser(trimmedNick, trimmedEmail);
+      StorageManager.registerUserInCloud(trimmedNick, trimmedEmail, 'SWITCH_USER');
+      if (dom.authorNameInput) dom.authorNameInput.value = trimmedNick;
+      updateUserBadgeDisplay();
+      loadPredictionTableInitial();
+      renderGamificationHub();
+    });
+  }
+
   /* ==========================================================================
      5. FANE 2: FORELØPIG RESULTATTAVLE (MOBIL-KORT + PODIUM)
      ========================================================================== */
@@ -420,10 +737,22 @@
       btn.classList.add('active');
       activeSystem = btn.dataset.system;
       StorageManager.saveActiveSystem(activeSystem);
+      updateSystemExplainer(activeSystem);
       renderLeaderboard();
       renderGamificationHub();
     });
   });
+
+  function updateSystemExplainer(sysKey) {
+    if (!dom.systemExplainerBox || !window.SYSTEM_METADATA) return;
+    const meta = window.SYSTEM_METADATA[sysKey] || window.SYSTEM_METADATA['klassisk'];
+    if (!meta) return;
+
+    if (dom.systemExplainerIcon) dom.systemExplainerIcon.textContent = meta.icon || '⛳';
+    if (dom.systemExplainerTitle) dom.systemExplainerTitle.textContent = meta.name;
+    if (dom.systemExplainerDesc) dom.systemExplainerDesc.textContent = meta.description;
+    if (dom.systemExplainerBadge) dom.systemExplainerBadge.textContent = meta.badge;
+  }
 
   function getActiveStandings() {
     return StorageManager.getFasit();
@@ -434,6 +763,7 @@
     const currentFasit = getActiveStandings();
 
     dom.participantCount.textContent = tips.length;
+    updateSystemExplainer(activeSystem);
 
     // Aktiver riktig system-pill
     dom.systemButtons.forEach(btn => {
@@ -602,6 +932,9 @@
 
     // 3. Folkets Tabell (Konsensus)
     renderConsensusTable(tips, currentFasit);
+
+    // 4. Tabellmatrise (Alle deltakere side-ved-side)
+    renderTipsMatrix(tips, currentFasit);
 
     if (window.lucide) {
       window.lucide.createIcons();
@@ -830,6 +1163,69 @@
     });
   }
 
+  function renderTipsMatrix(tips, currentFasit) {
+    if (!dom.allTipsMatrixContainer) return;
+    if (!tips || tips.length === 0) {
+      dom.allTipsMatrixContainer.innerHTML = '<div class="p-3 text-center text-xs text-slate-500">Ingen tips levert ennå.</div>';
+      return;
+    }
+
+    const teams = window.TEAMS || [];
+    const getTeam = (id) => teams.find(t => t.id === id) || { name: id, shortName: id };
+
+    let html = `
+      <table class="w-full border-collapse text-left text-xs whitespace-nowrap">
+        <thead>
+          <tr class="border-b border-white/10 bg-white/5 text-[11px] font-black uppercase text-slate-400">
+            <th class="p-2.5 w-8 text-center">#</th>
+            <th class="p-2.5 min-w-[130px] text-sky-400">Reell Tabell</th>
+    `;
+
+    tips.forEach(t => {
+      html += `<th class="p-2.5 min-w-[110px] text-white font-bold">${t.author}</th>`;
+    });
+
+    html += `</tr></thead><tbody class="divide-y divide-white/5 font-medium">`;
+
+    for (let pos = 1; pos <= 16; pos++) {
+      const fasitId = currentFasit[pos - 1];
+      const fasitTeam = getTeam(fasitId);
+      const isRanheimFasit = (fasitId === 'ranheim');
+
+      html += `
+        <tr class="hover:bg-white/[0.02] transition-colors">
+          <td class="p-2 text-center font-black text-slate-500 text-[11px]">${pos}</td>
+          <td class="p-2 ${isRanheimFasit ? 'text-sky-300 font-black' : 'text-slate-300'}">
+            ${fasitTeam.name}
+          </td>
+      `;
+
+      tips.forEach(t => {
+        const teamId = (t.table && t.table[pos - 1]) || '';
+        const team = getTeam(teamId);
+        const isExact = (teamId && teamId === fasitId);
+        const isRanheim = (teamId === 'ranheim');
+
+        let cellClass = 'text-slate-400';
+        let badge = '';
+
+        if (isExact) {
+          cellClass = 'text-emerald-300 font-bold bg-emerald-950/30';
+          badge = ' <span class="text-[9px] px-1 py-0.2 rounded bg-emerald-900/60 text-emerald-300 border border-emerald-700/50">BLINK</span>';
+        } else if (isRanheim) {
+          cellClass = 'text-sky-300 font-bold';
+        }
+
+        html += `<td class="p-2 ${cellClass}">${team.name}${badge}</td>`;
+      });
+
+      html += `</tr>`;
+    }
+
+    html += `</tbody></table>`;
+    dom.allTipsMatrixContainer.innerHTML = html;
+  }
+
   /* ==========================================================================
      7. FANE 4: PLAYOFF & GAMIFICATION
      ========================================================================== */
@@ -929,9 +1325,13 @@
     if (!dom.playoffBracketContainer || !window.PlayoffEngine) return;
 
     // Playoff-lagene tilpasses direkte etter hvordan brukeren har satt sitt tabelltips!
-    const tableToUse = (currentPredictionTable && currentPredictionTable.length === 16)
-      ? currentPredictionTable
-      : getActiveStandings();
+    // Hvis tabellen fortsatt er i standard (alfabetisk/fasit) rekkefølge, bruk offisiell fasit.
+    const alpha = getAlphabeticalTeamIds();
+    const isUntouched = !currentPredictionTable ||
+      currentPredictionTable.length !== 16 ||
+      currentPredictionTable.join(',') === alpha.join(',') ||
+      currentPredictionTable.join(',') === (StorageManager.getFasit() || []).join(',');
+    const tableToUse = isUntouched ? getActiveStandings() : currentPredictionTable;
 
     const playoffData = PlayoffEngine.getPlayoffMatches(tableToUse);
     if (!playoffData) return;
@@ -1095,8 +1495,78 @@
   }
 
   /* ==========================================================================
-     7. FANE 4: FASIT & ADMIN
+     7. FANE 5: FASIT & ADMIN (BRUKERADMINISTRASJON & FASIT)
      ========================================================================== */
+
+  function renderAdminUserList() {
+    if (!dom.adminUserListContainer) return;
+    dom.adminUserListContainer.innerHTML = '';
+
+    const tips = StorageManager.getTips();
+    if (dom.adminUserCountBadge) {
+      dom.adminUserCountBadge.textContent = `${tips.length} deltakere`;
+    }
+
+    if (tips.length === 0) {
+      dom.adminUserListContainer.innerHTML = '<div class="text-center py-4 text-xs text-slate-500 font-bold">Ingen deltakere registrert.</div>';
+      return;
+    }
+
+    tips.forEach(p => {
+      const row = document.createElement('div');
+      row.className = 'p-2.5 rounded-xl bg-black/40 border border-white/5 flex items-center justify-between gap-2.5';
+
+      const authorEsc = encodeURIComponent(p.author || '');
+      const email = p.userEmail || '';
+      const emailEsc = encodeURIComponent(email);
+      const dateStr = p.updatedAt ? new Date(p.updatedAt).toLocaleDateString('no-NO', { day: 'numeric', month: 'short' }) : 'Uten dato';
+
+      row.innerHTML = `
+        <div class="flex items-center gap-2.5 min-w-0 flex-1">
+          <div class="w-8 h-8 rounded-lg bg-sky-950 text-sky-400 border border-sky-800 flex items-center justify-center font-black text-xs flex-shrink-0">
+            ${(p.author || '?').substring(0, 2).toUpperCase()}
+          </div>
+          <div class="min-w-0">
+            <div class="font-extrabold text-xs text-white truncate flex items-center gap-1.5">
+              <span>${p.author}</span>
+              ${email ? `<span class="text-[10px] text-slate-400 font-normal truncate">(${email})</span>` : ''}
+            </div>
+            <div class="text-[10px] text-slate-400 truncate">
+              Oppdatert: ${dateStr}
+            </div>
+          </div>
+        </div>
+
+        <button onclick="window.adminDeleteUser('${p.id}', decodeURIComponent('${authorEsc}'), decodeURIComponent('${emailEsc}'))" class="px-2.5 py-1 bg-rose-950/60 hover:bg-rose-900 text-rose-300 hover:text-white font-bold text-xs rounded-xl border border-rose-800/80 flex items-center gap-1 transition-all active:scale-95 flex-shrink-0">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          <span>Slett</span>
+        </button>
+      `;
+
+      dom.adminUserListContainer.appendChild(row);
+    });
+
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  }
+
+  window.adminDeleteUser = async function(tipId, author, email) {
+    const confirmMsg = `Er du sikker på at du vil slette deltakeren "${author}"?\n\nDette fjerner både tipset og brukeren fra ligaen og Supabase-databasen.`;
+    if (!confirm(confirmMsg)) return;
+
+    try {
+      await StorageManager.deleteUserAndTip(tipId, author, email);
+      renderLeaderboard();
+      renderGroupStats();
+      renderGamificationHub();
+      renderAdminUserList();
+      updateExistingTipsDropdown();
+      alert(`Brukeren "${author}" ble slettet.`);
+    } catch (err) {
+      alert('Kunne ikke slette bruker: ' + err.message);
+    }
+  };
 
   function renderFasitList() {
     const fasit = StorageManager.getFasit();
@@ -1154,12 +1624,16 @@
   }
 
   if (dom.fetchApiFasitBtn) {
-    dom.fetchApiFasitBtn.addEventListener('click', () => {
-      StorageManager.saveFasit(window.DEFAULT_FASIT || []);
-      renderFasitList();
-      renderLeaderboard();
-      renderPlayoffBracket();
-      alert('Gjenopprettet offisiell 2026-tabell fra API!');
+    dom.fetchApiFasitBtn.addEventListener('click', async () => {
+      try {
+        const result = await StorageManager.fetchLiveTableFromAPI();
+        renderFasitList();
+        renderLeaderboard();
+        renderPlayoffBracket();
+        alert('Oppdatert tabell: ' + (result && result.source ? result.source : 'OK'));
+      } catch (err) {
+        alert('Kunne ikke hente tabell: ' + err.message);
+      }
     });
   }
 
@@ -1171,7 +1645,10 @@
       const a = document.createElement('a');
       a.href = url;
       a.download = `ranheim-tabelltips-backup-${Date.now()}.json`;
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     });
   }
 
@@ -1184,7 +1661,7 @@
         try {
           StorageManager.importData(event.target.result);
           alert('Data importert!');
-          initApp();
+          initApp(true);
         } catch (err) {
           alert('Kunne ikke importere filen: ' + err.message);
         }
@@ -1197,7 +1674,19 @@
     dom.resetDemoBtn.addEventListener('click', () => {
       if (confirm('Nullstille alle tips til testdata?')) {
         StorageManager.resetToDemo();
-        initApp();
+        initApp(true);
+      }
+    });
+  }
+
+  if (dom.syncCloudBtn) {
+    dom.syncCloudBtn.addEventListener('click', async () => {
+      const ok = await StorageManager.syncFromCloud();
+      if (ok) {
+        initApp(true);
+        alert('Synkronisert fra sky!');
+      } else {
+        alert('Ingen sky konfigurert eller synk feilet. Sjekk config.js (SUPABASE_URL / GOOGLE_SCRIPT_URL).');
       }
     });
   }
@@ -1413,6 +1902,63 @@
     if (dom.tabBtnGroupStats) dom.tabBtnGroupStats.addEventListener('click', () => switchTab('groupStats'));
     if (dom.tabBtnStats) dom.tabBtnStats.addEventListener('click', () => switchTab('stats'));
     if (dom.tabBtnSettings) dom.tabBtnSettings.addEventListener('click', () => switchTab('settings'));
+
+    if (dom.adminLoginTrigger) {
+      dom.adminLoginTrigger.addEventListener('click', () => {
+        const pin = prompt('Skriv inn Admin-PIN for å åpne kontrollpanelet:');
+        if (pin === null) return;
+        const expectedPin = (window.CONFIG && window.CONFIG.ADMIN_PIN) || '1901';
+        if (pin.trim() === expectedPin.trim()) {
+          StorageManager.setAdmin(true);
+          updateAdminVisibility();
+          switchTab('settings');
+          alert('Admin-panel låst opp!');
+        } else {
+          alert('Feil Admin-PIN!');
+        }
+      });
+    }
+
+    if (dom.adminLogoutBtn) {
+      dom.adminLogoutBtn.addEventListener('click', () => {
+        if (confirm('Vil du låse admin-panelet og skjule det fra menyen?')) {
+          StorageManager.setAdmin(false);
+          updateAdminVisibility();
+          switchTab('predict');
+        }
+      });
+    }
+
+    if (dom.randomizeBtn) {
+      dom.randomizeBtn.addEventListener('click', randomizePredictionTable);
+    }
+
+    const triggerExcelExport = () => {
+      if (window.ExportManager) {
+        ExportManager.exportToExcel();
+      } else {
+        alert('Excel-modul ikke klar.');
+      }
+    };
+
+    if (dom.adminExportExcelBtn) dom.adminExportExcelBtn.addEventListener('click', triggerExcelExport);
+
+    if (dom.copyTextBtn) {
+      dom.copyTextBtn.addEventListener('click', () => {
+        if (window.ExportManager) ExportManager.copyTableSummary();
+      });
+    }
+
+    if (dom.adminLockOverrideSelect) {
+      dom.adminLockOverrideSelect.addEventListener('change', (e) => {
+        const val = e.target.value;
+        StorageManager.setSeasonLockOverride(val);
+        updateSeasonLockUI();
+        renderPredictionList();
+        initSortablePrediction();
+        alert('Sesongstatus oppdatert: ' + (val === 'locked' ? 'LÅST (Hardlock aktivert - ingen kan endre tips)' : (val === 'open' ? 'ÅPEN (Tipping er åpen)' : 'AUTO (Følger seriestart 5. apr kl 15:00)')));
+      });
+    }
   }
 
   document.addEventListener('DOMContentLoaded', checkAccess);

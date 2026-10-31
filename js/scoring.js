@@ -15,37 +15,41 @@ const SYSTEM_METADATA = {
     id: SCORING_SYSTEMS.KLASSISK,
     name: '⛳ Klassisk Avvik',
     shortName: 'Klassisk',
-    description: 'Summen av plasser man bommer med. Lavest sum er best!',
-    unit: 'p bom',
+    description: 'Den ekte fasiten i fjæra! Summen av alle plasser du bommer med. 0 er perfekt. Lavest tall vinner!',
+    unit: 'avvik',
     lowerIsBetter: true,
-    badge: 'Lavest vinner'
+    badge: 'Lavest vinner (Fasit)',
+    icon: '⛳'
   },
   [SCORING_SYSTEMS.INNERTIER]: {
     id: SCORING_SYSTEMS.INNERTIER,
-    name: '🎯 Poeng + Innertier',
-    shortName: 'Innertier',
-    description: 'Start med 256p, trekk fra avvik, og få +5p per eksakt treff!',
+    name: '🐻 Isbjørn-Blink (Fulltreffere)',
+    shortName: 'Isbjørn-Blink',
+    description: 'Start med 256p, trekk fra avvik, og få +5p Isbjørn-bonus per eksakt fulltreffer i blinken!',
     unit: 'poeng',
     lowerIsBetter: false,
-    badge: 'Høyest vinner'
+    badge: 'Isbjørn-jakt 🎯',
+    icon: '🐻'
   },
   [SCORING_SYSTEMS.SONE]: {
     id: SCORING_SYSTEMS.SONE,
-    name: '🔥 Sone-jegeren',
-    shortName: 'Sone-jegeren',
-    description: 'Poeng + Innertier + ekstra bonus for riktig lag i opprykk/kvalik/nedrykk!',
+    name: '🌊 Fjæra-Sonen (Opprykk & Nedrykk)',
+    shortName: 'Fjæra-Sonen',
+    description: 'Treff riktig sone! Ekstra bonus for å prikke lag i Topp 2 (Direkte opprykk), Topp 6 (Kvalik) eller bunnstriden.',
     unit: 'poeng',
     lowerIsBetter: false,
-    badge: 'Bonus-jakt'
+    badge: 'Sone-bonus i Fjæra 🌊',
+    icon: '🌊'
   },
   [SCORING_SYSTEMS.RANHEIM_JOKER]: {
     id: SCORING_SYSTEMS.RANHEIM_JOKER,
-    name: '💙 Ranheim-Jokeren',
-    shortName: 'Ranheim-Joker',
-    description: 'Avvik og bonuser på Ranheim TF teller dobbelt (2x)!',
+    name: '💙 Forza Ranheim 2x',
+    shortName: 'Forza Ranheim',
+    description: 'Forza Ranheim! Alt som angår de blå heltene fra fjæra teller dobbelt (2x). Bommer du på Ranheim svir det ekstra!',
     unit: 'poeng',
     lowerIsBetter: false,
-    badge: '2x Ranheim'
+    badge: 'Forza Ranheim 2x 💙',
+    icon: '💙'
   }
 };
 

@@ -15,7 +15,7 @@ En moderne, interaktiv klient-side webapplikasjon bygget for vennegjengen og kol
   - **4.** Stabæk (55p)
   - **5.** Odd (45p)
   - **6.** Bryne (40p)
-  - **7. 💙 Ranheim TF (38p) — KUN 2 POENG BAK KVALIK!**
+  - **7. 💙 Ranheim (38p) — KUN 2 POENG BAK KVALIK!**
   - **8.** Hødd (38p)
   - **9.** Strømmen IF (36p)
   - **10.** Egersunds IK (35p)
@@ -43,7 +43,7 @@ En moderne, interaktiv klient-side webapplikasjon bygget for vennegjengen og kol
   - Hver deltaker har sitt eget holografiske samlekort med **OVR (Overall Rating, 45–99)**.
   - **4 Power Stats:**
     - **ACC (Treffsikkerhet):** Eksakte fulltreffere og presisjon.
-    - **PAT (Ranheim-Patriot):** Hvor høyt deltakeren har tippet Ranheim TF.
+    - **PAT (Ranheim-Patriot):** Hvor høyt deltakeren har tippet Ranheim.
     - **STA (Stabilitet):** Evnen til å unngå store skivebommer.
     - **TAK (Taktisk Sans):** Treff i opprykks-, kvalik- og nedrykkssoner.
   - Viser "🔥 I FORM" for deltakere på seiersrekke.
@@ -81,19 +81,67 @@ En moderne, interaktiv klient-side webapplikasjon bygget for vennegjengen og kol
   1. **Klassisk Avvik:** $\sum |\text{tippet} - \text{fasit}|$. Lavest sum vinner!
   2. **Poeng + Fulltreffer:** 256p base, minus avvik, $+5$ bonus per eksakt treff. Høyest vinner!
   3. **Sone-bonus:** Ekstra bonus for direkte opprykk ($+10$), kvalik ($+5$) og nedrykk ($+10$).
-  4. **Ranheim-Jokeren:** Avvik og bonuser på **Ranheim TF** teller dobbelt (2x)!
+  4. **Forza Ranheim 2x:** Avvik og bonuser på **Ranheim** teller dobbelt (2x)!
 
 ---
 
-### 6. 🔒 Sikker Adgang for ranheimkraft.no
-- **Gruppekode:** Standard `ranheim1901`.
+### 6. 🔒 Sikker Adgang, Sesonglås & Duplikatbeskyttelse
+- **Gruppekode:** Standard `ranheim2026` (eller tilpasset i `config.js`).
 - **1-klikk magisk lenke for gjengen:**
-  `https://ranheimkraft.no/tipping/?kode=ranheim1901`
-  *(eller lokalt: `http://localhost:8000/?kode=ranheim1901`)*
+  `https://ranheimkraft.no/tipping/?kode=ranheim2026`
+  *(eller lokalt: `http://localhost:8000/?kode=ranheim2026`)*
   Huskes automatisk på telefonen via `localStorage`!
-- **Admin-PIN for fasit:** `1901`.
+- **🔒 Hardlock ved Sesongstart:** 
+  Total skrivelås som aktiveres på datoen for seriestart (eller manuelt av admin). Ingen deltakere kan endre tips etter fristen – kun administrator kan oppdatere offisielle fasit-tabeller.
+- **🛡️ Streng Duplikatbeskyttelse (1 tips per deltaker):**
+  - Kallenavn er unike (case-insensitive) for å unngå forveksling eller kapring av navn.
+  - Hver e-postadresse er knyttet til nøyaktig ett offisielt tabelltips.
+  - Ved gjeninnlogging gjenkjennes eksisterende deltakere automatisk ("Velkommen tilbake!").
+- **Admin-PIN for fasit og sletting:** `1901`.
 
 ---
+
+### 7. 📊 Eksklusiv Admin Excel-rapport (`xlsx-js-style`)
+- **Kun tilgjengelig for Admin (PIN `1901`):**
+  Ligger under Admin-panelet i Fane 5 for å gi arrangementsansvarlig full kontroll over premieutdeling og tallknusing.
+- **5 profesjonelt formaterte ark i samme `.xlsx`-arbeidsbok:**
+  1. 📋 **Resultattavle & Poeng:** Komplett ranking over alle 4 poengsystemer, avvik, antall blinktreff, største fulltreffer og verste skivebom. Formatert med gull, sølv og bronse-pallfarger.
+  2. 🧩 **Alle Tabelltips (Matrise):** Hver deltaker i egen kolonne over alle 16 OBOS-plasseringer med grønn utheving på blink-treff.
+  3. 💙 **Ranheim i Fjæra:** Patriotisme-indeks, hvor mange som spår Ranheim til opprykk, kvalik eller nedrykk, og hvem som har størst tro på klubben.
+  4. 📈 **Klubb-statistikk & Snitt:** Gjennomsnittlig tippet tabellplassering, konsensus og spredning for samtlige 16 klubber.
+  5. ⚔️ **Head-to-Head Matrise:** Innbyrdes duelloversikt som viser hvem som slår hvem blant alle deltakerne.
+
+---
+
+### 8. 🎲 Tips-matrise & Terning-knapp (Shuffle)
+- **🎲 Terning-knapp i Fane 1:** Hurtigknapp som stokker om tabellen for rask inspirasjon når man skal sette opp tipset sitt.
+- **🧩 Sammenlign & Tips-matrise i Fane 3:** Gjør det enkelt for alle deltakere å se samtlige tips side om side direkte i appen uten å laste ned eksterne filer.
+
+---
+
+## ☁️ Sky-synkronisering & Brukerlogging (Supabase)
+
+Supabase gir deg en felles database i skyen med et visuelt dashbord (som et Excel-ark i nettleseren) der du ser alle som har logget inn og levert tips:
+
+1. **Opprett prosjekt:** Gå til [supabase.com](https://supabase.com), logg inn gratis med GitHub eller e-post, og trykk **"New project"**.
+2. **Kjør databaseskriptet:**
+   - I menyen til venstre, trykk på **SQL Editor** (ikonet med `>_`).
+   - Trykk på **New query** (eller `+`).
+   - Åpne filen [`supabase-schema.sql`](supabase-schema.sql), kopier alt innholdet, lim inn og trykk den grønne **Run**-knappen.
+   - Skriptet oppretter tabellene `tips`, `fasit`, `users` og `user_logs`.
+3. **Koble appen til Supabase:**
+   - I Supabase, gå til **Project Settings** (tannhjulet nederst til venstre) -> **API**.
+   - Kopier **Project URL** og **anon public key**.
+   - Lim dem inn i [`js/config.js`](js/config.js):
+     ```js
+     SUPABASE_URL: 'https://xxxx.supabase.co',
+     SUPABASE_ANON_KEY: 'eyJhbGciOi...'
+     ```
+4. **Se alle deltakere og logger visuelt:**
+   - I Supabase-menyen til venstre, trykk på **Table Editor** (tabell-ikonet).
+   - Klikk på **`users`** for å se alle registrerte deltakere med kallenavn, e-post og sist aktiv.
+   - Klikk på **`user_logs`** for å se aktivitetsloggen over hvem som logget inn eller lagret tips.
+   - Klikk på **`tips`** for å se alle innsendte tabelltips.
 
 ## 🚀 Kjøring lokalt
 Åpne `index.html` direkte i nettleseren eller kjør:

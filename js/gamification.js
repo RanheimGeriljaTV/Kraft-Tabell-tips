@@ -23,7 +23,7 @@ const ACHIEVEMENTS = [
   {
     id: 'patriot_heart',
     title: '💙 Ranheim-Hjertet',
-    description: 'Tipp Ranheim TF innen topp 6 (opprykk eller kvalik)',
+    description: 'Tipp Ranheim innen topp 6 (opprykk eller kvalik)',
     xpReward: 80,
     check: (evalData) => evalData.ranheimPredictedPos <= 6,
     progress: (evalData) => evalData.ranheimPredictedPos <= 6 ? 'Fullført!' : `Tippet ${evalData.ranheimPredictedPos}.`
@@ -247,7 +247,7 @@ const GamificationEngine = {
 
           <!-- Spillerklubb / Ranheim Merke -->
           <div class="text-right flex flex-col items-end">
-            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/6563.png" alt="Ranheim TF" class="w-12 h-12 object-contain drop-shadow-md">
+            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/6563.png" alt="Ranheim" class="w-12 h-12 object-contain drop-shadow-md">
             <span class="text-[9px] font-black tracking-wider uppercase text-cyan-300 mt-1">RANHEIM KRAFT</span>
             ${isHotStreak ? '<span class="text-[10px] font-black text-rose-400 flex items-center gap-1 mt-1 bg-rose-950/80 px-2 py-0.5 rounded-full border border-rose-600/50">🔥 I FORM</span>' : ''}
           </div>

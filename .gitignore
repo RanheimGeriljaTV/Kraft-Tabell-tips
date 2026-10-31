@@ -1,15 +1,61 @@
-# OS files
+# =========================================================================
+# Sikkerhet, Hemmeligheter & API-nøkler (Aldri commit til GitHub!)
+# =========================================================================
+.env
+.env.*
+!.env.example
+*.env
+*.secret
+*secret*
+*credentials*
+*token*
+*.key
+*.pem
+local.properties
+
+# Backup, eksporter og private data
+*.backup.json
+*.private.json
+*.xlsx
+
+# Lokale konfigurasjonsoverstyringer
+config.local.js
+js/config.local.js
+
+# =========================================================================
+# Python & Kjøretidsmiljø (ved hjelpeskript)
+# =========================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+env/
+venv/
+.venv/
+.pytest_cache/
+
+# =========================================================================
+# Node & IDE
+# =========================================================================
+node_modules/
+.vscode/
+.idea/
+
+# =========================================================================
+# Operativsystem- & Editor-filer
+# =========================================================================
 .DS_Store
 Thumbs.db
 desktop.ini
+*.swp
+*.swo
+*~
 
-# Backup and export files
-*.backup.json
-*.private.json
-
-# Local overrides
-config.local.js
-
-# Node/IDE
-.vscode/
-.idea/
+# =========================================================================
+# Midlertidige test- og skriptfiler
+# =========================================================================
+*.log
+*.tmp
+*.bak
+test_*.py
+scratch/
+temp/

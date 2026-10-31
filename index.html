@@ -4,6 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>OBOS Tabell-tipper 2026 | Ranheim Kraft</title>
+  <meta name="description" content="Tipp tabellen for OBOS-ligaen 2026 med vennegjengen på Ranheim. Følg stillingen live med Isbjørn-bonus og Fjæra-kvalik!">
+  <meta name="theme-color" content="#030712">
+
+  <!-- Open Graph / Sosiale medier forhåndsvisning -->
+  <meta property="og:title" content="OBOS Tabell-tipper 2026 | Ranheim Kraft">
+  <meta property="og:description" content="Tipp tabellen for OBOS-ligaen 2026! Levende stilling med Isbjørn-blink og Fjæra-soner.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://images.fotmob.com/image_resources/logo/teamlogo/6563.png">
+
+  <!-- Favicon / Hjem-skjerm ikon for mobil -->
+  <link rel="icon" type="image/png" href="https://images.fotmob.com/image_resources/logo/teamlogo/6563.png">
+  <link rel="apple-touch-icon" href="https://images.fotmob.com/image_resources/logo/teamlogo/6563.png">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -31,6 +43,8 @@
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
   <!-- html2canvas -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <!-- xlsx-js-style (Styling og farger i Excel .xlsx eksport) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 
   <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -52,20 +66,46 @@
       </div>
 
       <form id="lockForm" class="space-y-3">
-        <input 
-          type="password" 
-          id="accessCodeInput" 
-          placeholder="Skriv inn kode..." 
-          class="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-center text-base tracking-widest text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all font-mono"
-          autofocus
-          required
-        >
+        <div class="text-left space-y-1">
+          <label for="accessCodeInput" class="block text-[11px] font-bold text-slate-300">Gruppe-kode</label>
+          <input 
+            type="password" 
+            id="accessCodeInput" 
+            placeholder="Skriv inn kode (ranheim1901)..." 
+            class="w-full px-3.5 py-2.5 bg-black/50 border border-white/10 rounded-xl text-center text-sm tracking-wider text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all font-mono"
+            required
+          >
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
+          <div class="space-y-1">
+            <label for="userNicknameInput" class="block text-[11px] font-bold text-slate-300">Ditt kallenavn</label>
+            <input 
+              type="text" 
+              id="userNicknameInput" 
+              placeholder="f.eks. Ola" 
+              maxlength="25"
+              class="w-full px-3 py-2 bg-black/50 border border-white/10 rounded-xl text-xs font-bold text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+              required
+            >
+          </div>
+          <div class="space-y-1">
+            <label for="userEmailInput" class="block text-[11px] font-bold text-slate-300">E-postadresse</label>
+            <input 
+              type="email" 
+              id="userEmailInput" 
+              placeholder="ola@example.com" 
+              class="w-full px-3 py-2 bg-black/50 border border-white/10 rounded-xl text-xs font-bold text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+              required
+            >
+          </div>
+        </div>
 
         <button 
           type="submit" 
-          class="w-full py-3 px-4 bg-sky-600 hover:bg-sky-500 text-white font-black text-sm rounded-xl shadow-lg transition-all active:scale-95"
+          class="w-full py-3 px-4 bg-sky-600 hover:bg-sky-500 text-white font-black text-sm rounded-xl shadow-lg transition-all active:scale-95 mt-1"
         >
-          Lås opp tippeligaen
+          Lås opp & logg inn
         </button>
       </form>
 
@@ -83,7 +123,7 @@
       <div class="max-w-2xl mx-auto px-4 py-2.5 flex items-center justify-between">
         
         <div class="flex items-center gap-2.5">
-          <img src="https://images.fotmob.com/image_resources/logo/teamlogo/6563.png" alt="Ranheim TF" class="w-7 h-7 object-contain">
+          <img src="https://images.fotmob.com/image_resources/logo/teamlogo/6563.png" alt="Ranheim" class="w-7 h-7 object-contain">
           <div>
             <div class="flex items-center gap-1.5 leading-none">
               <span class="text-sm font-black tracking-tight text-white">OBOS-tipper</span>
@@ -107,8 +147,8 @@
 
       </div>
 
-      <!-- 5 SEGMENTED NAVIGATION TABS -->
-      <nav class="max-w-2xl mx-auto px-2 pb-2 grid grid-cols-5 gap-1">
+      <!-- 4/5 SEGMENTED NAVIGATION TABS (ADMIN KUN SYNLIG NÅR AUTENTISERT) -->
+      <nav id="mainNav" class="max-w-2xl mx-auto px-2 pb-2 grid grid-cols-4 gap-1">
         <button id="tabBtnPredict" class="py-2 px-1 text-xs font-black rounded-xl bg-sky-500 text-slate-950 flex items-center justify-center gap-1 transition-all shadow-sm">
           <i data-lucide="list-ordered" class="w-3.5 h-3.5 flex-shrink-0"></i>
           <span class="truncate">1. Tips</span>
@@ -129,8 +169,8 @@
           <span class="truncate">4. Playoff</span>
         </button>
 
-        <button id="tabBtnSettings" class="py-2 px-1 text-xs font-bold rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/5 flex items-center justify-center gap-1 transition-all">
-          <i data-lucide="settings" class="w-3.5 h-3.5 flex-shrink-0"></i>
+        <button id="tabBtnSettings" class="hidden py-2 px-1 text-xs font-bold rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/5 flex items-center justify-center gap-1 transition-all">
+          <i data-lucide="shield" class="w-3.5 h-3.5 flex-shrink-0"></i>
           <span class="truncate">Admin</span>
         </button>
       </nav>
@@ -145,6 +185,28 @@
         <!-- TOPP KONTROLL-KORT (INNSENDING) -->
         <div class="sports-card p-3 sm:p-4 space-y-3 border border-white/10">
           
+          <!-- SESONG LÅST BANNER (HARDLOCK) -->
+          <div id="seasonLockedBanner" class="hidden p-3 rounded-xl bg-amber-950/40 border border-amber-500/50 text-amber-200 text-xs flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-amber-900/60 border border-amber-600/50 flex items-center justify-center font-black text-amber-400 flex-shrink-0 text-sm">
+              🔒
+            </div>
+            <div class="min-w-0">
+              <div class="font-extrabold text-white text-xs">Tippingen er stengt for sesongen!</div>
+              <div class="text-[11px] text-amber-300/80 mt-0.5">Ligaen er i gang. Alle tabelltips er låst og kan ikke lenger endres. Forza Ranheim! 💙</div>
+            </div>
+          </div>
+
+          <!-- BRUKERSTATUS / INNLOGGET -->
+          <div class="flex items-center justify-between text-xs pb-2 border-b border-white/5 text-slate-400">
+            <div class="flex items-center gap-1.5 truncate">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 live-dot flex-shrink-0"></span>
+              <span class="truncate">Innlogget: <strong class="text-white" id="userBadgeNickname">Deltaker</strong> <span id="userBadgeEmail" class="text-slate-400 text-[11px]"></span></span>
+            </div>
+            <button type="button" id="switchUserBtn" title="Bytt deltaker eller e-post" class="text-sky-400 hover:text-sky-300 font-bold text-[11px] hover:underline flex-shrink-0 ml-2">
+              Bytt profil
+            </button>
+          </div>
+
           <div class="flex gap-2">
             <input 
               type="text" 
@@ -163,20 +225,30 @@
           </div>
 
           <div class="flex items-center justify-between pt-2 border-t border-white/5 text-xs">
-            <div class="flex items-center gap-1.5">
-              <label for="existingTipSelect" class="text-slate-400 font-bold text-[11px]">Mine tips:</label>
-              <select id="existingTipSelect" class="bg-black/40 border border-white/10 text-xs font-semibold rounded-lg px-2 py-1 text-slate-300 focus:outline-none">
-                <option value="">➕ Nytt tips</option>
-              </select>
+            <div id="userTipStatusBadge" class="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 truncate max-w-[55%]">
+              <span id="userTipStatusDot" class="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0"></span>
+              <span id="userTipStatusText" class="truncate">Ikke levert ennå</span>
             </div>
 
-            <button 
-              id="openShareModalBtn" 
-              class="px-2.5 py-1 text-cyan-300 hover:text-white font-bold text-xs flex items-center gap-1 transition-colors"
-            >
-              <i data-lucide="camera" class="w-3.5 h-3.5"></i>
-              <span>Del bilde</span>
-            </button>
+            <div class="flex items-center gap-1.5">
+              <button 
+                id="randomizeBtn" 
+                type="button"
+                title="Rist / stokk om tilfeldig rekkefølge på tabellen"
+                class="px-2 py-1 text-amber-300 hover:text-amber-200 font-bold text-xs flex items-center gap-1 transition-all bg-amber-950/40 border border-amber-800/50 rounded-lg active:scale-95 hover:bg-amber-900/50"
+              >
+                <i data-lucide="shuffle" class="w-3.5 h-3.5"></i>
+                <span>Random</span>
+              </button>
+
+              <button 
+                id="openShareModalBtn" 
+                class="px-2.5 py-1 text-cyan-300 hover:text-white font-bold text-xs flex items-center gap-1 transition-colors"
+              >
+                <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                <span>Del bilde</span>
+              </button>
+            </div>
           </div>
 
         </div>
@@ -199,12 +271,26 @@
       <!-- ==================== FANE 2: FORELØPIG RESULTATTAVLE ==================== -->
       <section id="tabContentLeaderboard" class="hidden space-y-4">
         
-        <!-- POENGSYSTEM-VELGER (KOMPAKTE PILLS) -->
+        <!-- POENGSYSTEM-VELGER (KOMPAKTE PILLS MED RANHEIM-TERMINOLOGI) -->
         <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
           <button data-system="klassisk" class="pill-tab active">⛳ Klassisk Avvik</button>
-          <button data-system="innertier" class="pill-tab">🎯 Mest Fulltreffere</button>
-          <button data-system="sone" class="pill-tab">💎 Sone-bonus</button>
-          <button data-system="ranheim_joker" class="pill-tab">💙 Ranheim 2x</button>
+          <button data-system="innertier" class="pill-tab">🐻 Isbjørn-Blink</button>
+          <button data-system="sone" class="pill-tab">🌊 Fjæra-Sonen</button>
+          <button data-system="ranheim_joker" class="pill-tab">💙 Forza Ranheim 2x</button>
+        </div>
+
+        <!-- FORKLARENDE INFOBOKS FOR AKTIVT SYSTEM -->
+        <div id="systemExplainerBox" class="p-2.5 rounded-xl bg-sky-950/30 border border-sky-500/20 text-xs flex items-center justify-between gap-2 transition-all">
+          <div class="flex items-center gap-2 min-w-0">
+            <span id="systemExplainerIcon" class="text-base flex-shrink-0">⛳</span>
+            <div class="min-w-0">
+              <div id="systemExplainerTitle" class="font-bold text-white text-[11px] truncate">Klassisk Avvik</div>
+              <div id="systemExplainerDesc" class="text-[10px] text-slate-400 truncate">Den ekte fasiten i fjæra! Summen av alle plasser du bommer med. 0 er perfekt. Lavest tall vinner!</div>
+            </div>
+          </div>
+          <span id="systemExplainerBadge" class="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-sky-900/60 text-sky-300 border border-sky-700/60 flex-shrink-0">
+            Lavest vinner
+          </span>
         </div>
 
         <!-- 3D FORELØPIG PODIUM (TOPP 3) -->
@@ -235,7 +321,18 @@
             <h3 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
               <span>⚡ Gruppe-superlativer</span>
             </h3>
-            <span id="groupStatsCountLabel" class="text-[11px] text-sky-400 font-bold">4 deltakere</span>
+            <div class="flex items-center gap-2">
+              <span id="groupStatsCountLabel" class="text-[11px] text-sky-400 font-bold">4 deltakere</span>
+              <button 
+                id="copyTextBtn" 
+                type="button"
+                title="Kopier stilling som tekst til Messenger / chat"
+                class="px-2 py-1 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white font-bold text-[10px] rounded-lg border border-white/10 transition-colors flex items-center gap-1"
+              >
+                <i data-lucide="copy" class="w-3 h-3"></i>
+                <span>Kopier stilling</span>
+              </button>
+            </div>
           </div>
 
           <div id="groupRecordsContainer" class="grid grid-cols-2 gap-2 text-xs">
@@ -285,6 +382,23 @@
 
           <div id="consensusListContainer" class="space-y-1 text-xs">
             <!-- Dynamisk fylles med 16 lag med snittplassering og avvik -->
+          </div>
+        </div>
+
+        <!-- OVERSIKTSTABELL FOR ALLE DELTAKERE (MATRISE) -->
+        <div class="sports-card p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-[10px] font-black uppercase text-sky-400">Side-ved-side</div>
+              <h3 class="text-sm font-black text-white">📋 Tabellmatrise (Alle tips)</h3>
+            </div>
+            <span class="text-[10px] text-slate-400 bg-white/5 px-2 py-1 rounded-lg">Scroll horisontalt 👉</span>
+          </div>
+
+          <div class="overflow-x-auto no-scrollbar border border-white/5 rounded-xl bg-black/30">
+            <div id="allTipsMatrixContainer" class="min-w-full text-xs">
+              <!-- Dynamisk fylles av app.js -->
+            </div>
           </div>
         </div>
 
@@ -372,9 +486,65 @@
 
       </section>
 
-      <!-- ==================== FANE 4: FASIT & ADMIN ==================== -->
+      <!-- ==================== FANE 5: FASIT & ADMIN ==================== -->
       <section id="tabContentSettings" class="hidden space-y-4">
         
+        <!-- ADMIN STATUS BANNER -->
+        <div class="sports-card p-3 border border-amber-500/30 bg-amber-950/20 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-black text-amber-300 flex items-center gap-1.5">
+              <i data-lucide="shield-check" class="w-4 h-4 text-amber-400"></i>
+              <span>Admin-panel</span>
+            </span>
+            <span class="text-[10px] text-amber-300/80 bg-amber-950 px-2 py-0.5 rounded border border-amber-800 font-bold">Kun for deg</span>
+          </div>
+          <button id="adminLogoutBtn" class="px-2.5 py-1 text-[11px] font-bold text-rose-300 hover:text-white bg-rose-950/60 hover:bg-rose-900 border border-rose-800/80 rounded-xl transition-all">
+            Lås admin
+          </button>
+        </div>
+
+        <!-- SESONG-STATUS & HARDLOCK -->
+        <div class="sports-card p-4 space-y-3 border border-sky-500/20">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-sm font-black text-white flex items-center gap-1.5">
+                <span>⏱️ Seriestart & Tipping-sperre</span>
+              </h2>
+              <p class="text-xs text-slate-400">Hardlock sperrer for all endring av tips når sesongen er i gang</p>
+            </div>
+            <span id="adminLockStatusBadge" class="text-[10px] font-black px-2 py-0.5 rounded-lg border bg-emerald-950/60 border-emerald-800 text-emerald-300">
+              🟢 Åpen
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <select id="adminLockOverrideSelect" class="w-full px-3 py-2 bg-black/50 border border-white/10 rounded-xl text-xs font-bold text-white focus:outline-none focus:ring-1 focus:ring-sky-500">
+              <option value="open">🟢 Åpen for tipping (før seriestart)</option>
+              <option value="locked">🔒 Låst (Sesongen i gang – ingen kan endre tips)</option>
+              <option value="auto">⏱️ Auto (Stenger automatisk ved seriestart 5. april)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- BRUKERADMINISTRASJON & SLETTING -->
+        <div class="sports-card p-4 space-y-3 border border-rose-500/20">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-sm font-black text-white flex items-center gap-1.5">
+                <span>👥 Deltakere & Brukere</span>
+              </h2>
+              <p class="text-xs text-slate-400">Her kan du slette deltakere og tips fra ligaen</p>
+            </div>
+            <span id="adminUserCountBadge" class="text-[11px] font-black text-sky-400 bg-sky-950/60 px-2 py-0.5 rounded-lg border border-sky-800">
+              0 deltakere
+            </span>
+          </div>
+
+          <div id="adminUserListContainer" class="space-y-1.5 pt-1 text-xs">
+            <!-- Dynamisk fylles med brukere og slett-knapp -->
+          </div>
+        </div>
+
         <div class="sports-card p-4 space-y-3">
           <div class="flex items-center justify-between">
             <div>
@@ -396,6 +566,40 @@
           </div>
         </div>
 
+        <!-- ADMIN EXCEL RAPPORT -->
+        <div class="sports-card p-4 space-y-3 bg-gradient-to-r from-emerald-950/50 via-slate-900 to-sky-950/50 border border-emerald-500/40 shadow-xl">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+              <div class="w-10 h-10 rounded-xl bg-emerald-900/80 border border-emerald-600/60 flex items-center justify-center font-black text-emerald-400 text-lg shadow-lg flex-shrink-0">
+                📊
+              </div>
+              <div>
+                <div class="text-[10px] font-black uppercase text-emerald-400 tracking-wider">Kun tilgjengelig for Admin</div>
+                <h3 class="text-sm font-black text-white">Offisiell Excel-rapport (.xlsx)</h3>
+                <p class="text-[11px] text-slate-400">Komplett arbeidsbok med farger, soner og dyp statistikk</p>
+              </div>
+            </div>
+            <button 
+              id="adminExportExcelBtn" 
+              type="button"
+              class="w-full sm:w-auto px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/60 transition-all active:scale-95 whitespace-nowrap"
+            >
+              <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+              <span>Last ned Excel-ark</span>
+            </button>
+          </div>
+          <div class="pt-2 border-t border-white/5 text-[11px] text-slate-300 space-y-1">
+            <p class="font-semibold text-emerald-300">Inneholder 5 designede regneark med Ranheim-tema og farger:</p>
+            <ul class="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[10px] text-slate-400 pt-1">
+              <li>👑 <strong>1. Resultattavle & Poeng:</strong> Alle 4 systemer, avvik, blinker og KPI-er</li>
+              <li>📋 <strong>2. Tabellmatrise:</strong> Alle deltakers tips side-ved-side med grønne blink</li>
+              <li>💙 <strong>3. Ranheim i Fjæra:</strong> Patriot-grad, optimisme og spenn for Ranheim</li>
+              <li>📊 <strong>4. Klubb-statistikk:</strong> Konsensus, uenighet og seriemester-stemmer</li>
+              <li>⚔️ <strong>5. Head-to-Head:</strong> Komplett innbyrdes duell-matrise</li>
+            </ul>
+          </div>
+        </div>
+
         <div class="sports-card p-4 space-y-3">
           <h3 class="text-xs font-black uppercase tracking-wider text-slate-300">Sikkerhetskopi & Data</h3>
           
@@ -411,7 +615,12 @@
               <input type="file" id="importJsonInput" accept=".json" class="hidden">
             </label>
 
-            <button id="resetDemoBtn" class="px-3 py-2 bg-rose-950/40 text-rose-300 font-bold rounded-xl border border-rose-800/60 ml-auto">
+            <button id="syncCloudBtn" class="px-3 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl border border-sky-500/60 flex items-center gap-1">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+              <span>Synk fra sky</span>
+            </button>
+
+            <button id="resetDemoBtn" class="px-3 py-2 bg-rose-950/40 text-rose-300 font-bold rounded-xl border border-rose-800/60">
               Nullstill
             </button>
           </div>
@@ -426,8 +635,11 @@
     </main>
 
     <!-- FOOTER -->
-    <footer class="border-t border-white/[0.06] py-3 text-center text-[11px] text-slate-500">
-      OBOS Tabell-tipper 2026 • Ranheim Kraft
+    <footer class="border-t border-white/[0.06] py-3 text-center text-[11px] text-slate-500 flex items-center justify-center gap-2">
+      <span>OBOS Tabell-tipper 2026 • Ranheim Kraft</span>
+      <button id="adminLoginTrigger" class="text-slate-600 hover:text-slate-400 p-1 transition-colors" title="Admin-innlogging">
+        <i data-lucide="lock" class="w-3 h-3"></i>
+      </button>
     </footer>
   </div>
 
@@ -576,6 +788,7 @@
   <script src="js/playoff.js"></script>
   <script src="js/gamification.js"></script>
   <script src="js/storage.js"></script>
+  <script src="js/export.js"></script>
   <script src="js/app.js"></script>
   <script>
     if (window.lucide) {

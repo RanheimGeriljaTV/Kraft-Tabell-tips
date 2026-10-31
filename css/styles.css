@@ -1,21 +1,27 @@
 /* ========================================================
    OBOS-ligaen Tabell-tipper & Live Resultattavle
-   Bespoke Mobile-First Sports App Design
+   Cleaner, calmer dashboard styling
    ======================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
 
 :root {
-  --app-bg: #090c14;
-  --surface-card: #121826;
-  --surface-hover: #192236;
-  --surface-border: rgba(255, 255, 255, 0.08);
+  --app-bg: #07111d;
+  --page-bg: #0b1727;
+  --panel: rgba(15, 23, 42, 0.9);
+  --panel-alt: rgba(11, 16, 27, 0.9);
+  --panel-soft: rgba(17, 24, 39, 0.82);
+  --surface-border: rgba(148, 163, 184, 0.18);
+  --surface-border-strong: rgba(56, 189, 248, 0.28);
   --ranheim-blue: #003366;
   --ranheim-bright: #0284c7;
   --ranheim-cyan: #38bdf8;
-  --gold: #f59e0b;
-  --emerald: #10b981;
-  --rose: #f43f5e;
+  --gold: #f5b642;
+  --emerald: #34d399;
+  --rose: #f87171;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --shadow-soft: rgba(2, 6, 23, 0.5);
 }
 
 * {
@@ -23,44 +29,164 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  color-scheme: dark;
+}
+
 body {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background-color: var(--app-bg);
-  color: #f1f5f9;
+  background:
+    radial-gradient(circle at top, rgba(56, 189, 248, 0.08), transparent 32%),
+    linear-gradient(180deg, var(--app-bg) 0%, var(--page-bg) 100%);
+  color: var(--text);
   overflow-x: hidden;
   margin: 0;
   padding: 0;
+  line-height: 1.5;
+  letter-spacing: -0.02em;
 }
 
-/* Card & Surface */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+#mainApp {
+  background: transparent;
+}
+
+main {
+  padding: 0.75rem 0.75rem 1.5rem;
+}
+
+main > section {
+  scroll-margin-top: 5rem;
+}
+
+header {
+  background: rgba(7, 15, 25, 0.8);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.22);
+}
+
+header .max-w-2xl {
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+}
+
+nav button {
+  border: 1px solid transparent;
+  background: rgba(15, 23, 42, 0.45);
+  color: var(--muted);
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 0.6rem 0.5rem;
+  transition: all 0.18s ease;
+}
+
+nav button:hover {
+  background: rgba(148, 163, 184, 0.08);
+  color: var(--text);
+}
+
+nav button.bg-sky-500,
+nav button[class*="bg-sky-500"] {
+  background: linear-gradient(135deg, var(--ranheim-cyan) 0%, #7dd3fc 100%);
+  color: #031926 !important;
+  border-color: rgba(125, 211, 252, 0.3);
+  box-shadow: 0 10px 20px rgba(56, 189, 248, 0.18);
+}
+
+nav button.text-slate-400,
+nav button[class*="text-slate-400"] {
+  color: var(--muted) !important;
+}
+
+#lockScreen {
+  background: rgba(5, 10, 18, 0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+#lockScreen .sports-card {
+  background: rgba(15, 23, 42, 0.94);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 1.5rem;
+  box-shadow: 0 32px 60px rgba(2, 6, 23, 0.45);
+}
+
 .sports-card {
-  background: var(--surface-card);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(15, 23, 42, 0.88) 100%);
   border: 1px solid var(--surface-border);
-  border-radius: 1.25rem;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 1rem;
+  transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.15);
+}
+
+.sports-card:hover {
+  border-color: rgba(56, 189, 248, 0.18);
 }
 
 .sports-card:active {
-  transform: scale(0.99);
+  transform: scale(0.995);
 }
 
-/* Ranheim TF Spesial Markering */
+input,
+select,
+textarea {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid var(--surface-border);
+  color: var(--text);
+  border-radius: 12px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #64748b;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: rgba(56, 189, 248, 0.7);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.14);
+}
+
+button {
+  border: 0;
+  cursor: pointer;
+}
+
+/* Ranheim Spesial Markering */
 .team-row-ranheim {
-  background: linear-gradient(90deg, rgba(0, 51, 102, 0.6) 0%, rgba(2, 132, 199, 0.2) 100%) !important;
-  border-color: rgba(56, 189, 248, 0.5) !important;
+  background: linear-gradient(90deg, rgba(2, 132, 199, 0.18) 0%, rgba(15, 23, 42, 0.96) 100%) !important;
+  border-left: 3px solid rgba(56, 189, 248, 0.8) !important;
 }
 
 /* Drag and drop effects */
 .sortable-ghost {
-  opacity: 0.2;
-  background: rgba(56, 189, 248, 0.15) !important;
-  border: 2px dashed #38bdf8 !important;
+  opacity: 0.28;
+  background: rgba(56, 189, 248, 0.08) !important;
+  border: 2px dashed rgba(56, 189, 248, 0.7) !important;
 }
 
 .sortable-chosen {
   cursor: grabbing !important;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(56, 189, 248, 0.4);
-  transform: scale(1.02);
+  box-shadow: 0 18px 30px rgba(2, 6, 23, 0.45), 0 0 0 1px rgba(56, 189, 248, 0.2);
+  transform: scale(1.01);
   z-index: 50;
 }
 
@@ -68,27 +194,28 @@ body {
 .pill-tab {
   padding: 0.5rem 0.85rem;
   border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  transition: all 0.2s ease;
+  font-size: 0.72rem;
+  font-weight: 800;
+  transition: all 0.18s ease;
   white-space: nowrap;
+  border: 1px solid rgba(148, 163, 184, 0.12);
 }
 
 .pill-tab.active {
-  background: #38bdf8;
-  color: #090c14;
-  box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+  background: linear-gradient(135deg, var(--ranheim-cyan) 0%, #7dd3fc 100%);
+  color: #031926;
+  box-shadow: none;
+  border-color: transparent;
 }
 
 .pill-tab:not(.active) {
-  background: rgba(255, 255, 255, 0.05);
-  color: #94a3b8;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(15, 23, 42, 0.5);
+  color: var(--muted);
 }
 
 .pill-tab:not(.active):hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: rgba(148, 163, 184, 0.08);
+  color: var(--text);
 }
 
 /* Quick Reorder Arrow Buttons for Mobile */
@@ -98,89 +225,93 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.6rem;
-  background: rgba(255, 255, 255, 0.06);
-  color: #94a3b8;
+  border-radius: 0.7rem;
+  background: rgba(15, 23, 42, 0.7);
+  color: var(--muted);
   transition: all 0.15s ease;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.reorder-btn:hover {
+  background: rgba(56, 189, 248, 0.08);
+  color: var(--text);
 }
 
 .reorder-btn:active {
-  background: #38bdf8;
-  color: #090c14;
-  transform: scale(0.9);
+  background: linear-gradient(135deg, var(--ranheim-cyan), #7dd3fc);
+  color: #031926;
+  transform: scale(0.96);
 }
 
 /* Zone Left Edge Stripe */
 .zone-stripe-promotion {
-  border-left: 4px solid #10b981 !important;
+  border-left: 4px solid var(--emerald) !important;
 }
 
 .zone-stripe-playoff {
-  border-left: 4px solid #38bdf8 !important;
+  border-left: 4px solid var(--ranheim-cyan) !important;
 }
 
 .zone-stripe-relegation-playoff {
-  border-left: 4px solid #f59e0b !important;
+  border-left: 4px solid var(--gold) !important;
 }
 
 .zone-stripe-relegation {
-  border-left: 4px solid #f43f5e !important;
+  border-left: 4px solid var(--rose) !important;
 }
 
 .zone-stripe-safe {
   border-left: 4px solid transparent !important;
 }
 
-/* 3D Podium */
+/* Podium */
 .podium-card-gold {
-  background: linear-gradient(180deg, rgba(245, 158, 11, 0.15) 0%, rgba(18, 24, 38, 0.95) 100%);
-  border: 1.5px solid rgba(245, 158, 11, 0.6);
-  box-shadow: 0 10px 25px -10px rgba(245, 158, 11, 0.4);
+  background: linear-gradient(180deg, rgba(245, 182, 66, 0.12) 0%, rgba(15, 23, 42, 0.96) 100%);
+  border: 1px solid rgba(245, 182, 66, 0.4);
+  box-shadow: 0 10px 26px -12px rgba(245, 182, 66, 0.3);
 }
 
 .podium-card-silver {
-  background: linear-gradient(180deg, rgba(148, 163, 184, 0.12) 0%, rgba(18, 24, 38, 0.95) 100%);
-  border: 1.5px solid rgba(148, 163, 184, 0.4);
+  background: linear-gradient(180deg, rgba(148, 163, 184, 0.12) 0%, rgba(15, 23, 42, 0.96) 100%);
+  border: 1px solid rgba(148, 163, 184, 0.3);
 }
 
 .podium-card-bronze {
-  background: linear-gradient(180deg, rgba(217, 119, 6, 0.12) 0%, rgba(18, 24, 38, 0.95) 100%);
-  border: 1.5px solid rgba(217, 119, 6, 0.4);
+  background: linear-gradient(180deg, rgba(217, 119, 6, 0.12) 0%, rgba(15, 23, 42, 0.96) 100%);
+  border: 1px solid rgba(217, 119, 6, 0.3);
 }
 
-/* FUT Spillerkort */
+/* FUT Player cards */
 .fut-card {
   position: relative;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .fut-card-gold {
-  box-shadow: 0 10px 30px -10px rgba(245, 158, 11, 0.4), 0 0 15px rgba(251, 191, 36, 0.2);
+  box-shadow: 0 12px 24px -16px rgba(245, 182, 66, 0.5), 0 0 0 1px rgba(245, 182, 66, 0.16);
 }
 
 .fut-card-legend {
-  box-shadow: 0 10px 35px -10px rgba(168, 85, 247, 0.5), 0 0 20px rgba(192, 132, 252, 0.3);
+  box-shadow: 0 16px 32px -18px rgba(168, 85, 247, 0.5), 0 0 0 1px rgba(168, 85, 247, 0.18);
 }
 
 .fut-card-blue {
-  box-shadow: 0 10px 30px -10px rgba(2, 132, 199, 0.4), 0 0 15px rgba(56, 189, 248, 0.2);
+  box-shadow: 0 12px 24px -16px rgba(56, 189, 248, 0.4), 0 0 0 1px rgba(56, 189, 248, 0.12);
 }
 
 .fut-card-silver {
-  box-shadow: 0 8px 25px -10px rgba(148, 163, 184, 0.3);
+  box-shadow: 0 10px 20px -16px rgba(148, 163, 184, 0.5);
 }
 
-/* Holografisk shimmer over samlekort */
 .fut-shimmer {
   background: linear-gradient(
     115deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.03) 30%,
-    rgba(255, 255, 255, 0.15) 50%,
-    rgba(255, 255, 255, 0.03) 70%,
+    rgba(255, 255, 255, 0.04) 28%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.04) 72%,
     transparent 100%
   );
   background-size: 200% 200%;
@@ -193,22 +324,29 @@ body {
   100% { background-position: -200% -200%; }
 }
 
-/* Custom scrollbars */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #090c14;
+  background: rgba(7, 17, 29, 0.8);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: rgba(100, 116, 139, 0.5);
   border-radius: 9999px;
 }
 
-/* Pulsing live badges */
 @keyframes neon-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
@@ -217,3 +355,4 @@ body {
 .live-dot {
   animation: neon-pulse 1.8s infinite;
 }
+

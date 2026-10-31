@@ -6,7 +6,7 @@
 const TEAMS = [
   {
     id: 'ranheim',
-    name: 'Ranheim TF',
+    name: 'Ranheim',
     shortName: 'RAN',
     city: 'Trondheim',
     primaryColor: '#003366',

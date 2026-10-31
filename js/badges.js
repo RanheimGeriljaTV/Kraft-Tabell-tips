@@ -13,7 +13,7 @@ const BADGE_DEFINITIONS = {
   PATRIOT: {
     id: 'patriot',
     label: '💙 Ranheim-tro',
-    description: 'Har tippet Ranheim TF høyest på tabellen',
+    description: 'Har tippet Ranheim høyest på tabellen',
     colorClass: 'bg-sky-950/70 text-sky-200 border-sky-400/60'
   },
   RISIKO: {

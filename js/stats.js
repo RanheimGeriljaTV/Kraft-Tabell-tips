@@ -40,8 +40,8 @@ const StatsEngine = {
       const count = item.positions.length || 1;
       const avgPos = parseFloat((item.sumPositions / count).toFixed(2));
       const actualPos = fasit.indexOf(item.teamId) + 1;
-      const highestTipped = Math.min(...item.positions);
-      const lowestTipped = Math.max(...item.positions);
+      const highestTipped = item.positions.length ? Math.min(...item.positions) : '-';
+      const lowestTipped = item.positions.length ? Math.max(...item.positions) : '-';
 
       return {
         teamId: item.teamId,
@@ -64,7 +64,7 @@ const StatsEngine = {
   },
 
   /**
-   * Klubb-spesifikk analyse (f.eks. for Ranheim TF)
+   * Klubb-spesifikk analyse (f.eks. for Ranheim)
    */
   getTeamBeliefReport(teamId, predictions) {
     if (!predictions || predictions.length === 0) return null;
