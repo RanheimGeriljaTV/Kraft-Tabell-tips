@@ -46,7 +46,7 @@
   <!-- xlsx-js-style (Styling og farger i Excel .xlsx eksport) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 
-  <link rel="stylesheet" href="css/styles.css?v=3.0.1">
+  <link rel="stylesheet" href="css/styles.css?v=3.0.2">
 </head>
 <body class="min-h-screen flex flex-col bg-[#090c14] text-slate-100 selection:bg-sky-500 selection:text-white">
 
@@ -113,6 +113,13 @@
       <div id="lockError" class="hidden text-rose-400 text-xs font-bold bg-rose-950/50 border border-rose-800/80 rounded-xl p-2.5">
         Feil kode. Sjekk koden du fikk i chatten.
       </div>
+
+      <div class="pt-2 border-t border-white/5">
+        <a href="https://ranheimkraft.no" class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition font-mono">
+          <span>&larr;</span>
+          <span>Tilbake til ranheimkraft.no</span>
+        </a>
+      </div>
     </div>
   </div>
 
@@ -123,24 +130,27 @@
     <header class="sticky top-0 z-30 bg-[#090c14]/90 backdrop-blur-md border-b border-white/[0.08]">
       <div class="max-w-2xl mx-auto px-4 py-2.5 flex items-center justify-between">
         
-        <div class="flex items-center gap-2.5">
+        <a href="https://ranheimkraft.no" class="flex items-center gap-2.5 hover:opacity-80 transition group" title="Tilbake til ranheimkraft.no">
           <img src="https://images.fotmob.com/image_resources/logo/teamlogo/6563.png" alt="Ranheim" class="w-7 h-7 object-contain">
           <div>
             <div class="flex items-center gap-1.5 leading-none">
-              <span class="text-sm font-black tracking-tight text-white">OBOS-tipper</span>
+              <span class="text-sm font-black tracking-tight text-white group-hover:text-sky-400 transition">OBOS-tipper</span>
               <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-800">
                 2026
               </span>
             </div>
-            <span class="text-[10px] text-slate-400 font-medium">Ranheim Kraft</span>
+            <span class="text-[10px] text-slate-400 font-medium">Ranheim Kraft &larr;</span>
           </div>
-        </div>
+        </a>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5">
           <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span>
             <span>28 runder spilt</span>
           </span>
+          <a href="https://ranheimkraft.no" title="Tilbake til ranheimkraft.no" class="p-1.5 text-slate-400 hover:text-white rounded-lg flex items-center justify-center">
+            <i data-lucide="home" class="w-4 h-4"></i>
+          </a>
           <button id="lockAppBtn" title="Lås app" class="p-1.5 text-slate-400 hover:text-white rounded-lg">
             <i data-lucide="log-out" class="w-4 h-4"></i>
           </button>
@@ -781,16 +791,16 @@
   </div>
 
   <!-- Skripts -->
-  <script src="js/config.js?v=3.0.1"></script>
-  <script src="js/data.js?v=3.0.1"></script>
-  <script src="js/scoring.js?v=3.0.1"></script>
-  <script src="js/badges.js?v=3.0.1"></script>
-  <script src="js/stats.js?v=3.0.1"></script>
-  <script src="js/playoff.js?v=3.0.1"></script>
-  <script src="js/gamification.js?v=3.0.1"></script>
-  <script src="js/storage.js?v=3.0.1"></script>
-  <script src="js/export.js?v=3.0.1"></script>
-  <script src="js/app.js?v=3.0.1"></script>
+  <script src="js/config.js?v=3.0.2"></script>
+  <script src="js/data.js?v=3.0.2"></script>
+  <script src="js/scoring.js?v=3.0.2"></script>
+  <script src="js/badges.js?v=3.0.2"></script>
+  <script src="js/stats.js?v=3.0.2"></script>
+  <script src="js/playoff.js?v=3.0.2"></script>
+  <script src="js/gamification.js?v=3.0.2"></script>
+  <script src="js/storage.js?v=3.0.2"></script>
+  <script src="js/export.js?v=3.0.2"></script>
+  <script src="js/app.js?v=3.0.2"></script>
   <script>
     if (window.lucide) {
       lucide.createIcons();
