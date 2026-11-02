@@ -291,6 +291,150 @@ const LIVE_TABLE_DETAILS_2026 = [
   { id: 'raufoss', rank: 16, played: 29, won: 6, draw: 2, lost: 21, goals: '31-78', points: 20 },
 ];
 
+const PLAYOFF_LIVE_DATA_2026 = {
+  "eliteserieTeam14": {
+    "id": 8404,
+    "name": "Aalesund",
+    "rank": 14,
+    "played": 25,
+    "points": 24,
+    "logoUrl": "https://images.fotmob.com/image_resources/logo/teamlogo/8404.png"
+  },
+  "eliteserieMatches": [
+    {
+      "id": "5053448",
+      "homeTeam": {
+        "id": "4722",
+        "name": "Egersund",
+        "score": 3
+      },
+      "awayTeam": {
+        "id": "6563",
+        "name": "Ranheim",
+        "score": 2
+      },
+      "score": "3 - 2",
+      "finished": true,
+      "started": true,
+      "reason": "FT",
+      "utcTime": "2025-11-22T15:00:00Z"
+    },
+    {
+      "id": "5071636",
+      "homeTeam": {
+        "id": "8404",
+        "name": "Aalesund",
+        "score": 3
+      },
+      "awayTeam": {
+        "id": "4722",
+        "name": "Egersund",
+        "score": 1
+      },
+      "score": "3 - 1",
+      "finished": true,
+      "started": true,
+      "reason": "AET",
+      "utcTime": "2025-11-26T17:00:00Z"
+    },
+    {
+      "id": "5076261",
+      "homeTeam": {
+        "id": "8179",
+        "name": "Kongsvinger",
+        "score": 4
+      },
+      "awayTeam": {
+        "id": "8404",
+        "name": "Aalesund",
+        "score": 5
+      },
+      "score": "4 - 5",
+      "finished": true,
+      "started": true,
+      "reason": "AET",
+      "utcTime": "2025-11-30T13:00:00Z"
+    },
+    {
+      "id": "5078173",
+      "homeTeam": {
+        "id": "8531",
+        "name": "Bryne",
+        "score": 0
+      },
+      "awayTeam": {
+        "id": "8404",
+        "name": "Aalesund",
+        "score": 4
+      },
+      "score": "0 - 4",
+      "finished": true,
+      "started": true,
+      "reason": "FT",
+      "utcTime": "2025-12-07T16:00:00Z"
+    },
+    {
+      "id": "5078174",
+      "homeTeam": {
+        "id": "8404",
+        "name": "Aalesund",
+        "score": 0
+      },
+      "awayTeam": {
+        "id": "8531",
+        "name": "Bryne",
+        "score": 1
+      },
+      "score": "0 - 1",
+      "finished": true,
+      "started": true,
+      "reason": "FT",
+      "utcTime": "2025-12-11T18:00:00Z"
+    }
+  ],
+  "obosMatches": [
+    {
+      "id": "6548824",
+      "homeTeam": {
+        "id": "161378",
+        "name": "Bjarg",
+        "score": 0
+      },
+      "awayTeam": {
+        "id": "6560",
+        "name": "Kjelsås",
+        "score": 0
+      },
+      "score": null,
+      "finished": false,
+      "started": false,
+      "reason": "",
+      "utcTime": "2026-11-07T13:00:00Z"
+    },
+    {
+      "id": "6548825",
+      "homeTeam": {
+        "id": "6560",
+        "name": "Kjelsås",
+        "score": 0
+      },
+      "awayTeam": {
+        "id": "161378",
+        "name": "Bjarg",
+        "score": 0
+      },
+      "score": null,
+      "finished": false,
+      "started": false,
+      "reason": "",
+      "utcTime": "2026-11-14T12:00:00Z"
+    }
+  ],
+  "hasMatches": true,
+  "updated_at": "2026-11-02T15:54:26.236400+00:00"
+};
+if (typeof window !== 'undefined') window.PLAYOFF_LIVE_DATA_2026 = PLAYOFF_LIVE_DATA_2026;
+
 // Standard fasittabell for appen (nøyaktig gjeldende reell tabell)
 const DEFAULT_FASIT = LIVE_TABLE_DETAILS_2026.map(item => item.id);
 

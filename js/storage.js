@@ -719,6 +719,20 @@ const StorageManager = {
             localStorage.setItem(STORAGE_KEYS.FASIT, JSON.stringify(rows[0].table_data));
           }
         }
+
+        // Hent playoff / kvalik status fra Supabase
+        const playoffRes = await fetch(`${sbUrl}/rest/v1/fasit?select=*&id=eq.playoff`, {
+          headers: { apikey: sbKey, Authorization: `Bearer ${sbKey}` }
+        });
+        if (playoffRes.ok) {
+          const pRows = await playoffRes.json();
+          if (pRows && pRows[0] && pRows[0].table_data) {
+            window.PLAYOFF_LIVE_DATA_2026 = pRows[0].table_data;
+            try {
+              localStorage.setItem('obos_playoff_data_2026', JSON.stringify(pRows[0].table_data));
+            } catch (e) {}
+          }
+        }
         return true;
       } catch (err) {
         console.warn('Supabase synk feilet:', err);

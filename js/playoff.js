@@ -39,6 +39,12 @@ const PlayoffEngine = {
     const team6Id = standings[5]; // Nr. 6
     const team14Id = standings[13]; // Nr. 14 (Nedrykkskvalik)
 
+    // Synk mot live playoff data hvis tilgjengelig (f.eks. ekte nr. 14 i Eliteserien)
+    const livePlayoff = (typeof window !== 'undefined' && window.PLAYOFF_LIVE_DATA_2026) || null;
+    if (livePlayoff && livePlayoff.eliteserieTeam14 && livePlayoff.eliteserieTeam14.name) {
+      this.state.eliteserieTeam14 = livePlayoff.eliteserieTeam14.name;
+    }
+
     // Kamp 1: Nr. 5 vs Nr. 6
     let k1Winner = this.state.match1WinnerId;
     if (k1Winner !== team5Id && k1Winner !== team6Id) {

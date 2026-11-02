@@ -1339,11 +1339,16 @@
     dom.playoffBracketContainer.innerHTML = '';
 
     const getTeamDisplay = (teamId) => {
-      if (teamId === 'Eliteserie-lag') {
-        return { name: 'Eliteserie-lag (Nr. 14)', logoUrl: '' };
+      const livePlayoff = window.PLAYOFF_LIVE_DATA_2026;
+      if (teamId === 'Eliteserie-lag' || (livePlayoff && livePlayoff.eliteserieTeam14 && teamId === livePlayoff.eliteserieTeam14.name)) {
+        const e14 = livePlayoff?.eliteserieTeam14;
+        return {
+          name: e14 ? `${e14.name} (Nr. 14 Eliteserien)` : 'Eliteserie-lag (Nr. 14)',
+          logoUrl: e14?.logoUrl || ''
+        };
       }
       if (teamId === 'PostNord-lag') {
-        return { name: 'PostNord-lag', logoUrl: '' };
+        return { name: 'PostNord-lag (Kjelsås/Bjarg)', logoUrl: '' };
       }
       return getTeamById(teamId) || { name: teamId, logoUrl: '' };
     };

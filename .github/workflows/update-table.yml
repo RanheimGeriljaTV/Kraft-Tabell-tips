@@ -1,11 +1,11 @@
-name: ⚽ Auto-Update OBOS-ligaen Live Tabell
+name: ⚽ Auto-Update OBOS-ligaen & Kvalik Live Tabell
 
 on:
-  # Kjører automatisk hver 4. time
+  # Kjører automatisk én gang om dagen kl. 23:00 norsk tid (22:00 UTC) i sesongen (mars-desember)
   schedule:
-    - cron: '0 */4 * * *'
+    - cron: '0 22 * * *'
 
-  # Manuell kjøring fra Actions-fanen
+  # Manuell kjøring fra Actions-fanen ved behov
   workflow_dispatch:
 
 permissions:
