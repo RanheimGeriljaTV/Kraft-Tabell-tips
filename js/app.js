@@ -1453,6 +1453,12 @@
     const details = window.LIVE_TABLE_DETAILS_2026 || [];
     dom.officialLiveTableContainer.innerHTML = '';
 
+    const maxPlayed = Math.max(...details.map(d => d.played || 0), 29);
+    const badgeEl = document.getElementById('liveRoundBadgeText');
+    if (badgeEl) badgeEl.textContent = `${maxPlayed} runder spilt`;
+    const headingEl = document.getElementById('officialTableHeading');
+    if (headingEl) headingEl.textContent = `Offisiell 2026-tabell (Runde ${maxPlayed})`;
+
     details.forEach(item => {
       const team = getTeamById(item.id);
       if (!team) return;
@@ -1487,10 +1493,22 @@
   }
 
   if (dom.quickApiFetchBtn) {
-    dom.quickApiFetchBtn.addEventListener('click', () => {
-      alert('Tabellen er oppdatert med ferske 2026-data etter runde 28!');
-      renderOfficialLiveTable();
-      renderLeaderboard();
+    dom.quickApiFetchBtn.addEventListener('click', async () => {
+      try {
+        dom.quickApiFetchBtn.disabled = true;
+        dom.quickApiFetchBtn.classList.add('opacity-50');
+        const res = await StorageManager.fetchLiveTableFromAPI();
+        renderOfficialLiveTable();
+        renderLeaderboard();
+        renderPlayoffBracket();
+        renderFasitList();
+        alert(`Tabellen er oppdatert! Kilde: ${res && res.source ? res.source : 'Live API'}`);
+      } catch (err) {
+        alert('Kunne ikke hente live tabell: ' + err.message);
+      } finally {
+        dom.quickApiFetchBtn.disabled = false;
+        dom.quickApiFetchBtn.classList.remove('opacity-50');
+      }
     });
   }
 

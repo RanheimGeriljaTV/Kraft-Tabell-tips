@@ -1,0 +1,45 @@
+name: ⚽ Auto-Update OBOS-ligaen Live Tabell
+
+on:
+  # Kjører automatisk hver 4. time
+  schedule:
+    - cron: '0 */4 * * *'
+
+  # Manuell kjøring fra Actions-fanen
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-table:
+    name: Hent og oppdater tabell
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Sjekk ut repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🐍 Sett opp Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: ⚽ Kjør live tabelloppdatering
+        run: |
+          python scripts/update_obos_standings.py
+
+      - name: 🚀 Commit og push endringer hvis ny tabell
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain)" ]; then
+            git add .
+            git commit -m "chore(tabell): automatisk live-oppdatering av OBOS-ligaen [skip ci]"
+            git push
+            echo "Tabell oppdatert og pushet til GitHub!"
+          else
+            echo "Ingen nye tabellendringer. Alt er oppdatert!"
+          fi

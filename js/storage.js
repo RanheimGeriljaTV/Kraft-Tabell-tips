@@ -387,49 +387,95 @@ const StorageManager = {
   },
 
   /**
-   * Hent ferskeste offisielle live-tabell fra API
+   * Hent ferskeste offisielle live-tabell fra API (FotMob / Supabase)
    */
   async fetchLiveTableFromAPI() {
+    // 1. Prøv direkte henting fra FotMob API for OBOS-ligaen (Liga 203)
     try {
-      // 1. Hvis Google Apps Script er konfigurert, spør den om live API-data
-      const cloudUrl = window.CONFIG && window.CONFIG.GOOGLE_SCRIPT_URL;
-      if (cloudUrl && cloudUrl.startsWith('https://')) {
-        const res = await fetch(cloudUrl + '?action=get_live_table');
-        if (res.ok) {
-          const json = await res.json();
-          if (json && json.fasit && json.fasit.length === 16) {
-            this.saveFasit(json.fasit);
+      const fotmobRes = await fetch('https://www.fotmob.com/api/data/tltable?leagueId=203', {
+        headers: { 'Accept': 'application/json, text/plain, */*' }
+      });
+      if (fotmobRes.ok) {
+        const data = await fotmobRes.json();
+        const rawTable = Array.isArray(data) && data[0]?.data?.table?.all;
+        if (Array.isArray(rawTable) && rawTable.length === 16 && window.TEAMS) {
+          const orderedTeams = [];
+          const details = [];
+          let maxPlayed = 0;
+
+          for (const row of rawTable) {
+            const team = window.TEAMS.find(t => t.fotmobId === row.id);
+            if (team) {
+              orderedTeams.push(team.id);
+              const p = row.played || 0;
+              if (p > maxPlayed) maxPlayed = p;
+              details.push({
+                id: team.id,
+                rank: row.idx,
+                played: p,
+                won: row.wins || 0,
+                draw: row.draws || 0,
+                lost: row.losses || 0,
+                goals: String(row.scoresStr || ''),
+                points: row.pts || 0
+              });
+            }
+          }
+
+          if (orderedTeams.length === 16) {
+            window.LIVE_TABLE_DETAILS_2026 = details;
+            this.saveFasit(orderedTeams);
             return {
               success: true,
-              source: 'Google Apps Script Live API',
-              table: json.fasit,
-              round: json.round || 28
+              source: `FotMob OBOS-ligaen Live Feed (Runde ${maxPlayed})`,
+              table: orderedTeams,
+              round: maxPlayed,
+              details
             };
           }
         }
       }
-
-      // 2. Bruk den oppdaterte offisielle 2026 live-tabellen (Runde 28)
-      const officialLiveTable = [...window.DEFAULT_FASIT];
-      this.saveFasit(officialLiveTable);
-      return {
-        success: true,
-        source: 'Offisiell OBOS-liga 2026 Live Feed (Runde 28)',
-        table: officialLiveTable,
-        round: 28,
-        details: window.LIVE_TABLE_DETAILS_2026
-      };
-    } catch (err) {
-      console.error('Feil ved API-henting:', err);
-      const fallback = [...window.DEFAULT_FASIT];
-      this.saveFasit(fallback);
-      return {
-        success: true,
-        source: 'Lokal 2026 Tabell',
-        table: fallback,
-        round: 28
-      };
+    } catch (fotmobErr) {
+      console.warn('Direkte FotMob API-kall feilet, prøver Supabase sky-synk:', fotmobErr);
     }
+
+    // 2. Fallback til fersk fasit i Supabase
+    const sbUrl = window.CONFIG && window.CONFIG.SUPABASE_URL;
+    const sbKey = window.CONFIG && window.CONFIG.SUPABASE_ANON_KEY;
+    if (sbUrl && sbKey && sbUrl.startsWith('https://')) {
+      try {
+        const fasitRes = await fetch(`${sbUrl}/rest/v1/fasit?select=*&id=eq.current`, {
+          headers: { apikey: sbKey, Authorization: `Bearer ${sbKey}` }
+        });
+        if (fasitRes.ok) {
+          const rows = await fasitRes.json();
+          if (rows && rows[0] && this.isValidTable(rows[0].table_data)) {
+            this.saveFasit(rows[0].table_data);
+            const r = Math.max(...(window.LIVE_TABLE_DETAILS_2026 || []).map(d => d.played || 0), 29);
+            return {
+              success: true,
+              source: `Supabase Live Sky-fasit (Runde ${r})`,
+              table: rows[0].table_data,
+              round: r,
+              details: window.LIVE_TABLE_DETAILS_2026
+            };
+          }
+        }
+      } catch (sbErr) {
+        console.warn('Supabase fasit-henting feilet:', sbErr);
+      }
+    }
+
+    // 3. Fallback til standard lokal fasit
+    const fallback = [...(window.DEFAULT_FASIT || [])];
+    this.saveFasit(fallback);
+    const roundFallback = Math.max(...(window.LIVE_TABLE_DETAILS_2026 || []).map(d => d.played || 0), 29);
+    return {
+      success: true,
+      source: `Lokal 2026 Tabell (Runde ${roundFallback})`,
+      table: fallback,
+      round: roundFallback
+    };
   },
 
   getActiveSystem() {

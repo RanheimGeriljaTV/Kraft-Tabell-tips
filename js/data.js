@@ -1,6 +1,6 @@
 /**
  * OBOS-ligaen 2026 Data, Offisielle Klubber, Logoer & Live Tabell
- * 16 lag med offisielle klubbmerker og live tabell (Runde 28)
+ * 16 lag med offisielle klubbmerker og live tabell (Runde 29)
  */
 
 const TEAMS = [
@@ -273,22 +273,22 @@ function getTeamById(teamId) {
 
 // ÅRETS EKT LIVE-TABELL 2026 (Etter 28 runder spilt)
 const LIVE_TABLE_DETAILS_2026 = [
-  { id: 'haugesund', rank: 1, played: 28, won: 20, draw: 2, lost: 6, goals: '81–47', points: 62 },
-  { id: 'stromsgodset', rank: 2, played: 28, won: 18, draw: 6, lost: 4, goals: '76–34', points: 60 },
-  { id: 'kongsvinger', rank: 3, played: 28, won: 18, draw: 5, lost: 5, goals: '82–45', points: 59 },
-  { id: 'stabaek', rank: 4, played: 28, won: 17, draw: 4, lost: 7, goals: '66–34', points: 55 },
-  { id: 'odd', rank: 5, played: 28, won: 13, draw: 6, lost: 9, goals: '54–43', points: 45 },
-  { id: 'bryne', rank: 6, played: 28, won: 12, draw: 4, lost: 12, goals: '40–41', points: 40 },
-  { id: 'ranheim', rank: 7, played: 28, won: 11, draw: 5, lost: 12, goals: '71–68', points: 38 },
-  { id: 'hodd', rank: 8, played: 28, won: 11, draw: 5, lost: 12, goals: '49–56', points: 38 },
-  { id: 'strommen', rank: 9, played: 28, won: 10, draw: 6, lost: 12, goals: '49–59', points: 36 },
-  { id: 'egersund', rank: 10, played: 28, won: 9, draw: 8, lost: 11, goals: '45–56', points: 35 },
-  { id: 'lyn', rank: 11, played: 28, won: 9, draw: 4, lost: 15, goals: '42–59', points: 31 },
-  { id: 'sogndal', rank: 12, played: 28, won: 8, draw: 6, lost: 14, goals: '47–61', points: 30 },
-  { id: 'sandnesulf', rank: 13, played: 28, won: 8, draw: 5, lost: 15, goals: '39–55', points: 29 },
-  { id: 'moss', rank: 14, played: 28, won: 8, draw: 5, lost: 15, goals: '41–59', points: 29 },
-  { id: 'aasane', rank: 15, played: 28, won: 7, draw: 5, lost: 16, goals: '40–62', points: 25 },
-  { id: 'raufoss', rank: 16, played: 28, won: 6, draw: 2, lost: 20, goals: '31–74', points: 20 }
+  { id: 'haugesund', rank: 1, played: 29, won: 21, draw: 2, lost: 6, goals: '84-48', points: 65 },
+  { id: 'stromsgodset', rank: 2, played: 29, won: 19, draw: 6, lost: 4, goals: '79-34', points: 63 },
+  { id: 'kongsvinger', rank: 3, played: 28, won: 18, draw: 5, lost: 5, goals: '82-45', points: 59 },
+  { id: 'stabaek', rank: 4, played: 28, won: 17, draw: 4, lost: 7, goals: '66-34', points: 55 },
+  { id: 'odd', rank: 5, played: 29, won: 13, draw: 7, lost: 9, goals: '57-46', points: 46 },
+  { id: 'bryne', rank: 6, played: 29, won: 13, draw: 4, lost: 12, goals: '43-41', points: 43 },
+  { id: 'ranheim', rank: 7, played: 29, won: 12, draw: 5, lost: 12, goals: '73-69', points: 41 },
+  { id: 'egersund', rank: 8, played: 29, won: 10, draw: 8, lost: 11, goals: '48-57', points: 38 },
+  { id: 'hodd', rank: 9, played: 29, won: 11, draw: 5, lost: 13, goals: '49-59', points: 38 },
+  { id: 'strommen', rank: 10, played: 29, won: 10, draw: 6, lost: 13, goals: '50-62', points: 36 },
+  { id: 'lyn', rank: 11, played: 29, won: 10, draw: 4, lost: 15, goals: '46-59', points: 34 },
+  { id: 'sogndal', rank: 12, played: 29, won: 8, draw: 6, lost: 15, goals: '48-63', points: 30 },
+  { id: 'sandnesulf', rank: 13, played: 29, won: 8, draw: 6, lost: 15, goals: '42-58', points: 30 },
+  { id: 'moss', rank: 14, played: 29, won: 8, draw: 5, lost: 16, goals: '41-62', points: 29 },
+  { id: 'aasane', rank: 15, played: 29, won: 7, draw: 5, lost: 17, goals: '41-65', points: 25 },
+  { id: 'raufoss', rank: 16, played: 29, won: 6, draw: 2, lost: 21, goals: '31-78', points: 20 },
 ];
 
 // Standard fasittabell for appen (nøyaktig gjeldende reell tabell)
