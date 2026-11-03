@@ -275,8 +275,8 @@ function getTeamById(teamId) {
 const LIVE_TABLE_DETAILS_2026 = [
   { id: 'haugesund', rank: 1, played: 29, won: 21, draw: 2, lost: 6, goals: '84-48', points: 65 },
   { id: 'stromsgodset', rank: 2, played: 29, won: 19, draw: 6, lost: 4, goals: '79-34', points: 63 },
-  { id: 'kongsvinger', rank: 3, played: 28, won: 18, draw: 5, lost: 5, goals: '82-45', points: 59 },
-  { id: 'stabaek', rank: 4, played: 28, won: 17, draw: 4, lost: 7, goals: '66-34', points: 55 },
+  { id: 'kongsvinger', rank: 3, played: 29, won: 18, draw: 5, lost: 6, goals: '83-47', points: 59 },
+  { id: 'stabaek', rank: 4, played: 29, won: 18, draw: 4, lost: 7, goals: '68-35', points: 58 },
   { id: 'odd', rank: 5, played: 29, won: 13, draw: 7, lost: 9, goals: '57-46', points: 46 },
   { id: 'bryne', rank: 6, played: 29, won: 13, draw: 4, lost: 12, goals: '43-41', points: 43 },
   { id: 'ranheim', rank: 7, played: 29, won: 12, draw: 5, lost: 12, goals: '73-69', points: 41 },
@@ -431,7 +431,7 @@ const PLAYOFF_LIVE_DATA_2026 = {
     }
   ],
   "hasMatches": true,
-  "updated_at": "2026-11-02T15:55:25.045619+00:00"
+  "updated_at": "2026-11-03T03:18:16.728202+00:00"
 };
 if (typeof window !== 'undefined') window.PLAYOFF_LIVE_DATA_2026 = PLAYOFF_LIVE_DATA_2026;
 
