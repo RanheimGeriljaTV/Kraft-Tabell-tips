@@ -32,15 +32,21 @@
     // Faner & Navigasjon
     mainNav: document.getElementById('mainNav'),
     tabBtnPredict: document.getElementById('tabBtnPredict'),
+    tabBtnPlayoff: document.getElementById('tabBtnPlayoff'),
     tabBtnLeaderboard: document.getElementById('tabBtnLeaderboard'),
-    tabBtnGroupStats: document.getElementById('tabBtnGroupStats'),
     tabBtnStats: document.getElementById('tabBtnStats'),
+    tabBtnGroupStats: document.getElementById('tabBtnStats'), // bakoverkompatibel alias
     tabBtnSettings: document.getElementById('tabBtnSettings'),
     tabContentPredict: document.getElementById('tabContentPredict'),
+    tabContentPlayoff: document.getElementById('tabContentPlayoff'),
     tabContentLeaderboard: document.getElementById('tabContentLeaderboard'),
-    tabContentGroupStats: document.getElementById('tabContentGroupStats'),
     tabContentStats: document.getElementById('tabContentStats'),
+    tabContentGroupStats: document.getElementById('tabContentGroupStats') || document.getElementById('tabContentStats'),
     tabContentSettings: document.getElementById('tabContentSettings'),
+
+    // Fane 2: Playoff
+    playoffSeasonLockedBanner: document.getElementById('playoffSeasonLockedBanner'),
+    playoffLockStatusPill: document.getElementById('playoffLockStatusPill'),
 
     // Fane 1: Mitt Tabelltips
     seasonLockedBanner: document.getElementById('seasonLockedBanner'),
@@ -322,6 +328,37 @@
       }
     }
 
+    // Fane 2: Playoff Banner & Lås-knapp & Status Pill
+    if (dom.playoffSeasonLockedBanner) {
+      if (isLocked) {
+        dom.playoffSeasonLockedBanner.classList.remove('hidden');
+      } else {
+        dom.playoffSeasonLockedBanner.classList.add('hidden');
+      }
+    }
+
+    if (dom.playoffLockStatusPill) {
+      if (isLocked) {
+        dom.playoffLockStatusPill.textContent = '🔒 Låst';
+        dom.playoffLockStatusPill.className = 'text-[9px] px-1.5 py-0.2 rounded bg-amber-950 text-amber-300 border border-amber-800 font-bold';
+      } else {
+        dom.playoffLockStatusPill.textContent = '🟢 Åpen';
+        dom.playoffLockStatusPill.className = 'text-[9px] px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold';
+      }
+    }
+
+    if (dom.savePlayoffTipsBtn) {
+      if (isLocked) {
+        dom.savePlayoffTipsBtn.disabled = true;
+        dom.savePlayoffTipsBtn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+        dom.savePlayoffTipsBtn.innerHTML = '<span>🔒 Låst for sesongen</span>';
+      } else {
+        dom.savePlayoffTipsBtn.disabled = false;
+        dom.savePlayoffTipsBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+        dom.savePlayoffTipsBtn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span>Lås tips (+15p)</span>';
+      }
+    }
+
     // Admin Fane status badge & selector
     if (dom.adminLockStatusBadge) {
       if (isLocked) {
@@ -397,8 +434,8 @@
   function switchTab(target) {
     [
       dom.tabContentPredict,
+      dom.tabContentPlayoff,
       dom.tabContentLeaderboard,
-      dom.tabContentGroupStats,
       dom.tabContentStats,
       dom.tabContentSettings
     ].forEach(c => {
@@ -407,8 +444,8 @@
 
     [
       dom.tabBtnPredict,
+      dom.tabBtnPlayoff,
       dom.tabBtnLeaderboard,
-      dom.tabBtnGroupStats,
       dom.tabBtnStats,
       dom.tabBtnSettings
     ].forEach(btn => {
@@ -419,26 +456,33 @@
     });
 
     if (target === 'predict') {
-      dom.tabContentPredict.classList.remove('hidden');
-      dom.tabBtnPredict.classList.add('bg-sky-500', 'text-slate-950');
-      dom.tabBtnPredict.classList.remove('text-slate-400');
+      if (dom.tabContentPredict) dom.tabContentPredict.classList.remove('hidden');
+      if (dom.tabBtnPredict) {
+        dom.tabBtnPredict.classList.add('bg-sky-500', 'text-slate-950');
+        dom.tabBtnPredict.classList.remove('text-slate-400');
+      }
+    } else if (target === 'playoff') {
+      if (dom.tabContentPlayoff) dom.tabContentPlayoff.classList.remove('hidden');
+      if (dom.tabBtnPlayoff) {
+        dom.tabBtnPlayoff.classList.add('bg-sky-500', 'text-slate-950');
+        dom.tabBtnPlayoff.classList.remove('text-slate-400');
+      }
+      renderPlayoffBracket();
+      updateSeasonLockUI();
     } else if (target === 'leaderboard') {
-      dom.tabContentLeaderboard.classList.remove('hidden');
-      dom.tabBtnLeaderboard.classList.add('bg-sky-500', 'text-slate-950');
-      dom.tabBtnLeaderboard.classList.remove('text-slate-400');
+      if (dom.tabContentLeaderboard) dom.tabContentLeaderboard.classList.remove('hidden');
+      if (dom.tabBtnLeaderboard) {
+        dom.tabBtnLeaderboard.classList.add('bg-sky-500', 'text-slate-950');
+        dom.tabBtnLeaderboard.classList.remove('text-slate-400');
+      }
       renderLeaderboard();
-    } else if (target === 'groupStats') {
-      if (dom.tabContentGroupStats) dom.tabContentGroupStats.classList.remove('hidden');
-      if (dom.tabBtnGroupStats) {
-        dom.tabBtnGroupStats.classList.add('bg-sky-500', 'text-slate-950');
-        dom.tabBtnGroupStats.classList.remove('text-slate-400');
+    } else if (target === 'stats' || target === 'groupStats') {
+      if (dom.tabContentStats) dom.tabContentStats.classList.remove('hidden');
+      if (dom.tabBtnStats) {
+        dom.tabBtnStats.classList.add('bg-sky-500', 'text-slate-950');
+        dom.tabBtnStats.classList.remove('text-slate-400');
       }
       renderGroupStats();
-    } else if (target === 'stats') {
-      dom.tabContentStats.classList.remove('hidden');
-      dom.tabBtnStats.classList.add('bg-sky-500', 'text-slate-950');
-      dom.tabBtnStats.classList.remove('text-slate-400');
-      renderPlayoffBracket();
       renderOfficialLiveTable();
       renderGamificationHub();
     } else if (target === 'settings') {
@@ -446,9 +490,11 @@
         switchTab('predict');
         return;
       }
-      dom.tabContentSettings.classList.remove('hidden');
-      dom.tabBtnSettings.classList.add('bg-sky-500', 'text-slate-950');
-      dom.tabBtnSettings.classList.remove('text-slate-400');
+      if (dom.tabContentSettings) dom.tabContentSettings.classList.remove('hidden');
+      if (dom.tabBtnSettings) {
+        dom.tabBtnSettings.classList.add('bg-sky-500', 'text-slate-950');
+        dom.tabBtnSettings.classList.remove('text-slate-400');
+      }
       renderAdminUserList();
       renderFasitList();
     }
@@ -1341,6 +1387,8 @@
   function renderPlayoffBracket() {
     if (!dom.playoffBracketContainer || !window.PlayoffEngine) return;
 
+    const isLocked = StorageManager.isSeasonLocked();
+
     // Playoff-lagene tilpasses direkte etter hvordan brukeren har satt sitt tabelltips!
     // Hvis tabellen fortsatt er i standard (alfabetisk/fasit) rekkefølge, bruk offisiell fasit.
     const alpha = getAlphabeticalTeamIds();
@@ -1378,17 +1426,24 @@
       const isAwayWinner = m.winnerId === m.awayTeamId;
 
       const card = document.createElement('div');
-      card.className = 'sports-card p-2.5 border border-white/10 space-y-1.5';
+      card.className = `sports-card p-2.5 border ${isLocked ? 'border-amber-500/25 bg-black/40' : 'border-white/10'} space-y-1.5`;
+
+      const clickHome = isLocked ? '' : `onclick="window.pickPlayoffWinner(${m.matchNumber}, '${m.homeTeamId}')"`;
+      const clickAway = isLocked ? '' : `onclick="window.pickPlayoffWinner(${m.matchNumber}, '${m.awayTeamId}')"`;
+      const cursorClass = isLocked ? 'cursor-not-allowed opacity-90' : 'cursor-pointer hover:border-emerald-400/50 active:scale-[0.98]';
 
       card.innerHTML = `
         <div class="flex items-center justify-between text-[10px] font-bold text-slate-400">
-          <span class="text-cyan-400 uppercase font-black">${m.stage}</span>
+          <div class="flex items-center gap-1.5">
+            <span class="text-cyan-400 uppercase font-black">${m.stage}</span>
+            ${isLocked ? '<span class="text-amber-400 font-black text-[9px] bg-amber-950/60 px-1.5 py-0.2 rounded border border-amber-800">🔒 Låst</span>' : ''}
+          </div>
           <span>${m.date}</span>
         </div>
 
         <div class="grid grid-cols-2 gap-1.5 pt-0.5">
           <!-- Hjemmelag -->
-          <div onclick="window.pickPlayoffWinner(${m.matchNumber}, '${m.homeTeamId}')" class="p-2 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+          <div ${clickHome} class="p-2 rounded-xl border flex items-center justify-between transition-all ${cursorClass} ${
             isHomeWinner
               ? 'bg-emerald-950 border-emerald-500 text-emerald-300 font-black'
               : 'bg-black/30 border-white/5 text-slate-300'
@@ -1401,7 +1456,7 @@
           </div>
 
           <!-- Bortelag -->
-          <div onclick="window.pickPlayoffWinner(${m.matchNumber}, '${m.awayTeamId}')" class="p-2 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+          <div ${clickAway} class="p-2 rounded-xl border flex items-center justify-between transition-all ${cursorClass} ${
             isAwayWinner
               ? 'bg-emerald-950 border-emerald-500 text-emerald-300 font-black'
               : 'bg-black/30 border-white/5 text-slate-300'
@@ -1424,13 +1479,20 @@
       const obosTeam = getTeamDisplay(obosM.homeTeamId);
       const isObosWinner = obosM.winnerId === obosM.homeTeamId;
 
+      const clickObosHome = isLocked ? '' : `onclick="window.pickPlayoffWinner('obos', '${obosM.homeTeamId}')"`;
+      const clickObosAway = isLocked ? '' : `onclick="window.pickPlayoffWinner('obos', 'PostNord-lag')"`;
+      const obosCursorClass = isLocked ? 'cursor-not-allowed opacity-90' : 'cursor-pointer hover:border-emerald-400/50 active:scale-[0.98]';
+
       dom.playoffRelegationContainer.innerHTML = `
         <div class="flex items-center justify-between text-[11px] font-bold text-slate-400 mb-1">
-          <span>OBOS-kvalik (${obosM.date})</span>
+          <div class="flex items-center gap-1.5">
+            <span>OBOS-kvalik (${obosM.date})</span>
+            ${isLocked ? '<span class="text-amber-400 font-black text-[9px] bg-amber-950/60 px-1.5 py-0.2 rounded border border-amber-800">🔒 Låst</span>' : ''}
+          </div>
           <span class="text-[10px] text-amber-400">Kamp 3 & 4</span>
         </div>
         <div class="grid grid-cols-2 gap-1.5">
-          <div onclick="window.pickPlayoffWinner('obos', '${obosM.homeTeamId}')" class="p-2 rounded-xl border flex items-center justify-between cursor-pointer ${
+          <div ${clickObosHome} class="p-2 rounded-xl border flex items-center justify-between transition-all ${obosCursorClass} ${
             isObosWinner
               ? 'bg-emerald-950 border-emerald-500 text-emerald-300 font-black'
               : 'bg-black/30 border-white/5 text-slate-300'
@@ -1442,7 +1504,7 @@
             ${isObosWinner ? '<span class="text-[10px]">🏆</span>' : ''}
           </div>
 
-          <div onclick="window.pickPlayoffWinner('obos', 'PostNord-lag')" class="p-2 rounded-xl border flex items-center justify-between cursor-pointer ${
+          <div ${clickObosAway} class="p-2 rounded-xl border flex items-center justify-between transition-all ${obosCursorClass} ${
             !isObosWinner
               ? 'bg-emerald-950 border-emerald-500 text-emerald-300 font-black'
               : 'bg-black/30 border-white/5 text-slate-300'
@@ -1459,6 +1521,10 @@
   }
 
   window.pickPlayoffWinner = function (matchNumber, winnerId) {
+    if (StorageManager.isSeasonLocked()) {
+      alert('🔒 Playoff-tippingen er stengt for sesongen! Alle kvalik-tips er låst.');
+      return;
+    }
     if (!window.PlayoffEngine) return;
     PlayoffEngine.setWinner(matchNumber, winnerId);
     renderPlayoffBracket();
@@ -1466,7 +1532,14 @@
 
   if (dom.savePlayoffTipsBtn) {
     dom.savePlayoffTipsBtn.addEventListener('click', () => {
-      alert('Playoff-tips låst! Riktige vinnere gir +15 bonuspoeng og +50 XP per kamp når playoff spilles.');
+      if (StorageManager.isSeasonLocked()) {
+        alert('🔒 Playoff-tippingen er stengt for sesongen! Alle kvalik-tips er låst.');
+        return;
+      }
+      if (window.PlayoffEngine && window.PlayoffEngine.saveToStorage) {
+        window.PlayoffEngine.saveToStorage();
+      }
+      alert('✅ Playoff-tips låst og lagret! Riktige vinnere gir +15 bonuspoeng og +50 XP per kamp når playoff spilles.');
     });
   }
 
@@ -1938,9 +2011,10 @@
 
   function setupEventListeners() {
     if (dom.tabBtnPredict) dom.tabBtnPredict.addEventListener('click', () => switchTab('predict'));
+    if (dom.tabBtnPlayoff) dom.tabBtnPlayoff.addEventListener('click', () => switchTab('playoff'));
     if (dom.tabBtnLeaderboard) dom.tabBtnLeaderboard.addEventListener('click', () => switchTab('leaderboard'));
-    if (dom.tabBtnGroupStats) dom.tabBtnGroupStats.addEventListener('click', () => switchTab('groupStats'));
     if (dom.tabBtnStats) dom.tabBtnStats.addEventListener('click', () => switchTab('stats'));
+    if (dom.tabBtnGroupStats && dom.tabBtnGroupStats !== dom.tabBtnStats) dom.tabBtnGroupStats.addEventListener('click', () => switchTab('stats'));
     if (dom.tabBtnSettings) dom.tabBtnSettings.addEventListener('click', () => switchTab('settings'));
 
     if (dom.adminLoginTrigger) {
@@ -1996,6 +2070,7 @@
         updateSeasonLockUI();
         renderPredictionList();
         initSortablePrediction();
+        renderPlayoffBracket();
         alert('Sesongstatus oppdatert: ' + (val === 'locked' ? 'LÅST (Hardlock aktivert - ingen kan endre tips)' : (val === 'open' ? 'ÅPEN (Tipping er åpen)' : 'AUTO (Følger seriestart 5. apr kl 15:00)')));
       });
     }

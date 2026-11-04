@@ -46,7 +46,7 @@
   <!-- xlsx-js-style (Styling og farger i Excel .xlsx eksport) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 
-  <link rel="stylesheet" href="css/styles.css?v=3.0.3">
+  <link rel="stylesheet" href="css/styles.css?v=3.0.4">
 </head>
 <body class="min-h-screen flex flex-col bg-[#090c14] text-slate-100 selection:bg-sky-500 selection:text-white">
 
@@ -162,22 +162,22 @@
       <nav id="mainNav" class="max-w-2xl mx-auto px-2 pb-2 grid grid-cols-4 gap-1">
         <button id="tabBtnPredict" class="py-2 px-1 text-xs font-black rounded-xl bg-sky-500 text-slate-950 flex items-center justify-center gap-1 transition-all shadow-sm">
           <i data-lucide="list-ordered" class="w-3.5 h-3.5 flex-shrink-0"></i>
-          <span class="truncate">1. Tips</span>
+          <span class="truncate">1. Tabell</span>
+        </button>
+
+        <button id="tabBtnPlayoff" class="py-2 px-1 text-xs font-bold rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/5 flex items-center justify-center gap-1 transition-all">
+          <i data-lucide="swords" class="w-3.5 h-3.5 flex-shrink-0"></i>
+          <span class="truncate">2. Playoff</span>
         </button>
 
         <button id="tabBtnLeaderboard" class="py-2 px-1 text-xs font-bold rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/5 flex items-center justify-center gap-1 transition-all">
           <i data-lucide="trophy" class="w-3.5 h-3.5 flex-shrink-0"></i>
-          <span class="truncate">2. Stilling</span>
-        </button>
-
-        <button id="tabBtnGroupStats" class="py-2 px-1 text-xs font-bold rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/5 flex items-center justify-center gap-1 transition-all">
-          <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 flex-shrink-0"></i>
-          <span class="truncate">3. Stats</span>
+          <span class="truncate">3. Stilling</span>
         </button>
 
         <button id="tabBtnStats" class="py-2 px-1 text-xs font-bold rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/5 flex items-center justify-center gap-1 transition-all">
-          <i data-lucide="swords" class="w-3.5 h-3.5 flex-shrink-0"></i>
-          <span class="truncate">4. Playoff</span>
+          <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 flex-shrink-0"></i>
+          <span class="truncate">4. Stats</span>
         </button>
 
         <button id="tabBtnSettings" class="hidden py-2 px-1 text-xs font-bold rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/5 flex items-center justify-center gap-1 transition-all">
@@ -279,7 +279,68 @@
 
       </section>
 
-      <!-- ==================== FANE 2: FORELØPIG RESULTATTAVLE ==================== -->
+      <!-- ==================== FANE 2: PLAYOFF-TIPPING ==================== -->
+      <section id="tabContentPlayoff" class="hidden space-y-4">
+        
+        <!-- SESONG LÅST BANNER (HARDLOCK PLAYOFF) -->
+        <div id="playoffSeasonLockedBanner" class="hidden p-3 rounded-xl bg-amber-950/40 border border-amber-500/50 text-amber-200 text-xs flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-amber-900/60 border border-amber-600/50 flex items-center justify-center font-black text-amber-400 flex-shrink-0 text-sm">
+            🔒
+          </div>
+          <div class="min-w-0">
+            <div class="font-extrabold text-white text-xs">Playoff-tippingen er stengt for sesongen!</div>
+            <div class="text-[11px] text-amber-300/80 mt-0.5">Alle kvalik-tips er låst og kan ikke lenger endres. Forza Ranheim! 💙</div>
+          </div>
+        </div>
+
+        <!-- INTERAKTIV PLAYOFF-TIPPER -->
+        <div class="sports-card p-4 space-y-3 border border-emerald-500/30">
+          <div class="flex items-center justify-between">
+            <div class="min-w-0">
+              <div class="text-[10px] font-black uppercase text-emerald-400 flex items-center gap-1.5">
+                <span>NFF Kvalifisering 2026</span>
+                <span id="playoffLockStatusPill" class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold">🟢 Åpen</span>
+              </div>
+              <h3 class="text-sm font-black text-white truncate">⚔️ Playoff & Kvalik (Ditt tips)</h3>
+            </div>
+            <button id="savePlayoffTipsBtn" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-1.5">
+              <i data-lucide="check" class="w-3.5 h-3.5"></i>
+              <span>Lås tips (+15p)</span>
+            </button>
+          </div>
+
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            Kvalifiseringskampene beregnes ut fra ditt tabelltips (eller offisiell tabell). Trykk på laget du tror vinner hver kamp for å sende dem videre mot Eliteserien!
+          </p>
+
+          <!-- Stige -->
+          <div id="playoffBracketContainer" class="space-y-2 pt-1">
+            <!-- Dynamisk fylles med kompakte mobile kamper -->
+          </div>
+
+          <!-- OBOS Kvalik -->
+          <div id="playoffRelegationContainer" class="pt-2 border-t border-white/5">
+            <!-- Dynamisk fylles -->
+          </div>
+        </div>
+
+        <!-- INFO OM KVALIFISERINGSSYSTEMET -->
+        <div class="p-3.5 rounded-xl bg-black/30 border border-white/5 space-y-2 text-xs text-slate-400">
+          <div class="font-bold text-white text-[11px] flex items-center gap-1.5">
+            <i data-lucide="info" class="w-3.5 h-3.5 text-sky-400"></i>
+            <span>Slik spilles Eliteserie-kvalifiseringen</span>
+          </div>
+          <ul class="text-[11px] space-y-1 list-disc list-inside text-slate-300">
+            <li><strong>Kamp 1:</strong> Nr. 5 vs. Nr. 6 i OBOS-ligaen (enkel kamp)</li>
+            <li><strong>Kamp 2:</strong> Nr. 4 vs. Vinner Kamp 1 (enkel kamp)</li>
+            <li><strong>Kamp 3:</strong> Nr. 3 vs. Vinner Kamp 2 (enkel kamp)</li>
+            <li><strong>Finale:</strong> Nr. 14 i Eliteserien vs. Vinner Kamp 3 (dobbeltkamp, hjemme/borte)</li>
+          </ul>
+        </div>
+
+      </section>
+
+      <!-- ==================== FANE 3: FORELØPIG RESULTATTAVLE ==================== -->
       <section id="tabContentLeaderboard" class="hidden space-y-4">
         
         <!-- POENGSYSTEM-VELGER (KOMPAKTE PILLS MED RANHEIM-TERMINOLOGI) -->
@@ -323,10 +384,47 @@
 
       </section>
 
-      <!-- ==================== FANE 3: GRUPPE-STATS FOR ALLE ==================== -->
-      <section id="tabContentGroupStats" class="hidden space-y-4">
-        
-        <!-- GRUPPE-REKORDER & SUPERLATIVER -->
+      <!-- ==================== FANE 4: STATS, SPILLERKORT & TROFEER ==================== -->
+      <section id="tabContentStats" class="hidden space-y-4">
+        <div id="tabContentGroupStats" class="contents">
+          <!-- GAMIFICATION STATUS CHIP & USER SELECTOR -->
+        <div class="sports-card p-3 border border-sky-500/30 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div id="userCardAvatar" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-sm font-black text-slate-950 shadow-md flex-shrink-0">
+              RK
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5">
+                <select id="profileUserSelect" class="bg-black/60 border border-white/20 text-white font-black text-xs sm:text-sm rounded-lg px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-sky-500 max-w-[170px] truncate cursor-pointer">
+                  <!-- Dynamisk fylles med alle deltakere -->
+                </select>
+                <span id="activeUserBadge" class="text-xs flex-shrink-0">⭐</span>
+                <span id="activeUserName" class="hidden"></span>
+              </div>
+              <div id="activeUserLevel" class="text-[11px] text-slate-400 font-semibold truncate">Publikumsyndling • Nivå 4</div>
+            </div>
+          </div>
+
+          <button id="openActivePlayerCardBtn" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-black text-amber-300 flex items-center gap-1 flex-shrink-0">
+            <span>🃏 Spillerkort</span>
+          </button>
+        </div>
+
+          <!-- MINE PRESTASJONER / TROFEER -->
+        <div class="sports-card p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+              <span>🏆 Trofé-rom</span>
+            </h3>
+            <span id="trophyCountLabel" class="text-xs font-bold text-amber-300">4 av 6 fullført</span>
+          </div>
+
+          <div id="achievementsGrid" class="grid grid-cols-2 gap-2 text-xs">
+            <!-- Dynamisk fylles -->
+          </div>
+        </div>
+
+          <!-- GRUPPE-REKORDER & SUPERLATIVER -->
         <div class="sports-card p-4 space-y-3">
           <div class="flex items-center justify-between">
             <h3 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
@@ -413,72 +511,7 @@
           </div>
         </div>
 
-      </section>
-
-      <!-- ==================== FANE 4: PLAYOFF & GAMIFICATION ==================== -->
-      <section id="tabContentStats" class="hidden space-y-4">
-        
-        <!-- GAMIFICATION STATUS CHIP & USER SELECTOR -->
-        <div class="sports-card p-3 border border-sky-500/30 flex items-center justify-between gap-2">
-          <div class="flex items-center gap-2.5 min-w-0">
-            <div id="userCardAvatar" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-sm font-black text-slate-950 shadow-md flex-shrink-0">
-              RK
-            </div>
-            <div class="min-w-0">
-              <div class="flex items-center gap-1.5">
-                <select id="profileUserSelect" class="bg-black/60 border border-white/20 text-white font-black text-xs sm:text-sm rounded-lg px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-sky-500 max-w-[170px] truncate cursor-pointer">
-                  <!-- Dynamisk fylles med alle deltakere -->
-                </select>
-                <span id="activeUserBadge" class="text-xs flex-shrink-0">⭐</span>
-                <span id="activeUserName" class="hidden"></span>
-              </div>
-              <div id="activeUserLevel" class="text-[11px] text-slate-400 font-semibold truncate">Publikumsyndling • Nivå 4</div>
-            </div>
-          </div>
-
-          <button id="openActivePlayerCardBtn" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-black text-amber-300 flex items-center gap-1 flex-shrink-0">
-            <span>🃏 Spillerkort</span>
-          </button>
-        </div>
-
-        <!-- INTERAKTIV PLAYOFF-TIPPER -->
-        <div class="sports-card p-4 space-y-3 border border-emerald-500/30">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="text-[10px] font-black uppercase text-emerald-400">NFF Kvalifisering 2026</div>
-              <h3 class="text-sm font-black text-white">Playoff (Fra ditt tabelltips)</h3>
-            </div>
-            <button id="savePlayoffTipsBtn" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-md">
-              Lås tips (+15p)
-            </button>
-          </div>
-
-          <!-- Stige -->
-          <div id="playoffBracketContainer" class="space-y-2">
-            <!-- Dynamisk fylles med kompakte mobile kamper -->
-          </div>
-
-          <!-- OBOS Kvalik -->
-          <div id="playoffRelegationContainer" class="pt-2 border-t border-white/5">
-            <!-- Dynamisk fylles -->
-          </div>
-        </div>
-
-        <!-- MINE PRESTASJONER / TROFEER -->
-        <div class="sports-card p-4 space-y-3">
-          <div class="flex items-center justify-between">
-            <h3 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-              <span>🏆 Trofé-rom</span>
-            </h3>
-            <span id="trophyCountLabel" class="text-xs font-bold text-amber-300">4 av 6 fullført</span>
-          </div>
-
-          <div id="achievementsGrid" class="grid grid-cols-2 gap-2 text-xs">
-            <!-- Dynamisk fylles -->
-          </div>
-        </div>
-
-        <!-- KONSENSUS & REELL TABELL -->
+          <!-- KONSENSUS & REELL TABELL -->
         <div class="sports-card p-4 space-y-3">
           <div class="flex items-center justify-between">
             <h3 class="text-xs font-black uppercase tracking-wider text-slate-300">
@@ -494,7 +527,7 @@
             <!-- Dynamisk fylles -->
           </div>
         </div>
-
+        </div>
       </section>
 
       <!-- ==================== FANE 5: FASIT & ADMIN ==================== -->
@@ -791,16 +824,16 @@
   </div>
 
   <!-- Skripts -->
-  <script src="js/config.js?v=3.0.3"></script>
-  <script src="js/data.js?v=3.0.3"></script>
-  <script src="js/scoring.js?v=3.0.3"></script>
-  <script src="js/badges.js?v=3.0.3"></script>
-  <script src="js/stats.js?v=3.0.3"></script>
-  <script src="js/playoff.js?v=3.0.3"></script>
-  <script src="js/gamification.js?v=3.0.3"></script>
-  <script src="js/storage.js?v=3.0.3"></script>
-  <script src="js/export.js?v=3.0.3"></script>
-  <script src="js/app.js?v=3.0.3"></script>
+  <script src="js/config.js?v=3.0.4"></script>
+  <script src="js/data.js?v=3.0.4"></script>
+  <script src="js/scoring.js?v=3.0.4"></script>
+  <script src="js/badges.js?v=3.0.4"></script>
+  <script src="js/stats.js?v=3.0.4"></script>
+  <script src="js/playoff.js?v=3.0.4"></script>
+  <script src="js/gamification.js?v=3.0.4"></script>
+  <script src="js/storage.js?v=3.0.4"></script>
+  <script src="js/export.js?v=3.0.4"></script>
+  <script src="js/app.js?v=3.0.4"></script>
   <script>
     if (window.lucide) {
       lucide.createIcons();

@@ -28,6 +28,50 @@ const PlayoffEngine = {
   },
 
   /**
+   * Lagrer valgte playoff-vinnere til localStorage
+   */
+  saveToStorage() {
+    try {
+      const user = (typeof StorageManager !== 'undefined' && StorageManager.getActiveUser && StorageManager.getActiveUser()) || {};
+      const key = user.nickname ? `ranheim_playoff_picks_${user.nickname.toLowerCase()}` : 'ranheim_playoff_picks_default';
+      const data = {
+        match1WinnerId: this.state.match1WinnerId,
+        match2WinnerId: this.state.match2WinnerId,
+        match3WinnerId: this.state.match3WinnerId,
+        eliteserieQualifiedId: this.state.eliteserieQualifiedId,
+        obosRelegationWinnerId: this.state.obosRelegationWinnerId
+      };
+      localStorage.setItem(key, JSON.stringify(data));
+      localStorage.setItem('ranheim_playoff_picks_latest', JSON.stringify(data));
+    } catch (e) {
+      console.warn('Kunne ikke lagre playoff-tips lokalt:', e);
+    }
+  },
+
+  /**
+   * Laster lagrede playoff-vinnere fra localStorage
+   */
+  loadFromStorage() {
+    try {
+      const user = (typeof StorageManager !== 'undefined' && StorageManager.getActiveUser && StorageManager.getActiveUser()) || {};
+      const key = user.nickname ? `ranheim_playoff_picks_${user.nickname.toLowerCase()}` : 'ranheim_playoff_picks_default';
+      const saved = localStorage.getItem(key) || localStorage.getItem('ranheim_playoff_picks_latest');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object') {
+          if (parsed.match1WinnerId) this.state.match1WinnerId = parsed.match1WinnerId;
+          if (parsed.match2WinnerId) this.state.match2WinnerId = parsed.match2WinnerId;
+          if (parsed.match3WinnerId) this.state.match3WinnerId = parsed.match3WinnerId;
+          if (parsed.eliteserieQualifiedId) this.state.eliteserieQualifiedId = parsed.eliteserieQualifiedId;
+          if (parsed.obosRelegationWinnerId) this.state.obosRelegationWinnerId = parsed.obosRelegationWinnerId;
+        }
+      }
+    } catch (e) {
+      console.warn('Kunne ikke laste playoff-tips fra lagring:', e);
+    }
+  },
+
+  /**
    * Generer struktur for playoff-kamper basert på en gitt tabell
    * @param {Array<string>} standings - 16 lag-IDer i rekkefølge (0 = 1. plass, 2 = 3. plass, osv)
    */
@@ -143,6 +187,11 @@ const PlayoffEngine = {
    * Sett vinner for en playoff-kamp
    */
   setWinner(matchNum, winnerId) {
+    if (typeof StorageManager !== 'undefined' && StorageManager.isSeasonLocked && StorageManager.isSeasonLocked()) {
+      console.warn('Playoff er låst for sesongen.');
+      return;
+    }
+
     if (matchNum === 1) {
       this.state.match1WinnerId = winnerId;
       // Nullstill videre hvis endret
@@ -161,6 +210,8 @@ const PlayoffEngine = {
     } else if (matchNum === 'obos') {
       this.state.obosRelegationWinnerId = winnerId;
     }
+
+    this.saveToStorage();
   },
 
   resetWinners() {
@@ -171,6 +222,11 @@ const PlayoffEngine = {
     this.state.obosRelegationWinnerId = null;
   }
 };
+
+// Last inn eventuelle lagrede valg ved oppstart
+if (typeof window !== 'undefined') {
+  PlayoffEngine.loadFromStorage();
+}
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = PlayoffEngine;
