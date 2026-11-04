@@ -28,6 +28,8 @@ jobs:
           python-version: '3.12'
 
       - name: ⚽ Kjør live tabelloppdatering
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           python scripts/update_obos_standings.py
 

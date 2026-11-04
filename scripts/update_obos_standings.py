@@ -46,8 +46,9 @@ FOTMOB_TEAM_MAP = {
 }
 
 SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://cuspqdbjyrywmvherpca.supabase.co')
-SUPABASE_KEY = os.environ.get(
-    'SUPABASE_ANON_KEY',
+SUPABASE_KEY = (
+    os.environ.get('SUPABASE_SERVICE_ROLE_KEY') or
+    os.environ.get('SUPABASE_ANON_KEY') or
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN1c3BxZGJqeXJ5d212aGVycGNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM0MTQ4ODksImV4cCI6MjEwODk5MDg4OX0.gMwKsZVysmButhdPeuyaXmi9oFPM4fqko2qq-DMNuUs'
 )
 
