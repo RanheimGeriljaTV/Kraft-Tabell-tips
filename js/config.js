@@ -4,7 +4,10 @@
  */
 
 const CONFIG = {
-  // Gruppe-adgangskode for vennegjengen (kan også sendes som ?kode=ranheim1901 i URL)
+  // Passord-beskyttelse: Settes til false for å slå av passord/låseskjerm helt
+  REQUIRE_PASSWORD: false,
+
+  // Gruppe-adgangskode for vennegjengen (kan også sendes som ?kode=ranheim1901 i URL når aktivert)
   ACCESS_CODE: 'ranheim1901',
 
   // Admin-PIN for fasit-redigering, tømming og mockup-styring

@@ -143,6 +143,7 @@
 
   function checkAccess() {
     const configCode = (window.CONFIG && window.CONFIG.ACCESS_CODE) || 'ranheim1901';
+    const requireAuth = window.CONFIG && window.CONFIG.REQUIRE_PASSWORD === true;
     const urlParams = new URLSearchParams(window.location.search);
     const codeInUrl = urlParams.get('kode') || urlParams.get('code') || urlParams.get('pin');
 
@@ -167,9 +168,14 @@
 
     updateAdminVisibility();
 
-    if (StorageManager.isAuthenticated()) {
+    // Hvis passord ikke er påkrevd, eller brukeren allerede er autentisert: Lås opp umiddelbart
+    if (!requireAuth || StorageManager.isAuthenticated()) {
+      StorageManager.setAuthenticated(true);
       dom.lockScreen.classList.add('hidden');
       dom.mainApp.classList.remove('hidden');
+      if (dom.lockAppBtn && !requireAuth) {
+        dom.lockAppBtn.classList.add('hidden'); // Skjul hengelås/lås-knapp når passord er slått av
+      }
       initApp();
     } else {
       dom.lockScreen.classList.remove('hidden');
@@ -212,11 +218,12 @@
   dom.lockForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const configCode = (window.CONFIG && window.CONFIG.ACCESS_CODE) || 'ranheim1901';
+    const requireAuth = window.CONFIG && window.CONFIG.REQUIRE_PASSWORD === true;
     const entered = dom.accessCodeInput.value.trim();
     const nickname = dom.userNicknameInput ? dom.userNicknameInput.value.trim() : '';
     const email = dom.userEmailInput ? dom.userEmailInput.value.trim() : '';
 
-    if (entered.toLowerCase() !== configCode.toLowerCase()) {
+    if (requireAuth && entered.toLowerCase() !== configCode.toLowerCase()) {
       dom.lockError.textContent = 'Feil kode. Sjekk koden du fikk i chatten.';
       dom.lockError.classList.remove('hidden');
       dom.accessCodeInput.classList.add('border-rose-500');
@@ -255,6 +262,16 @@
   });
 
   dom.lockAppBtn.addEventListener('click', () => {
+    const requireAuth = window.CONFIG && window.CONFIG.REQUIRE_PASSWORD === true;
+    if (!requireAuth) {
+      if (confirm('Vil du logge ut og nullstille aktiv deltaker?')) {
+        StorageManager.setActiveUser('', '');
+        localStorage.removeItem('ranheim_active_user_name');
+        localStorage.removeItem('ranheim_active_user_email');
+        window.location.reload();
+      }
+      return;
+    }
     if (confirm('Vil du låse appen? Du må skrive inn adgangskoden på nytt.')) {
       StorageManager.setAuthenticated(false);
       window.location.reload();
