@@ -159,9 +159,24 @@
     }
 
     const adminParam = urlParams.get('admin');
-    const expectedPin = (window.CONFIG && window.CONFIG.ADMIN_PIN) || '1901';
-    if (adminParam && (adminParam === expectedPin || adminParam === 'true')) {
-      StorageManager.setAdmin(true);
+    if (adminParam) {
+      const cfg = window.CONFIG || {};
+      const verifyAdmin = async () => {
+        let valid = false;
+        if (cfg.ADMIN_PIN_HASH && window.crypto && window.crypto.subtle) {
+          const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(adminParam.trim()));
+          const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+          valid = (hex === cfg.ADMIN_PIN_HASH);
+        } else if (cfg.ADMIN_PIN) {
+          valid = (adminParam.trim() === cfg.ADMIN_PIN.trim());
+        }
+        if (valid) {
+          StorageManager.setAdmin(true);
+          updateAdminVisibility();
+        }
+        window.history.replaceState({}, document.title, window.location.pathname);
+      };
+      verifyAdmin();
     }
 
     const activeUser = StorageManager.getActiveUser();
@@ -2018,11 +2033,21 @@
     if (dom.tabBtnSettings) dom.tabBtnSettings.addEventListener('click', () => switchTab('settings'));
 
     if (dom.adminLoginTrigger) {
-      dom.adminLoginTrigger.addEventListener('click', () => {
+      dom.adminLoginTrigger.addEventListener('click', async () => {
         const pin = prompt('Skriv inn Admin-PIN for å åpne kontrollpanelet:');
-        if (pin === null) return;
-        const expectedPin = (window.CONFIG && window.CONFIG.ADMIN_PIN) || '1901';
-        if (pin.trim() === expectedPin.trim()) {
+        if (!pin) return;
+        const cfg = window.CONFIG || {};
+        let valid = false;
+
+        if (cfg.ADMIN_PIN_HASH && window.crypto && window.crypto.subtle) {
+          const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin.trim()));
+          const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+          valid = (hex === cfg.ADMIN_PIN_HASH);
+        } else if (cfg.ADMIN_PIN) {
+          valid = (pin.trim() === cfg.ADMIN_PIN.trim());
+        }
+
+        if (valid) {
           StorageManager.setAdmin(true);
           updateAdminVisibility();
           switchTab('settings');
