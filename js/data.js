@@ -398,18 +398,18 @@ const PLAYOFF_LIVE_DATA_2026 = {
       "homeTeam": {
         "id": "161378",
         "name": "Bjarg",
-        "score": 0
+        "score": 2
       },
       "awayTeam": {
         "id": "6560",
         "name": "Kjelsås",
         "score": 0
       },
-      "score": null,
-      "finished": false,
-      "started": false,
-      "reason": "",
-      "utcTime": "2026-11-07T13:00:00.000Z"
+      "score": "2 - 0",
+      "finished": true,
+      "started": true,
+      "reason": "FT",
+      "utcTime": "2026-11-07T13:00:00Z"
     },
     {
       "id": "6548825",
@@ -431,7 +431,7 @@ const PLAYOFF_LIVE_DATA_2026 = {
     }
   ],
   "hasMatches": true,
-  "updated_at": "2026-11-07T01:35:51.719254+00:00"
+  "updated_at": "2026-11-08T01:03:41.666691+00:00"
 };
 if (typeof window !== 'undefined') window.PLAYOFF_LIVE_DATA_2026 = PLAYOFF_LIVE_DATA_2026;
 
