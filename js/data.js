@@ -302,94 +302,22 @@ const PLAYOFF_LIVE_DATA_2026 = {
   },
   "eliteserieMatches": [
     {
-      "id": "5053448",
+      "id": "6629688",
       "homeTeam": {
-        "id": "4722",
-        "name": "Egersund",
-        "score": 3
-      },
-      "awayTeam": {
-        "id": "6563",
-        "name": "Ranheim",
-        "score": 2
-      },
-      "score": "3 - 2",
-      "finished": true,
-      "started": true,
-      "reason": "FT",
-      "utcTime": "2025-11-22T15:00:00Z"
-    },
-    {
-      "id": "5071636",
-      "homeTeam": {
-        "id": "8404",
-        "name": "Aalesund",
-        "score": 3
-      },
-      "awayTeam": {
-        "id": "4722",
-        "name": "Egersund",
-        "score": 1
-      },
-      "score": "3 - 1",
-      "finished": true,
-      "started": true,
-      "reason": "AET",
-      "utcTime": "2025-11-26T17:00:00Z"
-    },
-    {
-      "id": "5076261",
-      "homeTeam": {
-        "id": "8179",
-        "name": "Kongsvinger",
-        "score": 4
-      },
-      "awayTeam": {
-        "id": "8404",
-        "name": "Aalesund",
-        "score": 5
-      },
-      "score": "4 - 5",
-      "finished": true,
-      "started": true,
-      "reason": "AET",
-      "utcTime": "2025-11-30T13:00:00Z"
-    },
-    {
-      "id": "5078173",
-      "homeTeam": {
-        "id": "8531",
-        "name": "Bryne",
-        "score": 0
-      },
-      "awayTeam": {
-        "id": "8404",
-        "name": "Aalesund",
-        "score": 4
-      },
-      "score": "0 - 4",
-      "finished": true,
-      "started": true,
-      "reason": "FT",
-      "utcTime": "2025-12-07T16:00:00Z"
-    },
-    {
-      "id": "5078174",
-      "homeTeam": {
-        "id": "8404",
-        "name": "Aalesund",
+        "id": "7988",
+        "name": "Odd",
         "score": 0
       },
       "awayTeam": {
         "id": "8531",
         "name": "Bryne",
-        "score": 1
+        "score": 0
       },
-      "score": "0 - 1",
-      "finished": true,
-      "started": true,
-      "reason": "FT",
-      "utcTime": "2025-12-11T18:00:00Z"
+      "score": null,
+      "finished": false,
+      "started": false,
+      "reason": "",
+      "utcTime": "2026-11-22T12:30:00Z"
     }
   ],
   "obosMatches": [
@@ -431,7 +359,7 @@ const PLAYOFF_LIVE_DATA_2026 = {
     }
   ],
   "hasMatches": true,
-  "updated_at": "2026-11-11T01:41:38.652838+00:00"
+  "updated_at": "2026-11-12T02:40:43.405275+00:00"
 };
 if (typeof window !== 'undefined') window.PLAYOFF_LIVE_DATA_2026 = PLAYOFF_LIVE_DATA_2026;
 
