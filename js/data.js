@@ -296,8 +296,8 @@ const PLAYOFF_LIVE_DATA_2026 = {
     "id": 8605,
     "name": "Kristiansund",
     "rank": 14,
-    "played": 26,
-    "points": 26,
+    "played": 27,
+    "points": 27,
     "logoUrl": "https://images.fotmob.com/image_resources/logo/teamlogo/8605.png"
   },
   "eliteserieMatches": [
@@ -306,18 +306,36 @@ const PLAYOFF_LIVE_DATA_2026 = {
       "homeTeam": {
         "id": "7988",
         "name": "Odd",
-        "score": 0
+        "score": 1
       },
       "awayTeam": {
         "id": "8531",
         "name": "Bryne",
         "score": 0
       },
+      "score": "1 - 0",
+      "finished": true,
+      "started": true,
+      "reason": "FT",
+      "utcTime": "2026-11-22T12:30:00Z"
+    },
+    {
+      "id": "6736172",
+      "homeTeam": {
+        "id": "9918",
+        "name": "Stabæk",
+        "score": 0
+      },
+      "awayTeam": {
+        "id": "7988",
+        "name": "Odd",
+        "score": 0
+      },
       "score": null,
       "finished": false,
       "started": false,
       "reason": "",
-      "utcTime": "2026-11-22T12:30:00.000Z"
+      "utcTime": "2026-11-29T13:30:00Z"
     }
   ],
   "obosMatches": [
@@ -362,18 +380,18 @@ const PLAYOFF_LIVE_DATA_2026 = {
       "homeTeam": {
         "id": "8616",
         "name": "Sogndal",
-        "score": 0
+        "score": 3
       },
       "awayTeam": {
         "id": "161378",
         "name": "Bjarg",
-        "score": 0
+        "score": 3
       },
-      "score": null,
-      "finished": false,
-      "started": false,
-      "reason": "",
-      "utcTime": "2026-11-22T12:00:00.000Z"
+      "score": "3 - 3",
+      "finished": true,
+      "started": true,
+      "reason": "FT",
+      "utcTime": "2026-11-22T12:00:00Z"
     },
     {
       "id": "6651329",
@@ -395,7 +413,7 @@ const PLAYOFF_LIVE_DATA_2026 = {
     }
   ],
   "hasMatches": true,
-  "updated_at": "2026-11-22T01:53:43.122158+00:00"
+  "updated_at": "2026-11-23T02:12:40.720808+00:00"
 };
 if (typeof window !== 'undefined') window.PLAYOFF_LIVE_DATA_2026 = PLAYOFF_LIVE_DATA_2026;
 
