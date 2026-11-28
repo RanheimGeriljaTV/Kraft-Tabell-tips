@@ -409,11 +409,11 @@ const PLAYOFF_LIVE_DATA_2026 = {
       "finished": false,
       "started": false,
       "reason": "",
-      "utcTime": "2026-11-28T12:00:00Z"
+      "utcTime": "2026-11-28T12:00:00.000Z"
     }
   ],
   "hasMatches": true,
-  "updated_at": "2026-11-27T03:55:40.247935+00:00"
+  "updated_at": "2026-11-28T03:42:06.468696+00:00"
 };
 if (typeof window !== 'undefined') window.PLAYOFF_LIVE_DATA_2026 = PLAYOFF_LIVE_DATA_2026;
 
